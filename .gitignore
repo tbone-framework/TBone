@@ -1,0 +1,12 @@
+.DS_Store
+.svn
+*.csv
+*.sqlite
+*.db
+*.py[cod]
+*.pyc
+.coverage
+postactivate
+docs/_build/
+/tbone.egg-info
+/todos.txt
