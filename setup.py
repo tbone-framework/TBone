@@ -22,14 +22,6 @@ setup(
     license='MIT',
     long_description=open('README.md', 'r').read(),
     packages=find_packages(),
-    install_requires=[
-        'schematics >= 2.0.0a1',
-        'motor >= 1.0',
-        'python-dateutil >= 2.5.3',
-        'aiohttp >= 1.1.6',
-        'aiodns >= 1.1.1',
-        'aiohttp-cors >= 0.5.0',
-        'cchardet >= 1.1.1',
-    ],
+    install_requires=[i.strip() for i in open("requirements.txt").readlines()],
     tests_require=[],
 )

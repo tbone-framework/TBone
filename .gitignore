@@ -10,3 +10,4 @@ postactivate
 docs/_build/
 /tbone.egg-info
 /todos.txt
+/dist
