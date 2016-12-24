@@ -7,6 +7,7 @@ import logging
 from functools import singledispatch
 from dateutil import parser
 from bson.objectid import ObjectId
+from bson.errors import InvalidId
 from aiohttp.web import Response
 from tbone.db.models import post_save
 from .serializers import JSONSerializer
@@ -18,6 +19,7 @@ logger = logging.getLogger(__file__)
 
 LIMIT = 20
 OFFSET = 0
+SEARCH_OPERAND = 'q'
 
 
 class Resource(object):
@@ -278,12 +280,23 @@ class MongoResource(Resource):
 
     async def list(self, *args, **kwargs):
         limit = int(kwargs.pop('limit', [LIMIT])[0])
-        # if limit == 0:
-        #     limit = 1000
+        if limit == 0:
+            limit = 1000
         offset = int(kwargs.pop('offset', OFFSET))
-        filters = self.build_filters(**kwargs)
-        sort = self.build_sort(**kwargs)
-        cursor = self.object_class.get_cursor(db=self.db, query=filters, sort=sort)
+        projection = None
+        # perform full text search or standard filtering
+        if SEARCH_OPERAND in kwargs.keys():
+            filters = {
+                '$text': {'$search': kwargs['q']}
+            }
+            projection = {'score': {'$meta': 'textScore'}}
+            sort = [('score', {'$meta': 'textScore'}, )]
+        else:
+            # build filters from query parameters
+            filters = self.build_filters(**kwargs)
+            # build sorts from query parameters
+            sort = self.build_sort(**kwargs)
+        cursor = self.object_class.get_cursor(db=self.db, query=filters, projection=projection, sort=sort)
         cursor.skip(offset)
         cursor.limit(limit)
         total_count = await cursor.count()

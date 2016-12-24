@@ -99,9 +99,9 @@ class MongoDBMixin(object):
         pass
 
     @classmethod
-    def get_cursor(cls, db, query={}, sort=[]):
+    def get_cursor(cls, db, query={}, projection={}, sort=[]):
         query = cls.process_query(query)
-        return db[cls.get_collection()].find(filter=query, sort=sort)
+        return db[cls.get_collection()].find(filter=query, projection=projection, sort=sort)
 
     @classmethod
     async def create_index(cls, db, indices, **kwargs):

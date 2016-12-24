@@ -15,7 +15,7 @@ from tbone import __version__
 setup(
     name='tbone',
     version=__version__,
-    description='Asynchronous Web Framework',
+    description='Asynchronous Web Framework based on aiohttp',
     author="Amit Nabarro",
     author_email='amit.nabarro@gmail.com',
     url='https://github.com/tbone-framework/tbone',
