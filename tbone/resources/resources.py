@@ -110,7 +110,7 @@ class Resource(object):
         return cls.as_view('detail', *args, **kwargs)
 
     @classmethod
-    def nested_handlers(cls, base_url):
+    def nested_routes(cls, base_url):
         return []
 
     def is_method_allowed(self, endpoint, method):

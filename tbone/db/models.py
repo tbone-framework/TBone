@@ -99,7 +99,7 @@ class MongoDBMixin(object):
         pass
 
     @classmethod
-    def get_cursor(cls, db, query={}, projection={}, sort=[]):
+    def get_cursor(cls, db, query={}, projection=None, sort=[]):
         query = cls.process_query(query)
         return db[cls.get_collection()].find(filter=query, projection=projection, sort=sort)
 
@@ -129,6 +129,17 @@ class MongoDBMixin(object):
                 exceed = await cls.check_reconnect_tries_and_wait(i, 'find')
                 if exceed:
                     raise e
+
+    @classmethod
+    async def distinct(cls, db, key):
+        for i in cls.connection_retries():
+            try:
+                result = await db[cls.get_collection()].distinct(key)
+                return result
+            except ConnectionFailure as ex:
+                exceed = await cls.check_reconnect_tries_and_wait(i, 'count')
+                if exceed:
+                    raise ex
 
     @classmethod
     async def delete_entries(cls, db, query):

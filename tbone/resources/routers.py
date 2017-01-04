@@ -31,8 +31,8 @@ class Router(object):
         for endpoint, resource_class in self._registry.items():
             setattr(resource_class, 'api_name', self.name)
             setattr(resource_class, 'resource_name', endpoint)
-            # append any nested handlers the resource may have
-            # url_patterns.extend(resource_class.nested_handlers('(?P<api_name>{})/(?P<resource_name>{})'.format(self.name, endpoint)))
+            # append any nested resources the resource may have
+            url_patterns.extend(resource_class.nested_routes('/%s/%s/' % (self.name, endpoint)))
             # append resource as list
             url_patterns.append((
                 '*',
