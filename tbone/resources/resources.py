@@ -260,7 +260,6 @@ class MongoResource(Resource):
         self.view_type = kwargs.get('view_type', None)
         # post_save.connect(self.post_save, sender=self.object_class)
 
-
     async def emit(self, db, key, data):
         pubsub = Channel(db, 'pubsub')
         await pubsub.create_channel()
@@ -375,7 +374,6 @@ class MongoResource(Resource):
             pl = dict(enumerate(param.split('__')))
             key = pl[0]
             operator = pl.get(1, None)
-
             if key in self.object_class().keys():
                 if isinstance(value, list) and operator == 'in':
                     value = [convert_value(v) for v in value]
@@ -437,13 +435,8 @@ def _(value):
     # check if value is of type ObjectId
     if ObjectId.is_valid(value):
         return ObjectId(value)
-    # if all numeric, try to convert to numeric
-    try:
-        v = ast.literal_eval(value)
-        #### WTF REALLY??? ####
-        if v<100:
-            value=v
-        ######################
-    except:
-        pass
+    # check if value is numeric and return a filter which checks both strings and integers
+    if value.isnumeric():
+        value = {'$in': [int(value), value]}
+    # return as string
     return value
