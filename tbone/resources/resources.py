@@ -31,7 +31,7 @@ class Resource(object):
         'delete': NO_CONTENT,
         'update_list': ACCEPTED,
         'create_detail': CREATED,
-        'delete_list': NO_CONTENT,
+        'delete_list': NO_CONTENT
     }
     http_methods = {
         'list': {
@@ -39,14 +39,14 @@ class Resource(object):
             'POST': 'create',
             'PUT': 'update_list',
             'PATCH': 'modify_list',
-            'DELETE': 'delete_list',
+            'DELETE': 'delete_list'
         },
         'detail': {
             'GET': 'detail',
             'POST': 'create_detail',
             'PUT': 'update',
             'PATCH': 'modify',
-            'DELETE': 'delete',
+            'DELETE': 'delete'
         }
     }
     allowed_list = ['get', 'post', 'put', 'patch', 'delete']
@@ -125,6 +125,10 @@ class Resource(object):
     async def dispatch(self, endpoint, *args, **kwargs):
         self.endpoint = endpoint
         method = self.request_method()
+
+        # support preflight requests when CORS is enabled
+        if method == 'OPTIONS':
+            return self.build_response(None, status=NO_CONTENT)
 
         if hasattr(self.request, 'db'):
             setattr(self, 'db', self.request.db)
