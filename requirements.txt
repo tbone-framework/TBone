@@ -1,7 +1,6 @@
-schematics >= 2.0.0a1
-motor >= 1.0
+schematics >= 2.0.1
+motor >= 1.1
 python-dateutil >= 2.5.3
-aiohttp>=1.1.6
+aiohttp>=2.1.0
 aiodns==1.1.1
-aiohttp-cors>=0.5.0
-cchardet>=1.1.1
+cchardet>=2.1.0
