@@ -24,7 +24,7 @@ class Signal(object):
     def __init__(self):
         self.receivers = []
 
-    async def connect(self, receiver, sender):
+    def connect(self, receiver, sender):
         ''' connect a receiver to a sender for signaling '''
         assert callable(receiver)
         key = (_make_id(receiver), _make_id(sender))
@@ -34,12 +34,13 @@ class Signal(object):
 
         receiver = r(receiver)
 
-        with (await lock.acquire()):
-            for receiver_key, _ in self.receivers:
-                if receiver_key == key:
-                    break
-            else:
-                self.receivers.append((key, receiver))
+        # with (await lock.acquire()):
+        for receiver_key, _ in self.receivers:
+            if receiver_key == key:
+                break
+        else:
+            self.receivers.append((key, receiver))
+
 
     async def send(self, sender, **kwargs):
         ''' send a signal from the sender to all connected receivers '''

@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import logging
+import asyncio
 from datetime import timedelta
 from bson.objectid import ObjectId
 from schematics.types.serializable import serializable
@@ -20,10 +21,6 @@ class MongoDBMixin(object):
 
     primary_key = '_id'             # default field as primary key
     primary_key_type = ObjectId     # default type for primary key
-
-    def __init__(self, *args, **kwargs):
-        self._db = kwargs.pop('db', None)
-        super(MongoDBMixin, self).__init__(*args, **kwargs)
 
     @serializable
     def created(self):
@@ -96,6 +93,7 @@ class MongoDBMixin(object):
 
     @classmethod
     async def find_and_modify(cls, db, query, remove=False, new=False, upsert=False):
+        db = db or self.db
         pass
 
     @classmethod
@@ -203,12 +201,11 @@ class MongoDBMixin(object):
                 result = await self.db[self.get_collection()].save(data)
                 self._id = result
                 # emit post save
-                # io_loop = ioloop.IOLoop.instance()
-                # io_loop.add_callback(callback=lambda: post_save.send(
-                #     sender=self.__class__,
-                #     instance=self,
-                #     created=created)
-                # )
+                asyncio.ensure_future(post_save.send(
+                    sender=self.__class__,
+                    instance=self,
+                    created=created)
+                )
                 break
             except ConnectionFailure as ex:
                 exceed = await self.check_reconnect_tries_and_wait(i, 'save')
@@ -263,13 +260,13 @@ class MongoDBMixin(object):
                 )
                 if result:
                     updated_obj = self.create_model(result)
+                    updated_obj._db = db
                     # emit post save
-                    # io_loop = ioloop.IOLoop.instance()
-                    # io_loop.add_callback(callback=lambda: post_save.send(
-                    #     sender=self.__class__,
-                    #     instance=updated_obj,
-                    #     created=False)
-                    # )
+                    asyncio.ensure_future(post_save.send(
+                        sender=self.__class__,
+                        instance=updated_obj,
+                        created=False)
+                    )
                     return updated_obj
 
                 return None

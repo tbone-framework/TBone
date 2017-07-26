@@ -2,8 +2,8 @@
 # encoding: utf-8
 
 
-import ast
 import logging
+import asyncio
 from functools import singledispatch
 from dateutil import parser
 from bson.objectid import ObjectId
@@ -163,7 +163,7 @@ class Resource(object):
         try:
             data = {'error': [l for l in err.args]}
             body = self.serializer.serialize(data)
-        except:
+        except Exception as ex:
             data = {'error': str(err)}
             body = self.serializer.serialize(data)
 
@@ -176,7 +176,6 @@ class Resource(object):
 
     def get_resource_uri(self):
         return '/{}/{}/'.format(getattr(self.__class__, 'api_name', None), getattr(self.__class__, 'resource_name', None))
-
 
     def deserialize(self, method, endpoint, body):
         ''' calls deserialize on list or detail '''
@@ -257,12 +256,13 @@ class Resource(object):
 
 
 class MongoResource(Resource):
+
     def __init__(self, *args, **kwargs):
         super(MongoResource, self).__init__(*args, **kwargs)
         self.pk = self.object_class.primary_key
         self.pk_type = self.object_class.primary_key_type
         self.view_type = kwargs.get('view_type', None)
-        # post_save.connect(self.post_save, sender=self.object_class)
+        post_save.connect(self.post_save, sender=self.object_class)
 
     async def emit(self, db, key, data):
         pubsub = Channel(db, 'pubsub')

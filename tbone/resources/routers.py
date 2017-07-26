@@ -5,7 +5,7 @@ from .resources import Resource
 
 
 class Router(object):
-    ''' Creates a url list for a group of resources. Pass a url parser method or class to generate urls for the used web framework '''
+    ''' Creates a url list for a group of resources. '''
     def __init__(self, name):
         self.name = name
         self._registry = {}
