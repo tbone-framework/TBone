@@ -23,7 +23,7 @@ class ModelMeta(type):
 
 class Model(object, metaclass=ModelMeta):
 
-    def __init__(self, data=None, **kwargs):
+    def __init__(self, data={}, **kwargs):
         self._data = self._convert(data)
 
     def __repr__(self):
@@ -39,11 +39,26 @@ class Model(object, metaclass=ModelMeta):
     def to_python(self):
         return self._convert(self._data)
 
+    def _validate(self, data):
+        ''' Internal method to run validation with all model fields given the data provided '''
+        for name, field in self._fields.items():
+            field.validate(data.get(name))
+
+    def validate(self):
+        ''' calls internal validate method with model's existing data '''
+        self._validate(self._data)
+
     def _convert(self, data):
         converted_data = {}
         for name, field in self._fields.items():
-            
-            converted_data[name] = field.to_python(data[name])
+            if name in data:  # data contains the field's name as key
+                converted_data[name] = field.to_python(data[name])
+            else:  # data does not contain the field's name
+                d = field.default
+                if d is not None:
+                    converted_data[name] = field.to_python(d)
+                else:
+                    pass  # TODO: add serialized when None
         return converted_data
 
     @classmethod

@@ -13,11 +13,26 @@ class StringField(BaseField):
 
 
 class NumberField(BaseField):
+
+    ERRORS = {
+        'min': "Value should be greater than or equal to {0}.",
+        'max': "Value should be less than or equal to {0}.",
+    }
+
     def __init__(self, min=None, max=None, **kwargs):
         # self.number_class = number_class
         self.min = min
         self.max = max
         super(NumberField, self).__init__(**kwargs)
+
+    def validate_range(self, value):
+        if self.min is not None and value < self.min:
+            raise ValueError(self._errors['min'].format(self.min))
+
+        if self.max is not None and value > self.max:
+            raise ValueError(self._errors['max'].format(self.max))
+
+        return value
 
 
 class IntegerField(NumberField):

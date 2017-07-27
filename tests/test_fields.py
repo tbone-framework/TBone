@@ -28,10 +28,23 @@ def test_datetime_field():
     assert DateTimeField()(dt.isoformat()) == dt
 
 
-
 def test_default():
     class M(Model):
         number = IntegerField(default=5)
 
     m = M()
     assert m.number == 5
+
+
+def test_integer_field_validation():
+    def validate_positive(value):
+        if value < 0:
+            raise ValueError('Value should be positive')
+    # check validate range
+    f = IntegerField(min=5, max=10, validators=[validate_positive])
+    f.validate(7)
+    with pytest.raises(ValueError):
+        f.validate(18)
+
+    with pytest.raises(ValueError):
+        f.validate(-8)

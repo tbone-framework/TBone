@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from collections import OrderedDict
+
 
 class FieldDescriptor(object):
     '''
@@ -24,14 +26,26 @@ class FieldDescriptor(object):
 class FieldMeta(type):
     def __new__(mcs, name, bases, attrs):
         errors = {}
+        validators = OrderedDict()
+
+        # accumulate errors and validators from base classes
         for base in reversed(bases):
             if hasattr(base, 'ERRORS'):
                 errors.update(base.ERRORS)
+            if hasattr(base, "_validators"):
+                validators.update(base._validators)
 
         if 'ERRORS' in attrs:
             errors.update(attrs['ERRORS'])
         # store commined error messages of all field class and its bases
         attrs['_errors'] = errors
+
+        # store validators
+        for name, attr in attrs.items():
+            if name.startswith('validate_') and callable(attr):
+                validators[name] = attr
+
+        attrs['_validators'] = validators
 
         return super(FieldMeta, mcs).__new__(mcs, name, bases, attrs)
 
@@ -49,12 +63,18 @@ class BaseField(object, metaclass=FieldMeta):
         'to_python': 'Cannot corece data to python type'
     }
 
-    def __init__(self, required=True, default=None, **kwargs):
+    def __init__(self, required=True, default=None, validators=None, **kwargs):
         super(BaseField, self).__init__()
 
-        self.required = required
+        self._required = required
         self._default = default
         self._bound = False         # Whether the Field is bound to a Model
+
+        self.validators = [getattr(self, name) for name in self._validators]
+        if isinstance(validators, list):
+            for validator in validators:
+                if callable(validator):
+                    self.validators.append(validator)
 
     def to_data(self, value):
         ''' Export native data type to simple form for serialization'''
@@ -94,3 +114,12 @@ class BaseField(object, metaclass=FieldMeta):
         # model_class._meta.add_field(self)
         setattr(model_class, name, FieldDescriptor(self))
         self._bound = True
+
+    def validate(self, value):
+        '''
+        Run all validate functions pertaining to this field raise exceptions.
+        '''
+        for validator in self.validators:
+            validator(value)
+
+
