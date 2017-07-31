@@ -77,19 +77,33 @@ class BaseField(object, metaclass=FieldMeta):
                 if callable(validator):
                     self.validators.append(validator)
 
+    
+    def _export(self, value):
+        return self.data_type(value)
+
+    def _import(self, value):
+        return self.python_type(value)
+
     def to_data(self, value):
         ''' Export native data type to simple form for serialization'''
+        if value is None and self._default:
+            return self.default
         try:
-            value = self.data_type(value)
+            value = self._export(value)
         except ValueError:
             raise Exception(self._errors['to_data'])
         return value
 
     def to_python(self, value):
-        ''' Import data from primitive form to native Python types'''
+        '''
+        Import data from primitive form to native Python types. 
+        Returns the default type (if exists)
+        '''
+        if value is None and self._default:
+            return self.default
         if not isinstance(value, self.python_type):
             try:
-                value = self.python_type(value)
+                value = self._import(value)
             except ValueError:
                 raise Exception(self._errors['to_python'])
         return value
