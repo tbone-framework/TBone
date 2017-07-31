@@ -34,6 +34,8 @@ class Model(object, metaclass=ModelMeta):
         for field_name, field in self._fields.items():
             if field_name in self._data:
                 data[field_name] = field.to_data(self._data[field_name])
+            elif field._export_if_none is True:
+                data[field_name] = None
         return data
 
     def to_python(self):

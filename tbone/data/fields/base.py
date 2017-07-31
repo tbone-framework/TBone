@@ -63,12 +63,13 @@ class BaseField(object, metaclass=FieldMeta):
         'to_python': 'Cannot corece data to python type'
     }
 
-    def __init__(self, required=True, default=None, validators=None, **kwargs):
+    def __init__(self, required=True, default=None, validators=None, export_if_none=True, **kwargs):
         super(BaseField, self).__init__()
 
         self._required = required
         self._default = default
-        self._bound = False         # Whether the Field is bound to a Model
+        self._export_if_none = export_if_none       # Whether the field should be exported when is None
+        self._bound = False                         # Whether the Field is bound to a Model
 
         self.validators = [getattr(self, name) for name in self._validators]
         if isinstance(validators, list):
@@ -117,7 +118,7 @@ class BaseField(object, metaclass=FieldMeta):
 
     def validate(self, value):
         '''
-        Run all validate functions pertaining to this field raise exceptions.
+        Run all validate functions pertaining to this field and raise exceptions.
         '''
         for validator in self.validators:
             validator(value)
