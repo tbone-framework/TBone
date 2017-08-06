@@ -8,6 +8,7 @@ class FieldDescriptor(object):
     '''
     Descriptor for exposing fields to allow access to the underlying data
     '''
+
     def __init__(self, field):
         self.field = field
 
@@ -24,15 +25,15 @@ class FieldDescriptor(object):
 
 
 class FieldMeta(type):
-    def __new__(mcs, name, bases, attrs):
+    def __new__(mcl, name, bases, attrs):
         errors = {}
         validators = OrderedDict()
 
         # accumulate errors and validators from base classes
         for base in reversed(bases):
-            if hasattr(base, 'ERRORS'):
-                errors.update(base.ERRORS)
-            if hasattr(base, "_validators"):
+            if hasattr(base, '_errors'):
+                errors.update(base._errors)
+            if hasattr(base, '_validators'):
                 validators.update(base._validators)
 
         if 'ERRORS' in attrs:
@@ -46,8 +47,7 @@ class FieldMeta(type):
                 validators[name] = attr
 
         attrs['_validators'] = validators
-
-        return super(FieldMeta, mcs).__new__(mcs, name, bases, attrs)
+        return super(FieldMeta, mcl).__new__(mcl, name, bases, attrs)
 
 
 class BaseField(object, metaclass=FieldMeta):
@@ -60,14 +60,17 @@ class BaseField(object, metaclass=FieldMeta):
     ERRORS = {
         'required': 'This is a required field',
         'to_data': 'Cannot coerce data to primitive form',
-        'to_python': 'Cannot corece data to python type'
+        'to_python': 'Cannot corece data to python type',
+        'choices': 'Value must be one of {0}',
     }
 
-    def __init__(self, required=True, default=None, validators=None, export_if_none=True, **kwargs):
+    def __init__(self, required=True, default=None, choices=None,
+                 validators=None, export_if_none=True, **kwargs):
         super(BaseField, self).__init__()
 
         self._required = required
         self._default = default
+        self._choices = choices
         self._export_if_none = export_if_none       # Whether the field should be exported when is None
         self._bound = False                         # Whether the Field is bound to a Model
 
@@ -128,7 +131,6 @@ class BaseField(object, metaclass=FieldMeta):
         '''
         self.name = name
         self.model_class = model_class
-        # model_class._meta.add_field(self)
         setattr(model_class, name, FieldDescriptor(self))
         self._bound = True
 
@@ -139,4 +141,7 @@ class BaseField(object, metaclass=FieldMeta):
         for validator in self.validators:
             validator(value)
 
-
+    def validate_choices(self, value):
+        if self._choices:
+            if value not in self._choices:
+                raise ValueError(self._errors['choices'].format(str(self._choices)))

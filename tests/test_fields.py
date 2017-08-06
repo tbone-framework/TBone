@@ -47,12 +47,24 @@ def test_default():
     assert m.to_data()['number'] == 5
 
 
+def test_choices():
+    number = IntegerField(choices=[1, 3, 5, 7, 9])
+    number.validate(7)
+    with pytest.raises(ValueError):
+        number.validate(6)
+
+    country = StringField(choices=['CA', 'US', 'MX', 'DE', 'UK', 'JP'])
+    country.validate('US')
+    with pytest.raises(ValueError):
+        country.validate('NP')
+
+
 def test_field_export_if_none():
     class M(Model):
         number = IntegerField(export_if_none=False)
 
     m = M()
-    assert 'number' not in m.to_data()  
+    assert 'number' not in m.to_data()
 
 
 
