@@ -25,6 +25,11 @@ class NumberField(BaseField):
         self.max = max
         super(NumberField, self).__init__(**kwargs)
 
+    def _export(self, value):
+        if value is None:
+            return None
+        return self.data_type(value)
+
     def validate_range(self, value):
         if self.min is not None and value < self.min:
             raise ValueError(self._errors['min'].format(self.min))
@@ -63,15 +68,41 @@ class BooleanType(BaseField):
     python_type = bool
 
 
-class DateTimeField(BaseField):
-    ''' '''
+class DTBaseField(BaseField):
+    ''' Base field for all fields related to date and time '''
     data_type = str
-    python_type = datetime.datetime
 
     def to_data(self, value):
+        if value is None:
+            return None
         return value.isoformat()
 
     def to_python(self, value):
-        if isinstance(value, datetime.datetime):
+        if isinstance(value, self.python_type):
             return value
         return dateutil.parser.parse(value)
+
+
+class TimeField(DTBaseField):
+    ''' Date field, exposes datetime.date as the python field '''
+    python_type = datetime.time
+
+    def to_python(self, value):
+        return super(TimeField, self).to_python(value).time()
+
+class DateField(DTBaseField):
+    ''' Date field, exposes datetime.date as the python field '''
+    python_type = datetime.date
+
+    def to_python(self, value):
+        if value is None:
+            return None
+        if isinstance(value, self.python_type):
+            return value
+        return super(DateField, self).to_python(value).date()
+
+
+class DateTimeField(DTBaseField):
+    ''' Date field, exposes datetime.datetime as the python field '''
+    python_type = datetime.datetime
+

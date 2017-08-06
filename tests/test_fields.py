@@ -17,23 +17,43 @@ def test_field_meta():
     assert len(f._errors) == len(SomeField.ERRORS) + len(BaseField.ERRORS)
 
 
-# def test_datetime_field():
-#     dt = datetime.datetime.now()
-
-#     f = DateTimeField()
-
-
 def test_datetime_field():
     dt = datetime.datetime.now()
     assert DateTimeField()(dt.isoformat()) == dt
 
+
+def test_date_field():
+    da = datetime.date.today()
+    assert DateField()(da.isoformat()) == da
+
+    df = DateField()
+    res = df.to_python('2017.01.01')
+    assert isinstance(res, datetime.date)
+
+
+def test_time_field():
+    tn = datetime.time(hour=17, minute=26)
+    assert TimeField()(tn.isoformat()) == tn
+
+    df = TimeField()
+    res = df.to_python('21:34')
+    assert isinstance(res, datetime.time)
 
 def test_default():
     class M(Model):
         number = IntegerField(default=5)
 
     m = M()
-    assert m.number == 5
+    assert m.to_data()['number'] == 5
+
+
+def test_field_export_if_none():
+    class M(Model):
+        number = IntegerField(export_if_none=False)
+
+    m = M()
+    assert 'number' not in m.to_data()  
+
 
 
 def test_integer_field_validation():

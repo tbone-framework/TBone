@@ -77,7 +77,6 @@ class BaseField(object, metaclass=FieldMeta):
                 if callable(validator):
                     self.validators.append(validator)
 
-    
     def _export(self, value):
         return self.data_type(value)
 
@@ -85,7 +84,10 @@ class BaseField(object, metaclass=FieldMeta):
         return self.python_type(value)
 
     def to_data(self, value):
-        ''' Export native data type to simple form for serialization'''
+        ''' 
+        Export python data type to simple form for serialization.
+        If default value was defined returns the default value if None was passed
+        '''
         if value is None and self._default:
             return self.default
         try:
@@ -96,7 +98,7 @@ class BaseField(object, metaclass=FieldMeta):
 
     def to_python(self, value):
         '''
-        Import data from primitive form to native Python types. 
+        Import data from primitive form to native Python types.
         Returns the default type (if exists)
         '''
         if value is None and self._default:
