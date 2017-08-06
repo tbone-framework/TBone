@@ -54,13 +54,17 @@ class Model(object, metaclass=ModelMeta):
     def __repr__(self):
         return '<%s instance>' % self.__class__.__name__
 
+    def __iter__(self):
+        ''' Implements iterator on model matching only fields with data matching them '''
+        return (key for key in self._fields if key in self._data)
+
     def to_data(self):
         '''
         Convert all data in model from python data types to simple form for serialization.
 
         '''
         data = {}
-        # iterate through all fields 
+        # iterate through all fields
         for field_name, field in self._fields.items():
             field_data = field.to_data(self._data.get(field_name))
             if field_data:
@@ -68,7 +72,7 @@ class Model(object, metaclass=ModelMeta):
             elif field._export_if_none is True:
                 data[field_name] = None
 
-        # iterate through all exports
+        # iterate through all export methods
         for name, func in self._exports.items():
             data[name] = func(self)
 
@@ -96,7 +100,10 @@ class Model(object, metaclass=ModelMeta):
     def import_data(self, data):
         self._data = self._convert(data)
 
+    def items(self):
+        return [(field, self._data[field]) for field in self]
+
     @classmethod
-    def _export(self, data):
+    def _export(self, data):  # TODO: implement this
         pass
 
