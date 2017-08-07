@@ -22,8 +22,13 @@ def connect(**kwargs):
                     port=kwargs['port'],
                     extra=kwargs['extra']
                 )
-            db = AsyncIOMotorClient(url)[kwargs['name']]
+            if 'loop' in kwargs:
+                conn = AsyncIOMotorClient(url, io_loop=kwargs['loop'])
+            else:
+                conn = AsyncIOMotorClient(url)
+            db = conn[kwargs['name']]
             break
+
         except ConnectionFailure:
             if i >= kwargs['connection_retries']:
                 raise
