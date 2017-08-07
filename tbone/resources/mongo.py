@@ -25,6 +25,14 @@ class MongoResource(Resource):
         self.view_type = kwargs.get('view_type', None)
         post_save.connect(self.post_save, sender=self.object_class)
 
+    @property
+    def limit(self):
+        return LIMIT
+
+    @property
+    def offset(self):
+        return OFFSET
+
     async def emit(self, db, key, data):
         pubsub = Channel(db, 'pubsub')
         await pubsub.create_channel()

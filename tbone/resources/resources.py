@@ -57,23 +57,17 @@ class Resource(object):
         self.allowed_list = [i.lower() for i in self.allowed_list]
         self.allowed_detail = [i.lower() for i in self.allowed_detail]
 
-    @property
-    def limit(self):
-        return LIMIT
-
-    @property
-    def offset(self):
-        return OFFSET
 
     def request_method(self):
         ''' Returns the HTTP method for the current request. '''
         return self.request.method.upper()
 
     async def request_body(self):
-        ''' Returns the body of the current request. '''
-        if self.request.has_body:
-            return await self.request.text()
-        return {}
+        '''
+        Returns the body of the current request.
+        Implemented for specific http libraries in derived classes
+        '''
+        raise NotImplementedError()
 
     @classmethod
     def as_view(cls, view_type, *init_args, **init_kwargs):
@@ -120,8 +114,8 @@ class Resource(object):
         if method == 'OPTIONS':
             return self.build_response(None, status=NO_CONTENT)
 
-        if hasattr(self.request, 'db'):
-            setattr(self, 'db', self.request.db)
+        if hasattr(self.request.app, 'db'):
+            setattr(self, 'db', self.request.app.db)
 
         try:
             if method not in self.http_methods.get(endpoint, {}):
@@ -135,8 +129,8 @@ class Resource(object):
 
             body = await self.request_body()
             self.data = self.deserialize(method, endpoint, body)
-            kwargs.update(self.request.match_info.items())
-            kwargs.update(self.request.GET.items())
+            # kwargs.update(self.request.match_info.items())
+            # kwargs.update(self.request.GET.items())
             view_method = getattr(self, self.http_methods[endpoint][method])
             # call request method
             data = await view_method(*args, **kwargs)
@@ -174,6 +168,13 @@ class Resource(object):
         '''
         raise NotImplementedError()
 
+    @classmethod
+    def route_methods(cls):
+        '''
+        Returns the relevant representation of allowed HTTP methods for a given route.
+        Implemented on the http library resource sub-class to match the requirements of the HTTP library
+        '''
+        raise NotImplementedError()
 
     def get_resource_uri(self):
         return '/{}/{}/'.format(getattr(self.__class__, 'api_name', None), getattr(self.__class__, 'resource_name', None))
