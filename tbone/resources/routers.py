@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from collections import namedtuple
 from .resources import Resource
 
+
+Route = namedtuple('Route', 'path, handler, methods, name')
 
 class Router(object):
     ''' Creates a url list for a group of resources. '''
@@ -34,18 +37,18 @@ class Router(object):
             # append any nested resources the resource may have
             url_patterns.extend(resource_class.nested_routes('/%s/%s/' % (self.name, endpoint)))
             # append resource as list
-            url_patterns.append((
-                '*',
-                '/%s/%s/' % (self.name, endpoint),
-                resource_class.as_list(),
-                '{}_{}_list'.format(self.name, endpoint).replace('/', '_')
+            url_patterns.append(Route(
+                path='/%s/%s/' % (self.name, endpoint),
+                handler=resource_class.as_list(),
+                methods=resource_class.route_methods(),
+                name='{}_{}_list'.format(self.name, endpoint).replace('/', '_')
             ))
             # append resource as detail
-            url_patterns.append((
-                '*',
-                '/%s/%s/{pk}/' % (self.name, endpoint),
-                resource_class.as_detail(),
-                '{}_{}_detail'.format(self.name, endpoint).replace('/', '_')
+            url_patterns.append(Route(
+                path='/%s/%s/{pk}/' % (self.name, endpoint),
+                handler=resource_class.as_detail(),
+                methods=resource_class.route_methods(),
+                name='{}_{}_detail'.format(self.name, endpoint).replace('/', '_')
             ))
         return url_patterns
 
