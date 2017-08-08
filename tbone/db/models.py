@@ -5,8 +5,8 @@ import logging
 import asyncio
 from datetime import timedelta
 from bson.objectid import ObjectId
-from schematics.types.serializable import serializable
 from pymongo.errors import ConnectionFailure
+from pymongo import ReturnDocument
 from tbone.dispatch import Signal
 
 
@@ -21,10 +21,6 @@ class MongoDBMixin(object):
 
     primary_key = '_id'             # default field as primary key
     primary_key_type = ObjectId     # default type for primary key
-
-    @serializable
-    def created(self):
-        return self._id.generation_time
 
     @property
     def db(self):
@@ -90,11 +86,6 @@ class MongoDBMixin(object):
                 exceed = await cls.check_reconnect_tries_and_wait(i, 'find_one')
                 if exceed:
                     raise ex
-
-    @classmethod
-    async def find_and_modify(cls, db, query, remove=False, new=False, upsert=False):
-        db = db or self.db
-        pass
 
     @classmethod
     def get_cursor(cls, db, query={}, projection=None, sort=[]):
@@ -171,10 +162,10 @@ class MongoDBMixin(object):
         if new_keys:
             for new_key in new_keys:
                 del data[new_key]
-        return cls(raw_data=data)
+        return cls(data)
 
     def prepare_data(self, data):
-        data = data or self.to_native()
+        data = data or self.to_python()
         if '_id' in data and data['_id'] is None:
             del data['_id']
         return data
@@ -232,31 +223,24 @@ class MongoDBMixin(object):
 
     async def update(self, db=None, data=None, full=True):
         db = db or self.db
-        if data is None:
-            data = self.prepare_data(data)
-        else:  # build partial model with provided data
+        if data:
             self.import_data(data)
-            ndata = self.to_native()
-            ndata = {x: ndata[x] for x in ndata if x in data}
-
-        # remove extra fields which do not belong to the model
-        field_names = set(self._fields.keys())
-        extra_keys = set(data.keys()) - field_names
-        for key in extra_keys:
-            data.pop(key, None)
+            ndata = self.to_python()
+            ndata = self.prepare_data(ndata)
+            data = {x: ndata[x] for x in ndata if x in data or x == self.primary_key}
+        else:
+            data = self.to_python()
 
         if self.primary_key not in data or data[self.primary_key] is None:
             raise Exception('Missing object id')
-        query = {self.primary_key: data.get(self.primary_key)}
+        query = {self.primary_key: data.pop(self.primary_key, None)}
         data = {'$set': data}
         for i in self.connection_retries():
             try:
-                result = await db[self.get_collection()].find_and_modify(
-                    query=query,
+                result = await db[self.get_collection()].find_one_and_update(
+                    filter=query,
                     update=data,
-                    upsert=False,
-                    new=True,
-                    full_response=False
+                    return_document=ReturnDocument.AFTER
                 )
                 if result:
                     updated_obj = self.create_model(result)
@@ -285,7 +269,7 @@ async def create_collections(db):
                 # create collection
                 await db.create_collection(name)
             except CollectionInvalid:
-                pass
+                raise
             # create indices
             if hasattr(model_class, 'indices'):
                 for index in model_class.indices:

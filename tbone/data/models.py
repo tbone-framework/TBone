@@ -58,6 +58,20 @@ class Model(object, metaclass=ModelMeta):
         ''' Implements iterator on model matching only fields with data matching them '''
         return (key for key in self._fields if key in self._data)
 
+    def __eq__(self, other):
+        ''' Override equal operator to compare field values '''
+        if self is other:
+            return True
+        if type(self) is not type(other):
+            return NotImplemented
+
+        for k in self:
+            if getattr(self, k) != getattr(other, k):
+                return False
+        return True
+
+
+
     def to_data(self):
         '''
         Convert all data in model from python data types to simple form for serialization.
@@ -98,7 +112,12 @@ class Model(object, metaclass=ModelMeta):
         return converted_data
 
     def import_data(self, data):
-        self._data = self._convert(data)
+        '''
+        Imports data into model and converts to python form.
+        Merges with existing if data is partial
+        '''
+        self._data.update(data)
+        self._data = self._convert(self._data)
 
     def items(self):
         return [(field, self._data[field]) for field in self]
