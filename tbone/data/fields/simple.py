@@ -25,11 +25,6 @@ class NumberField(BaseField):
         self.max = max
         super(NumberField, self).__init__(**kwargs)
 
-    def _export(self, value):
-        if value is None:
-            return None
-        return self.data_type(value)
-
     def validate_range(self, value):
         if self.min is not None and value < self.min:
             raise ValueError(self._errors['min'].format(self.min))

@@ -17,6 +17,11 @@ def test_field_meta():
     assert len(f._errors) == len(SomeField.ERRORS) + len(BaseField.ERRORS)
 
 
+def test_string_field():
+    s = StringField()
+    assert s.to_data(None) == None
+
+
 def test_datetime_field():
     dt = datetime.datetime.now()
     assert DateTimeField()(dt.isoformat()) == dt
@@ -39,6 +44,7 @@ def test_time_field():
     res = df.to_python('21:34')
     assert isinstance(res, datetime.time)
 
+
 def test_default():
     class M(Model):
         number = IntegerField(default=5)
@@ -58,6 +64,14 @@ def test_choices():
     with pytest.raises(ValueError):
         country.validate('NP')
 
+
+def test_required():
+    number = IntegerField(required=True)
+
+    with pytest.raises(Exception):
+        number.to_data(None)
+
+    assert 5 == number.to_data(5)
 
 def test_field_export_if_none():
     class M(Model):

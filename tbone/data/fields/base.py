@@ -64,7 +64,7 @@ class BaseField(object, metaclass=FieldMeta):
         'choices': 'Value must be one of {0}',
     }
 
-    def __init__(self, required=True, default=None, choices=None,
+    def __init__(self, required=False, default=None, choices=None,
                  validators=None, export_if_none=True, **kwargs):
         super(BaseField, self).__init__()
 
@@ -81,6 +81,10 @@ class BaseField(object, metaclass=FieldMeta):
                     self.validators.append(validator)
 
     def _export(self, value):
+        if value is None:
+            if self._required:
+                raise ValueError(self._errors['required'])
+            return None
         return self.data_type(value)
 
     def _import(self, value):
