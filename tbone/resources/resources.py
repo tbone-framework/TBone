@@ -62,12 +62,23 @@ class Resource(object):
         ''' Returns the HTTP method for the current request. '''
         return self.request.method.upper()
 
+    def request_args(self):
+        '''
+        Returns the arguments passed with the request in a dictionary.
+        Returns both URL resolved arguments and query string arguments.
+        Implemented for specific http libraries in derived classes
+        '''
+        raise NotImplementedError()
+
+
     async def request_body(self):
         '''
         Returns the body of the current request.
         Implemented for specific http libraries in derived classes
         '''
         raise NotImplementedError()
+
+
 
     @classmethod
     def as_view(cls, view_type, *init_args, **init_kwargs):
@@ -129,8 +140,7 @@ class Resource(object):
 
             body = await self.request_body()
             self.data = self.deserialize(method, endpoint, body)
-            # kwargs.update(self.request.match_info.items())
-            # kwargs.update(self.request.GET.items())
+            kwargs.update(self.request_args())
             view_method = getattr(self, self.http_methods[endpoint][method])
             # call request method
             data = await view_method(*args, **kwargs)
@@ -232,26 +242,26 @@ class Resource(object):
         return resource_data
 
     #  methods which derived classes should implement
-    def list(self, *args, **kwargs):
+    async def list(self, *args, **kwargs):
         raise MethodNotImplemented()
 
-    def detail(self, *args, **kwargs):
+    async def detail(self, *args, **kwargs):
         raise MethodNotImplemented()
 
-    def create(self, *args, **kwargs):
+    async def create(self, *args, **kwargs):
         raise MethodNotImplemented()
 
-    def update(self, *args, **kwargs):
+    async def update(self, *args, **kwargs):
         raise MethodNotImplemented()
 
-    def delete(self, *args, **kwargs):
+    async def delete(self, *args, **kwargs):
         raise MethodNotImplemented()
 
-    def update_list(self, *args, **kwargs):
+    async def update_list(self, *args, **kwargs):
         raise MethodNotImplemented()
 
-    def create_detail(self, *args, **kwargs):
+    async def create_detail(self, *args, **kwargs):
         raise MethodNotImplemented()
 
-    def delete_list(self, *args, **kwargs):
+    async def delete_list(self, *args, **kwargs):
         raise MethodNotImplemented()

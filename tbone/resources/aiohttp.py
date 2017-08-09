@@ -16,5 +16,27 @@ class AioHttpResource(object):
             return await self.request.text()
         return {}
 
+    def request_args(self):
+        ''' Returns the url arguments of the current request'''
+        return self.request.args
+
+    @classmethod
+    def route_methods(cls):
+        '''
+        Returns the relevant representation of allowed HTTP methods for a given route.
+        Implemented on the http library resource sub-class to match the requirements of the HTTP library
+        '''
+        return '*'
+
+
+    def request_args(self):
+        '''
+        Returns the arguments passed with the request in a dictionary.
+        Returns both URL resolved arguments and query string arguments.
+        '''
+        kwargs = {}
+        kwargs.update(self.request.match_info.items())
+        kwargs.update(self.request.query.items())
+        return kwargs
 
 
