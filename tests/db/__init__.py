@@ -5,15 +5,7 @@ import asyncio
 import pytest
 from pymongo.errors import ConnectionFailure
 from motor.motor_asyncio import AsyncIOMotorClient
-
-
-@pytest.fixture(scope='session')
-def event_loop():
-    '''
-    Fixture for creating a single event loop for the entire test loop
-    '''
-    return asyncio.new_event_loop()
-
+from tests import event_loop
 
 @pytest.fixture(scope='module')
 def create_database(request, event_loop):

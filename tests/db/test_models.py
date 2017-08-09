@@ -4,25 +4,11 @@
 import asyncio
 import pytest
 import random
-from tbone.data.fields import *
-from tbone.data.fields.mongo import ObjectIdField
-from tbone.data.models import *
-from tbone.db.models import MongoDBMixin
+from .models import *
 from . import *
 
 COUNT = 100
 PAGE = 10
-
-
-class Person(Model, MongoDBMixin):
-    _id = ObjectIdField()
-    first_name = StringField(required=True)
-    last_name = StringField(required=True)
-
-
-class Number(Model, MongoDBMixin):
-    _id = ObjectIdField()
-    number = IntegerField()
 
 
 @pytest.mark.asyncio
@@ -33,27 +19,39 @@ async def test_model_crud_operations(request, db):
     await p1.save(db=db)
 
     # load model from db
-    p2 = await Person.find_one(db=db, query={'first_name': 'Ron'})
+    p2 = await Person.find_one(db, {'first_name': 'Ron'})
     assert isinstance(p2, Person)
     assert p1 == p2
 
     # update model in db implicit
     p2.first_name = 'Michael'
-    p3 = await p2.update(db=db)
+    p3 = await p2.update(db)
     assert p3
     assert p2.pk == p3.pk
     assert p3.first_name == 'Michael'
 
     # update model in db explicit
-    p3 = await p3.update(db=db, data={'first_name': 'Ron'})
+    p3 = await p3.update(db, {'first_name': 'Ron'})
     assert p3
     assert p3.first_name == 'Ron'
 
     # delete model from db
-    await p3.delete(db=db)
+    await p3.delete(db)
 
     p4 = await Person.find_one(db=db, query={'first_name': 'Ron'})
     assert p4 is None
+
+
+@pytest.mark.asyncio
+async def test_model_by_pk(request, db):
+    # save model to db
+    p1 = Person({'first_name': 'Ron', 'last_name': 'Burgundy'})
+    await p1.save(db=db)
+
+    # load model from db
+    p2 = await Person.find_one(db, {'_id': p1.pk})
+    assert isinstance(p2, Person)
+    assert p1 == p2
 
 
 @pytest.mark.asyncio
@@ -103,6 +101,13 @@ async def test_collection_pagination_and_sorting(request, db):
     
     assert len(numbers) == COUNT
     assert numbers == sorted(numbers)
+
+
+# @pytest.mark.asyncio
+# async def test_collection_filtering(request, db):
+#     pass
+
+
 
 
 
