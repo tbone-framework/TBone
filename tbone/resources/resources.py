@@ -125,6 +125,7 @@ class Resource(object):
         if method == 'OPTIONS':
             return self.build_response(None, status=NO_CONTENT)
 
+        # get the db object associated with the app and assign to resource
         if hasattr(self.request.app, 'db'):
             setattr(self, 'db', self.request.app.db)
 

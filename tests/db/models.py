@@ -4,15 +4,15 @@
 from tbone.data.fields import *
 from tbone.data.fields.mongo import ObjectIdField
 from tbone.data.models import *
-from tbone.db.models import MongoDBMixin
+from tbone.db.models import MongoCollectionMixin
 
 
-class Person(Model, MongoDBMixin):
+class Person(Model, MongoCollectionMixin):
     _id = ObjectIdField()
     first_name = StringField(required=True)
     last_name = StringField(required=True)
 
 
-class Number(Model, MongoDBMixin):
+class Number(Model, MongoCollectionMixin):
     _id = ObjectIdField()
     number = IntegerField()
