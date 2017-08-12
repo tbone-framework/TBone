@@ -20,7 +20,6 @@ class NumberField(BaseField):
     }
 
     def __init__(self, min=None, max=None, **kwargs):
-        # self.number_class = number_class
         self.min = min
         self.max = max
         super(NumberField, self).__init__(**kwargs)
