@@ -3,4 +3,5 @@
 
 
 from .simple import *
+from .network import *
 from .composite import *
