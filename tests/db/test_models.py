@@ -5,7 +5,7 @@ import asyncio
 import pytest
 import random
 from .models import *
-from . import *
+from tests.fixtures import *
 
 COUNT = 100
 PAGE = 10
