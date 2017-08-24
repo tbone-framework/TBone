@@ -8,7 +8,8 @@
 .coverage
 postactivate
 docs/_build/
-/tbone.egg-info
+*.egg
+*.egg-info
 /todos.txt
 /dist
 .cache
