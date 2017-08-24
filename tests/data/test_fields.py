@@ -94,3 +94,12 @@ def test_integer_field_validation():
 
     with pytest.raises(ValueError):
         f.validate(-8)
+
+
+def test_email_field_validation():
+    f = EmailField()
+    f.validate('ron@channel4.com')
+
+    with pytest.raises(ValueError):
+        f.validate('r.channel4.com')
+        f.validate('r@channel4')

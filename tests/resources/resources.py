@@ -3,8 +3,10 @@
 
 import json
 from tbone.resources import Resource
+from tbone.resources.mongo import *
 from tbone.resources.http import *
 from tbone.testing import DummyResource
+from tests.db.models import Account
 
 
 class PersonResource(DummyResource, Resource):
@@ -38,7 +40,7 @@ class PersonResource(DummyResource, Resource):
 
     async def create(self, *args, **kwargs):
         new_obj = self.request.body
-        new_obj['id'] = new_id = len(_datastore) + 1
+        new_obj['id'] = new_id = len(self.request.app.db) + 1
         self.request.app.db.append(new_obj)
         return new_obj
 
@@ -47,3 +49,12 @@ class PersonResource(DummyResource, Resource):
 
     async def delete(self, *args, **kwargs):
         raise MethodNotImplemented()
+
+
+class AccountResource(DummyResource, MongoResource):
+    '''
+    Used for testing MongoResource functionality over a real MongoDB databse .
+    Data fixtures are loaded for each test
+    '''
+    class Meta:
+        object_class = Account

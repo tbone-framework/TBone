@@ -11,6 +11,11 @@ class StringField(BaseField):
     data_type = str
     python_type = str
 
+    def _import(self, value):
+        if value is None:
+            return None
+        return self.python_type(value)
+
 
 class NumberField(BaseField):
 
@@ -50,7 +55,7 @@ class FloatField(NumberField):
     python_type = float
 
 
-class BooleanType(BaseField):
+class BooleanField(BaseField):
 
     '''A boolean field type. In addition to ``True`` and ``False``, coerces these
     values:

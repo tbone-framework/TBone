@@ -61,7 +61,7 @@ class BaseField(object, metaclass=FieldMeta):
         'required': 'This is a required field',
         'to_data': 'Cannot coerce data to primitive form',
         'to_python': 'Cannot corece data to python type',
-        'choices': 'Value must be one of {0}',
+        'choices': 'Value must be one of [{0}] in field {1}',
     }
 
     def __init__(self, required=False, default=None, choices=None,
@@ -91,7 +91,7 @@ class BaseField(object, metaclass=FieldMeta):
         return self.python_type(value)
 
     def to_data(self, value):
-        ''' 
+        '''
         Export python data type to simple form for serialization.
         If default value was defined returns the default value if None was passed
         '''
@@ -99,8 +99,8 @@ class BaseField(object, metaclass=FieldMeta):
             return self.default
         try:
             value = self._export(value)
-        except ValueError:
-            raise Exception(self._errors['to_data'])
+        except ValueError as ex:
+            raise Exception(ex, self._errors['to_data'])
         return value
 
     def to_python(self, value):
@@ -152,5 +152,9 @@ class BaseField(object, metaclass=FieldMeta):
 
     def validate_choices(self, value):
         if self._choices:
-            if value not in self._choices:
-                raise ValueError(self._errors['choices'].format(str(self._choices)))
+            if value not in self._choices and value is not None:
+                raise ValueError(
+                    self._errors['choices'].format(
+                        ', '.join([str(x) for x in self._choices]), getattr(self, 'name', None)
+                    )
+                )

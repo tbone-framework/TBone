@@ -4,8 +4,10 @@
 import asyncio
 import pytest
 import random
-from .models import *
+from tbone.testing import *
 from tests.fixtures import *
+from .models import *
+
 
 COUNT = 100
 PAGE = 10
@@ -101,6 +103,13 @@ async def test_collection_pagination_and_sorting(request, db):
     
     assert len(numbers) == COUNT
     assert numbers == sorted(numbers)
+
+
+
+# @pytest.mark.asyncio
+# async def test_complex_model(event_loop, json_fixture):
+#     # load datafixture for this test
+#     app = App(db=json_fixture('accounts.json'))
 
 
 # @pytest.mark.asyncio
