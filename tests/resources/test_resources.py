@@ -14,6 +14,7 @@ async def get_total_count(client, url):
     ''' Utility method to get the total count of a resource'''
     response = await client.get(url=url)
     assert isinstance(response, Response)
+    assert response.status == OK
     # parse response and retrieve data
     data = client.parse_response_data(response)
     assert 'meta' in data
@@ -23,7 +24,7 @@ async def get_total_count(client, url):
 @pytest.mark.asyncio
 async def test_resource_get_list(event_loop, json_fixture):
     # load datafixture for this test
-    app = App(db=json_fixture('accounts.json'))
+    app = App(db=json_fixture('persons.json'))
     # set variables
     limit = 22
     url = '/api/{}/'.format(PersonResource.__name__)
@@ -42,7 +43,7 @@ async def test_resource_get_list(event_loop, json_fixture):
 @pytest.mark.asyncio
 async def test_resource_get_detail(event_loop, json_fixture):
     # load datafixture for this test
-    app = App(db=json_fixture('accounts.json'))
+    app = App(db=json_fixture('persons.json'))
     # set variables
     id = 13
     url = '/api/{}/{}/'.format(PersonResource.__name__, id)
@@ -57,13 +58,13 @@ async def test_resource_get_detail(event_loop, json_fixture):
     # check that id matches
     assert obj['id'] == id
     # check all expected keys are in
-    assert set(('id', 'profile', 'email', 'gender', 'ip_address', 'password')) <= set(obj.keys())
+    assert set(('id', 'first_name', 'last_name', 'resource_uri')) == set(obj.keys())
 
 
 @pytest.mark.asyncio
 async def test_resource_post(event_loop, json_fixture):
     # load datafixture for this test
-    app = App(db=json_fixture('accounts.json'))
+    app = App(db=json_fixture('persons.json'))
     # set variables
     url = '/api/{}/'.format(PersonResource.__name__)
     client = ResourceTestClient(app, PersonResource)
@@ -73,17 +74,10 @@ async def test_resource_post(event_loop, json_fixture):
 
     # send a POST request to create a new Person
     response = await client.post(url=url, body={
-        'profile': {
-            'title': 'Mr',
-            'first_name': 'Ron',
-            'last_name': 'Burgundy',
-        },
-        'email': 'ron@channel4.com',
-        'password': 'iLoveVeronica',
-        'gender': 'Male',
-        'ip_address': '28.252.15.211'
+        'id': count1 + 1,
+        'first_name': 'Ron',
+        'last_name': 'Burgundy',
     })
-
     assert isinstance(response, Response)
     # parse response and retrieve data
     obj = client.parse_response_data(response)
@@ -97,12 +91,12 @@ async def test_resource_post(event_loop, json_fixture):
 @pytest.mark.asyncio
 async def test_resource_update(event_loop, json_fixture):
     # load datafixture for this test
-    app = App(db=json_fixture('accounts.json'))
+    app = App(db=json_fixture('persons.json'))
     # set variables
 
 
 @pytest.mark.asyncio
 async def test_resource_delete(event_loop, json_fixture):
     # load datafixture for this test
-    app = App(db=json_fixture('accounts.json'))
+    app = App(db=json_fixture('persons.json'))
     # set variables
