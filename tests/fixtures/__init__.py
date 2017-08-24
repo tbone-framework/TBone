@@ -4,6 +4,7 @@
 import asyncio
 import pytest
 import json
+from bson.json_util import loads
 from pymongo.errors import ConnectionFailure
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -23,7 +24,7 @@ def json_fixture():
     '''
     def _method(filename):
         with open('tests/fixtures/{}'.format(filename)) as data_file:
-            data = json.load(data_file)
+            data = loads(data_file.read())
         return data
     return _method
 
