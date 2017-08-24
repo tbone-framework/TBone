@@ -12,7 +12,36 @@ from .http import *
 logger = logging.getLogger(__file__)
 
 
-class Resource(object):
+class ResourceOptions(object):
+    '''
+    A configuration class for Models. Provides all the defaults and
+    allows overriding inside model definition using the class Meta
+    '''
+    object_class = None
+    query = None
+    resource_name = None                    #
+    allowed_list = ['get', 'post', 'put', 'patch', 'delete']
+    allowed_detail = ['get', 'post', 'put', 'patch', 'delete']
+    serializer = JSONSerializer()
+    authentication = NoAuthentication()
+    excludes = []
+
+    def __init__(self, meta=None):
+        if meta:
+            for attr in dir(meta):
+                if not attr.startswith('_'):
+                    setattr(self, attr, getattr(meta, attr))
+
+
+class ResourceMeta(type):
+    def __new__(mcl, name, bases, attrs):
+        cls = super(ResourceMeta, mcl).__new__(mcl, name, bases, attrs)
+        opts = getattr(cls, 'Meta', None)
+        cls._meta = ResourceOptions(opts)
+        return cls
+
+
+class Resource(object, metaclass=ResourceMeta):
     status_map = {
         'list': OK,
         'detail': OK,
@@ -39,12 +68,6 @@ class Resource(object):
             'DELETE': 'delete'
         }
     }
-    allowed_list = ['get', 'post', 'put', 'patch', 'delete']
-    allowed_detail = ['get', 'post', 'put', 'patch', 'delete']
-    serializer = JSONSerializer()
-    authentication = NoAuthentication()
-    excludes = []
-    pk = 'id'
 
     def __init__(self, *args, **kwargs):
         self.init_args = args
@@ -53,10 +76,6 @@ class Resource(object):
         self.data = None
         self.endpoint = None
         self.status = 200
-
-        self.allowed_list = [i.lower() for i in self.allowed_list]
-        self.allowed_detail = [i.lower() for i in self.allowed_detail]
-
 
     def request_method(self):
         ''' Returns the HTTP method for the current request. '''
@@ -70,15 +89,12 @@ class Resource(object):
         '''
         raise NotImplementedError()
 
-
     async def request_body(self):
         '''
         Returns the body of the current request.
         Implemented for specific http libraries in derived classes
         '''
         raise NotImplementedError()
-
-
 
     @classmethod
     def as_view(cls, view_type, *init_args, **init_kwargs):
@@ -110,10 +126,10 @@ class Resource(object):
 
     def is_method_allowed(self, endpoint, method):
         if endpoint == 'list':
-            if method.lower() in self.allowed_list:
+            if method.lower() in self._meta.allowed_list:
                 return True
         elif endpoint == 'detail':
-            if method.lower() in self.allowed_detail:
+            if method.lower() in self._meta.allowed_detail:
                 return True
         return False
 
@@ -136,7 +152,7 @@ class Resource(object):
             if self.is_method_allowed(endpoint, method) is False:
                 raise MethodNotAllowed("Unsupported method '{0}' for {1} endpoint.".format(method, endpoint))
 
-            if not self.authentication.is_authenticated(self.request):
+            if not self._meta.authentication.is_authenticated(self.request):
                 raise Unauthorized()
 
             body = await self.request_body()
@@ -157,10 +173,10 @@ class Resource(object):
         # serialize error information
         try:
             data = {'error': [l for l in err.args]}
-            body = self.serializer.serialize(data)
+            body = self._meta.serializer.serialize(data)
         except Exception as ex:
             data = {'error': str(err)}
-            body = self.serializer.serialize(data)
+            body = self._meta.serializer.serialize(data)
 
         status = getattr(err, 'status', 500)
         return self.build_response(body, status=status)
@@ -168,7 +184,7 @@ class Resource(object):
     def build_response(self, data, status=200):
         '''
         Given some data, generates an HTTP response.
-        If you're integrating with a new web framework, you **MUST**
+        If you're integrating with a new web framework, other than sanic or aiohttp, you **MUST**
         override this method within your subclass.
         :param data: The body of the response to send
         :type data: string
@@ -199,12 +215,12 @@ class Resource(object):
 
     def deserialize_list(self, body):
         if body:
-            return self.serializer.deserialize(body)
+            return self._meta.serializer.deserialize(body)
         return []
 
     def deserialize_detail(self, body):
         if body:
-            return self.serializer.deserialize(body)
+            return self._meta.serializer.deserialize(body)
         return {}
 
     def serialize(self, method, endpoint, data):
@@ -226,19 +242,19 @@ class Resource(object):
         for item in data['objects']:
             item['resource_uri'] = '{}{}/'.format(self.get_resource_uri(), item[self.pk])
 
-        return self.serializer.serialize(data)
+        return self._meta.serializer.serialize(data)
 
     def serialize_detail(self, data):
         if data is None:
             return ''
         data['resource_uri'] = '{}{}/'.format(self.get_resource_uri(), data[self.pk])
-        return self.serializer.serialize(self.get_resource_data(data))
+        return self._meta.serializer.serialize(self.get_resource_data(data))
 
     def get_resource_data(self, data):
         ''' Filter object data based on fields and excludes. Currently support only excludes'''
         resource_data = {}
         for k, v in data.items():
-            if k not in self.excludes:
+            if k not in self._meta.excludes:
                 resource_data[k] = v
         return resource_data
 
