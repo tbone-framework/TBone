@@ -13,10 +13,11 @@ class CompositeField(BaseField):
         super(CompositeField, self).__init__(**kwargs)
         self.is_composite = True
 
+
 class ListField(CompositeField):
     data_type = list
     python_type = list
-    
+
     def __init__(self, field, min_size=None, max_size=None, **kwargs):
         super(ListField, self).__init__(**kwargs)
         self.min_size = min_size
@@ -27,7 +28,7 @@ class ListField(CompositeField):
         elif isinstance(field, BaseField):  # an instance of field was passed
             self.field = field
         else:
-            raise TypeError("'{}' is not a field or type of field".format(field.__class__.__name__))
+            raise TypeError("'{}' is not a field or type of field".format(field.__class__.__qualname__))
 
     def _export(self, value):
         if value is None:
@@ -60,13 +61,14 @@ class ModelField(CompositeField):
     data_type = dict
 
     def __init__(self, model_class, **kwargs):
+        super(ModelField, self).__init__(**kwargs)
         if isinstance(model_class, ModelMeta):
             self.model_class = model_class
-            self.model_name = self.model_class.__name__
         else:
-            raise TypeError("ModelField: Expected a model of the type '{}'.".format(model_class.__class__.__name__))
+            raise TypeError("ModelField: Expected a model of the type '{}'.".format(model_class.__name__))
 
-        super(ModelField, self).__init__(**kwargs)
+    def __repr__(self):
+        return '<%s instance of type %s>' % (self.__class__.__qualname__, self.model_class.__name__)
 
     @property
     def python_type(self):
@@ -93,8 +95,6 @@ class ModelField(CompositeField):
             return m.to_data()
         else:
             raise ValueError('Cannot convert type {} to {}'.format(type(value), self.model_class.__name__))
-
-
 
         m = self.model_class(value)
         return m.to_data()

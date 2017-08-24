@@ -120,6 +120,11 @@ class BaseField(object, metaclass=FieldMeta):
     def __call__(self, value):
         return self.to_python(value)
 
+    def __repr__(self):
+        if self._bound:
+            return '<%s instance in model %s>' % (self.__class__.__qualname__, self.container_model_class.__name__)
+        return '<%s instance>' % self.__class__.__qualname__
+
     @property
     def default(self):
         default = self._default
@@ -127,15 +132,15 @@ class BaseField(object, metaclass=FieldMeta):
             default = default()
         return default
 
-    def add_to_class(self, model_class, name):
+    def add_to_class(self, cls, name):
         '''
         Hook that replaces the `Field` attribute on a class with a named
         `FieldDescriptor`. Called by the metaclass during construction of the
         `Model`.
         '''
         self.name = name
-        self.model_class = model_class
-        setattr(model_class, name, FieldDescriptor(self))
+        self.container_model_class = cls
+        setattr(cls, name, FieldDescriptor(self))
         self._bound = True
 
     def validate(self, value):
