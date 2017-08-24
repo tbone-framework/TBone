@@ -16,7 +16,7 @@ pre_save = Signal()
 post_save = Signal()
 
 
-class MongoDBMixin(object):
+class MongoCollectionMixin(object):
     ''' Mixin for schematics models, provides a persistency layer over a MongoDB collection '''
 
     primary_key = '_id'             # default field as primary key
@@ -110,9 +110,8 @@ class MongoDBMixin(object):
         for i in cls.connection_retries():
             try:
                 result = await cursor.to_list(length=None)
-                fields = set(cls._fields.keys())
                 for i in range(len(result)):
-                    result[i] = cls.create_model(result[i], fields)
+                    result[i] = cls.create_model(result[i])
                 return result
             except ConnectionFailure as e:
                 exceed = await cls.check_reconnect_tries_and_wait(i, 'find')
@@ -262,7 +261,7 @@ class MongoDBMixin(object):
 
 async def create_collections(db):
     ''' load all models in app and create collections in db with specified indices'''
-    for model_class in MongoDBMixin.__subclasses__():
+    for model_class in MongoCollectionMixin.__subclasses__():
         name = model_class.get_collection()
         if name:
             try:
