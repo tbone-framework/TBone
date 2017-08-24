@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from copy import deepcopy
 from collections import OrderedDict
 from .fields import BaseField
 from functools import wraps
@@ -10,6 +11,7 @@ class ModelMeta(type):
     '''Metaclass for Model'''
     @classmethod
     def __prepare__(mcl, name, bases):
+        ''' Adds the export decorator so member methods can be decorated for export '''
         def export(func):
             func._export_method_ = True
             @wraps(func)
@@ -25,6 +27,14 @@ class ModelMeta(type):
         del attrs['export']
         fields = OrderedDict()
         exports = OrderedDict()
+
+        # get model fields and exports from base classes
+        for base in reversed(bases):
+            if hasattr(base, '_fields'):
+                fields.update(deepcopy(base._fields))
+
+            if hasattr(base, '_exports'):
+                exports.update(deepcopy(base._exports))
 
         # collect all defined fields and export methods
         for key, value in attrs.items():
@@ -57,6 +67,10 @@ class Model(object, metaclass=ModelMeta):
     def __iter__(self):
         ''' Implements iterator on model matching only fields with data matching them '''
         return (key for key in self._fields if key in self._data)
+
+    @classmethod
+    def fields(cls):
+        return list(iter(cls._fields))
 
     def __eq__(self, other):
         ''' Override equal operator to compare field values '''
