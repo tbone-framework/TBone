@@ -10,23 +10,26 @@ from motor.motor_asyncio import AsyncIOMotorClient
 logger = logging.getLogger(__file__)
 
 
+def _get_client(**kwargs):
+    url = os.environ.get('DATABASE_URL', None)
+    if url is None:
+        url = 'mongodb://{cred}{host}:{port}{extra}'.format(
+            cred='{}:{}@'.format(kwargs['username'], kwargs['password']) if len(kwargs['username']) > 0 else '',
+            host=kwargs['host'],
+            port=kwargs['port'],
+            extra=kwargs['extra']
+        )
+    if 'loop' in kwargs:
+        return AsyncIOMotorClient(url, io_loop=kwargs['loop'])
+    return AsyncIOMotorClient(url)
+
+
 def connect(**kwargs):
     db = None
     for i in range(kwargs['connection_retries'] + 1):
         try:
-            url = os.environ.get('DATABASE_URL', None)
-            if url is None:
-                url = 'mongodb://{cred}{host}:{port}{extra}'.format(
-                    cred='{}:{}@'.format(kwargs['username'], kwargs['password']) if len(kwargs['username']) > 0 else '',
-                    host=kwargs['host'],
-                    port=kwargs['port'],
-                    extra=kwargs['extra']
-                )
-            if 'loop' in kwargs:
-                conn = AsyncIOMotorClient(url, io_loop=kwargs['loop'])
-            else:
-                conn = AsyncIOMotorClient(url)
-            db = conn[kwargs['name']]
+            client = _get_client(**kwargs)
+            db = client[kwargs['name']]
             break
 
         except ConnectionFailure:
