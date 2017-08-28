@@ -1,0 +1,848 @@
+[
+  {
+    "title": "The Godfather",
+    "plot": "When the aging head of a famous crime family decides to transfer his position to one of his subalterns, a series of unfortunate events start happening to the family, and a war begins between all the well-known families leading to insolence, deportation, murder and revenge, and ends with the favorable successor being finally chosen.",
+    "director": [
+      "Francis Ford Coppola"
+    ],
+    "cast": [
+      "Marlon Brando",
+      "Al Pacino",
+      "James Caan",
+      "Richard S. Castellano"
+    ],
+    "release_date": "1972-03-24",
+    "runtime": 175,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BZTRmNjQ1ZDYtNDgzMy00OGE0LWE4N2YtNTkzNWQ5ZDhlNGJmL2ltYWdlL2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Crime",
+      "Drama"
+    ]
+  },
+  {
+    "title": "The Dark Knight",
+    "plot": "Set within a year after the events of Batman Begins, Batman, Lieutenant James Gordon, and new district attorney Harvey Dent successfully begin to round up the criminals that plague Gotham City until a mysterious and sadistic criminal mastermind known only as the Joker appears in Gotham, creating a new wave of chaos. Batman's struggle against the Joker becomes deeply personal, forcing him to confront everything he believes and improve his technology to stop him. A love triangle develops between Bruce Wayne, Dent and Rachel Dawes.",
+    "director": [
+      "Christopher Nolan"
+    ],
+    "cast": [
+      "Christian Bale",
+      "Heath Ledger",
+      "Aaron Eckhart",
+      "Michael Caine"
+    ],
+    "release_date": "2008-07-18",
+    "runtime": 152,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Action",
+      "Crime",
+      "Drama"
+    ]
+  },
+  {
+    "title": "Pulp Fiction",
+    "plot": "Jules Winnfield (Samuel L. Jackson) and Vincent Vega (John Travolta) are two hit men who are out to retrieve a suitcase stolen from their employer, mob boss Marsellus Wallace (Ving Rhames). Wallace has also asked Vincent to take his wife Mia (Uma Thurman) out a few days later when Wallace himself will be out of town. Butch Coolidge (Bruce Willis) is an aging boxer who is paid by Wallace to lose his fight. The lives of these seemingly unrelated people are woven together comprising of a series of funny, bizarre and uncalled-for incidents.",
+    "director": [
+      "Quentin Tarantino"
+    ],
+    "cast": [
+      "Tim Roth",
+      "Amanda Plummer",
+      "Laura Lovelace",
+      "John Travolta"
+    ],
+    "release_date": "1994-10-14",
+    "runtime": 154,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTkxMTA5OTAzMl5BMl5BanBnXkFtZTgwNjA5MDc3NjE@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Crime",
+      "Drama"
+    ]
+  },
+  {
+    "title": "City of God",
+    "plot": "Brazil, 1960s, City of God. The Tender Trio robs motels and gas trucks. Younger kids watch and learn well...too well. 1970s: Li'l Zé has prospered very well and owns the city. He causes violence and fear as he wipes out rival gangs without mercy. His best friend Bené is the only one to keep him on the good side of sanity. Rocket has watched these two gain power for years, and he wants no part of it. Yet he keeps getting swept up in the madness. All he wants to do is take pictures. 1980s: Things are out of control between the last two remaining gangs...will it ever end? Welcome to the City of God.",
+    "director": [
+      "Fernando Meirelles",
+      "Kátia Lund"
+    ],
+    "cast": [
+      "Alexandre Rodrigues",
+      "Leandro Firmino",
+      "Phellipe Haagensen",
+      "Douglas Silva"
+    ],
+    "release_date": "2004-02-13",
+    "runtime": 130,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BNDJiNTEwMjMtOGQ1ZC00OTczLWFjZjctZWQ0MGJjZmFkMjcwXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
+    "language": "pt",
+    "genres": [
+      "Crime",
+      "Drama"
+    ]
+  },
+  {
+    "title": "Back to the Future",
+    "plot": "Marty McFly, a typical American teenager of the Eighties, is accidentally sent back to 1955 in a plutonium-powered DeLorean time machine invented by a slightly mad scientist. During his often hysterical, always amazing trip back in time, Marty must make certain his teenage parents-to-be meet and fall in love - so he can get back to the future.",
+    "director": [
+      "Robert Zemeckis"
+    ],
+    "cast": [
+      "Michael J. Fox",
+      "Christopher Lloyd",
+      "Lea Thompson",
+      "Crispin Glover"
+    ],
+    "release_date": "1985-07-03",
+    "runtime": 116,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BZmU0M2Y1OGUtZjIxNi00ZjBkLTg1MjgtOWIyNThiZWIwYjRiXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Adventure",
+      "Comedy",
+      "Sci-Fi"
+    ]
+  },
+  {
+    "title": "American Beauty",
+    "plot": "After his death sometime in his forty-third year, suburbanite Lester Burnham tells of the last few weeks of his life, during which he had no idea of his imminent passing. He is a husband to real estate agent Carolyn Burnham and father to high school student Janie Burnham. Although Lester and Carolyn once loved each other, they now merely tolerate each other. Typical wallflower Janie too hates both her parents, the three who suffer individually in silence in their home life. Janie tries to steer clear of both her parents. Carolyn, relatively new to the real estate business, wants to create the persona of success to further her career, she aspiring to the professional life of Buddy Kane, the king of the real estate business in their neighborhood. Lester merely walks mindlessly through life, including at his job in advertising. His company is downsizing, and he, like all the other employees, has to justify his position to the newly hired efficiency expert to keep his job. Things change for Lester when he falls in love at first sight with Janie's more experienced classmate, Angela Hays. Both Janie and Angela can see Lester's sexual infatuation with Angela, who courts such attention from any man as a sign that she is model material, she having once appeared in Seventeen and it a career to which she aspires. Lester's infatuation with Angela gives him a reenergized view on life, where he openly doesn't care anymore what anyone thinks about what he does, anyone except Angela. This infatuation coincides with the Fittses moving in next door: homophobic disciplinarian US Marine Colonel Frank Fitts who rules the house with a military fist (that fist being both figurative and literal), his semi-comatose wife Barbara Fitts, and their bright and quietly subversive eighteen year old son Ricky Fitts, who openly abides by his father's rules while behind the scenes lives by his own quite different perspective. Much like Lester's infatuation, Ricky immediately becomes infatuated with Janie, he who considers girls like Angela as ordinary. The entry of Angela and the Fittses into the Burnhams' lives ultimately leads to each of the players confronting what is truly in his or her heart.",
+    "director": [
+      "Sam Mendes"
+    ],
+    "cast": [
+      "Kevin Spacey",
+      "Annette Bening",
+      "Thora Birch",
+      "Wes Bentley"
+    ],
+    "release_date": "1999-10-01",
+    "runtime": 122,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMjM4NTI5NzYyNV5BMl5BanBnXkFtZTgwNTkxNTYxMTE@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Drama",
+      "Romance"
+    ]
+  },
+  {
+    "title": "Braveheart",
+    "plot": "William Wallace is a Scottish rebel who leads an uprising against the cruel English ruler Edward the Longshanks, who wishes to inherit the crown of Scotland for himself. When he was a young boy, William Wallace's father and brother, along with many others, lost their lives trying to free Scotland. Once he loses another of his loved ones, William Wallace begins his long quest to make Scotland free once and for all, along with the assistance of Robert the Bruce.",
+    "director": [
+      "Mel Gibson"
+    ],
+    "cast": [
+      "Mel Gibson",
+      "James Robinson",
+      "Sean Lawlor",
+      "Sandy Nelson",
+      "James Cosmo"
+    ],
+    "release_date": "1995-05-24",
+    "runtime": 178,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BODg4NzA0MTktOGU5ZS00ODlkLWE3ZmQtYjAzNjNmM2E3NmEzL2ltYWdlL2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Biography",
+      "Drama",
+      "History"
+    ]
+  },
+  {
+    "title": "Good Will Hunting",
+    "plot": "A touching tale of a wayward young man who struggles to find his identity, living in a world where he can solve any problem, except the one brewing deep within himself, until one day he meets his soul mate who opens his mind and his heart.",
+    "director": "Gus Van Sant",
+    "cast": [
+      "Matt Damon",
+      "Ben Affleck",
+      "Stellan Skarsgård",
+      "John Mighton",
+      "Robin Williams"
+    ],
+    "release_date": "1998-01-09",
+    "runtime": 126,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BOTI0MzcxMTYtZDVkMy00NjY1LTgyMTYtZmUxN2M3NmQ2NWJhXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Drama"
+    ]
+  },
+  {
+    "title": "Raging Bull",
+    "plot": "When Jake LaMotta steps into a boxing ring and obliterates his opponent, he's a prizefighter. But when he treats his family and friends the same way, he's a ticking time bomb, ready to go off at any moment. Though LaMotta wants his family's love, something always seems to come between them. Perhaps it's his violent bouts of paranoia and jealousy. This kind of rage helped make him a champ, but in real life, he winds up in the ring alone.",
+    "director": [
+      "Martin Scorsese"
+    ],
+    "cast": [
+      "Robert De Niro",
+      "Cathy Moriarty",
+      "Joe Pesci",
+      "Frank Vincent"
+    ],
+    "release_date": "1980-12-19",
+    "runtime": 129,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BN2ZjZjU3YWQtNDBhZC00ZDc3LWEyNWEtNjgyZTU5YzcxMzZjXkEyXkFqcGdeQXVyNzQ1ODk3MTQ@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Biography",
+      "Drama",
+      "Sport"
+    ]
+  },
+  {
+    "title": "The Secret in Their Eyes",
+    "plot": "In 1999, retired Argentinian federal justice agent Benjamín Espósito is writing a novel, using an old closed case as the source material. That case is the brutal rape and murder of Liliana Coloto. In addition to seeing the extreme grief of the victim's husband Ricardo Morales, Benjamín, his assistant Pablo Sandoval, and newly hired department chief Irene Menéndez-Hastings were personally affected by the case as Benjamín and Pablo tracked the killer, hence the reason why the unsatisfactory ending to the case has always bothered him. Despite the department already having two other suspects, Benjamín and Pablo ultimately were certain that a man named Isidoro Gómez is the real killer. Although he is aware that historical accuracy is not paramount for the novel, the process of revisiting the case is more an issue of closure for him. He tries to speak to the key players in the case, most specifically Irene, who still works in the justice department and who he has always been attracted to but never pursued due to the differences in their ages and social classes. The other issue is that Gómez is still at large, no one aware if he is alive or dead. But as Pablo at the time mentioned that passion is one thing that cannot be changed in behavior, Benjamín learns now that that premise still holds true.",
+    "director": [
+      "Juan José Campanella"
+    ],
+    "cast": [
+      "Soledad Villamil",
+      "Ricardo Darín",
+      "Carla Quevedo",
+      "Pablo Rago"
+    ],
+    "release_date": "2010-05-21",
+    "runtime": 129,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTgwNTI3OTczOV5BMl5BanBnXkFtZTcwMTM3MTUyMw@@._V1_SX300.jpg",
+    "language": "es",
+    "genres": [
+      "Drama",
+      "Mystery",
+      "Romance"
+    ]
+  },
+  {
+    "title": "Blade Runner",
+    "plot": "In the futuristic year of 2019, Los Angeles has become a dark and depressing metropolis, filled with urban decay. Rick Deckard, an ex-cop, is a Blade Runner. Blade runners are people assigned to assassinate \"replicants\". The replicants are androids that look like real human beings. When four replicants commit a bloody mutiny on the Off World colony, Deckard is called out of retirement to track down the androids. As he tracks the replicants, eliminating them one by one, he soon comes across another replicant, Rachel, who evokes human emotion, despite the fact that she's a replicant herself. As Deckard closes in on the leader of the replicant group, his true hatred toward artificial intelligence makes him question his own identity in this future world, including what's human and what's not human.",
+    "director": [
+      "Ridley Scott"
+    ],
+    "cast": [
+      "Harrison Ford",
+      "Rutger Hauer",
+      "Sean Young",
+      "Edward James Olmos"
+    ],
+    "release_date": "1982-06-25",
+    "runtime": 117,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BNzQzMzJhZTEtOWM4NS00MTdhLTg0YjgtMjM4MDRkZjUwZDBlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Sci-Fi",
+      "Thriller"
+    ]
+  },
+  {
+    "title": "Lock, Stock and Two Smoking Barrels",
+    "plot": "Four Jack-the-lads find themselves heavily - seriously heavily - in debt to an East End hard man and his enforcers after a crooked card game. Overhearing their neighbours in the next flat plotting to hold up a group of out-of-their-depth drug growers, our heros decide to stitch up the robbers in turn. In a way the confusion really starts when a pair of antique double-barrelled shotguns go missing in a completely different scam.",
+    "director": [
+      "Guy Ritchie"
+    ],
+    "cast": [
+      "Jason Flemyng",
+      "Dexter Fletcher",
+      "Nick Moran",
+      "Jason Statham"
+    ],
+    "release_date": "1998-08-28",
+    "runtime": 107,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTAyN2JmZmEtNjAyMy00NzYwLThmY2MtYWQ3OGNhNjExMmM4XkEyXkFqcGdeQXVyNDk3NzU2MTQ@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Comedy",
+      "Crime"
+    ]
+  },
+  {
+    "title": "A Beautiful Mind",
+    "plot": "From the heights of notoriety to the depths of depravity, John Forbes Nash, Jr. experienced it all. A mathematical genius, he made an astonishing discovery early in his career and stood on the brink of international acclaim. But the handsome and arrogant Nash soon found himself on a painful and harrowing journey of self-discovery. After many years of struggle, he eventually triumphed over his tragedy, and finally - late in life - received the Nobel Prize.",
+    "director": [
+      "Ron Howard"
+    ],
+    "cast": [
+      "Russell Crowe",
+      "Ed Harris",
+      "Jennifer Connelly",
+      "Christopher Plummer"
+    ],
+    "release_date": "2002-01-04",
+    "runtime": 135,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMzcwYWFkYzktZjAzNC00OGY1LWI4YTgtNzc5MzVjMDVmNjY0XkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Biography",
+      "Drama"
+    ]
+  },
+  {
+    "title": "Trainspotting",
+    "plot": "A wild, freeform, Rabelaisian trip through the darkest recesses of Edinburgh low-life, focusing on Mark Renton and his attempt to give up his heroin habit, and how the latter affects his relationship with family and friends: Sean Connery wannabe Sick Boy, dimbulb Spud, psycho Begbie, 14-year-old girlfriend Diane, and clean-cut athlete Tommy, who's never touched drugs but can't help being curious about them...",
+    "director": [
+      "Danny Boyle"
+    ],
+    "cast": [
+      "Ewan McGregor",
+      "Ewen Bremner",
+      "Jonny Lee Miller",
+      "Kevin McKidd"
+    ],
+    "release_date": "1996-08-09",
+    "runtime": 94,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMzA5Zjc3ZTMtMmU5YS00YTMwLWI4MWUtYTU0YTVmNjVmODZhXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Drama"
+    ]
+  },
+  {
+    "title": "Gran Torino",
+    "plot": "Walt Kowalski is a widower who holds onto his prejudices despite the changes in his Michigan neighborhood and the world around him. Kowalski is a grumpy, tough-minded, unhappy old man who can't get along with either his kids or his neighbors. He is a Korean War veteran whose prize possession is a 1972 Gran Torino he keeps in mint condition. When his neighbor Thao, a young Hmong teenager under pressure from his gang member cousin, tries to steal his Gran Torino, Kowalski sets out to reform the youth. Drawn against his will into the life of Thao's family, Kowalski is soon taking steps to protect them from the gangs that infest their neighborhood.",
+    "director": [
+      "Clint Eastwood"
+    ],
+    "cast": [
+      "Clint Eastwood",
+      "Christopher Carley",
+      "Bee Vang",
+      "Ahney Her"
+    ],
+    "release_date": "2009-01-09",
+    "runtime": 116,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTQyMTczMTAxMl5BMl5BanBnXkFtZTcwOTc1ODE0Mg@@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Drama"
+    ]
+  },
+  {
+    "title": "Gone with the Wind",
+    "plot": "Scarlett is a woman who can deal with a nation at war, Atlanta burning, the Union Army carrying off everything from her beloved Tara, the carpetbaggers who arrive after the war. Scarlett is beautiful. She has vitality. But Ashley, the man she has wanted for so long, is going to marry his placid cousin, Melanie. Mammy warns Scarlett to behave herself at the party at Twelve Oaks. There is a new man there that day, the day the Civil War begins. Rhett Butler. Scarlett does not know he is in the room when she pleads with Ashley to choose her instead of Melanie.",
+    "director": [
+      "Victor Fleming",
+      "George Cukor",
+      "Sam Wood"
+    ],
+    "cast": [
+      "Thomas Mitchell",
+      "Barbara O'Neil",
+      "Vivien Leigh",
+      "Evelyn Keyes"
+    ],
+    "release_date": "1940-01-17",
+    "runtime": 238,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BYWQwOWVkMGItMDU2Yy00YjIzLWJkMjEtNmVkZjE3MjMwYzEzXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Drama",
+      "History",
+      "Romance"
+    ]
+  },
+  {
+    "title": "The Big Lebowski",
+    "plot": "When 'The Dude' Lebowski is mistaken for a millionaire Lebowski, two thugs urinate on his rug to coerce him into paying a debt he knows nothing about. While attempting to gain recompense for the ruined rug from his wealthy counterpart, he accepts a one-time job with high pay-off. He enlists the help of his bowling buddy, Walter, a gun-toting Jewish-convert with anger issues. Deception leads to more trouble, and it soon seems that everyone from porn empire tycoons to nihilists want something from The Dude.",
+    "director": [
+      "Joel Coen",
+      "Ethan Coen"
+    ],
+    "cast": [
+      "Jeff Bridges",
+      "John Goodman",
+      "Julianne Moore",
+      "Steve Buscemi"
+    ],
+    "release_date": "1998-03-06",
+    "runtime": 117,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BZTFjMjBiYzItNzU5YS00MjdiLWJkOTktNDQ3MTE3ZjY2YTY5XkEyXkFqcGdeQXVyNDk3NzU2MTQ@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Comedy",
+      "Crime"
+    ]
+  },
+  {
+    "title": "Hacksaw Ridge",
+    "plot": "The true story of Desmond T. Doss, the conscientious objector who, at the Battle of Okinawa, won the Medal of Honor for his incredible bravery and regard for his fellow soldiers. We see his upbringing and how this shaped his views, especially his religious view and anti-killing stance. We see Doss's trials and tribulations after enlisting in the US Army and trying to become a medic. Finally, we see the hell on Earth that was Hacksaw Ridge.",
+    "director": [
+      "Mel Gibson"
+    ],
+    "cast": [
+      "Andrew Garfield",
+      "Richard Pyros",
+      "Jacob Warner",
+      "Milo Gibson"
+    ],
+    "release_date": "2016-11-04",
+    "runtime": 139,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMjQ1NjM3MTUxNV5BMl5BanBnXkFtZTgwMDc5MTY5OTE@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Biography",
+      "Drama",
+      "History"
+    ]
+  },
+  {
+    "title": "Shutter Island",
+    "plot": "It's 1954, and up-and-coming U.S. marshal Teddy Daniels is assigned to investigate the disappearance of a patient from Boston's Shutter Island Ashecliffe Hospital. He's been pushing for an assignment on the island for personal reasons, but before long he wonders whether he hasn't been brought there as part of a twisted plot by hospital doctors whose radical treatments range from unethical to illegal to downright sinister. Teddy's shrewd investigating skills soon provide a promising lead, but the hospital refuses him access to records he suspects would break the case wide open. As a hurricane cuts off communication with the mainland, more dangerous criminals \"escape\" in the confusion, and the puzzling, improbable clues multiply, Teddy begins to doubt everything - his memory, his partner, even his own sanity.",
+    "director": [
+      "Martin Scorsese"
+    ],
+    "cast": [
+      "Leonardo DiCaprio",
+      "Mark Ruffalo",
+      "Ben Kingsley",
+      "Max von Sydow"
+    ],
+    "release_date": "2010-02-19",
+    "runtime": 138,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BY2NkNTcxNjAtODhjMS00Mjg2LWI1OGItMjRhMGJlODBkZTVlL2ltYWdlL2ltYWdlXkEyXkFqcGdeQXVyNzAxMjE1NDg@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Mystery",
+      "Thriller"
+    ]
+  },
+  {
+    "title": "Life of Brian",
+    "plot": "The story of Brian of Nazareth, born on the same day as Jesus of Nazareth, who takes a different path in life that leads to the same conclusion. Brian joins a political resistance movement aiming to get the Romans out of Judea. Brian scores a victory of sorts when he manages to paint political slogans on an entire wall in the city of Jerusalem. The movement is not very effective but somehow Brian becomes a prophet and gathers his own following. His fate is sealed however and he lives a very short life.",
+    "director": [
+      "Terry Jones"
+    ],
+    "cast": [
+      "Graham Chapman",
+      "John Cleese",
+      "Terry Gilliam",
+      "Eric Idle",
+      "Terry Jones",
+      "Michael Palin"
+    ],
+    "release_date": "1979-08-17",
+    "runtime": 94,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMzAwNjU1OTktYjY3Mi00NDY5LWFlZWUtZjhjNGE0OTkwZDkwXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Comedy"
+    ]
+  },
+  {
+    "title": "In the Name of the Father",
+    "plot": "A small time thief from Belfast, Gerry Conlon, is falsely implicated in the IRA bombing of a pub that kills several people while he is in London. Bullied by the British police, he and four of his friends are coerced into confessing their guilt. Gerry's father and other relatives in London are also implicated in the crime. He spends 15 years in prison with his father trying to prove his innocence with the help of a British attorney, Gareth Peirce. Based on a true story.",
+    "director": [
+      "Jim Sheridan"
+    ],
+    "cast": [
+      "Alison Crosbie",
+      "Daniel Day-Lewis",
+      "Philip King",
+      "Emma Thompson"
+    ],
+    "release_date": "1994-02-25",
+    "runtime": 133,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMWQ0ZGU3NDUtYjRkNS00Yzg4LTgxMTItMjExYjg3ZjgyMGRkXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Biography",
+      "Drama"
+    ]
+  },
+  {
+    "title": "Million Dollar Baby",
+    "plot": "Wanting to learn from the best, aspiring boxer Maggie Fitzgerald wants Frankie Dunn to train her. At the outset he flatly refuses saying he has no interest in training a girl. Frankie leads a lonely existence, alienated from his only daughter and having few friends. Maggie's rough around the edges but shows a lot of grit in the ring and he eventually relents. Maggie not only proves to be the boxer he always dreamed of having under his wing but a friend who fills the great void he's had in his life. Maggie's career skyrockets but an accident in the ring leads her to ask Frankie for one last favor.",
+    "director": [
+      "Clint Eastwood"
+    ],
+    "cast": [
+      "Clint Eastwood",
+      "Hilary Swank",
+      "Morgan Freeman",
+      "Jay Baruchel"
+    ],
+    "release_date": "2005-01-28",
+    "runtime": 132,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTkxNzA1NDQxOV5BMl5BanBnXkFtZTcwNTkyMTIzMw@@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Drama",
+      "Sport"
+    ]
+  },
+  {
+    "title": "Catch Me If You Can",
+    "plot": "New Rochelle, the 1960s. High schooler Frank Abagnale Jr. idolizes his father, who's in trouble with the IRS. When his parents separate, Frank runs away to Manhattan with $25 in his checking account, vowing to regain dad's losses and get his parents back together. Just a few years later, the FBI tracks him down in France; he's extradited, tried, and jailed for passing more than $4,000,000 in bad checks. Along the way, he's posed as a Pan Am pilot, a pediatrician, and an attorney. And, from nearly the beginning of this life of crime, he's been pursued by a dour FBI agent, Carl Hanratty. What starts as cat and mouse becomes something akin to father and son.",
+    "director": [
+      "Steven Spielberg"
+    ],
+    "cast": [
+      "Leonardo DiCaprio",
+      "Tom Hanks",
+      "Christopher Walken",
+      "Martin Sheen"
+    ],
+    "release_date": "2002-12-25",
+    "runtime": 141,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTY5MzYzNjc5NV5BMl5BanBnXkFtZTYwNTUyNTc2._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Biography",
+      "Crime",
+      "Drama"
+    ]
+  },
+  {
+    "title": "The Bourne Identity",
+    "plot": "Based very loosely on Robert Ludlum's novel, the Bourne Identity is the story of a man whose wounded body is discovered by fishermen who nurse him back to health. He can remember nothing and begins to try to rebuild his memory based on clues such as a Swiss bank account, the number of which is implanted in his hip. He soon realizes that he is being hunted and takes off with Marie on a search to find out who he is - and why he is being hunted.",
+    "director": [
+      "Doug Liman"
+    ],
+    "cast": [
+      "Matt Damon",
+      "Franka Potente",
+      "Chris Cooper",
+      "Clive Owen"
+    ],
+    "release_date": "2002-06-14",
+    "runtime": 119,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BM2JkNGU0ZGMtZjVjNS00NjgyLWEyOWYtZmRmZGQyN2IxZjA2XkEyXkFqcGdeQXVyNTIzOTk5ODM@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Action",
+      "Mystery",
+      "Thriller"
+    ]
+  },
+  {
+    "title": "The Bourne Supremacy",
+    "plot": "After escaping from the emotional and physical pain he previously encountered. Jason Bourne and his girlfriend Marie begin a new life as far away as possible. But when an assassination attempt on Bourne goes horribly wrong, Bourne must re-enter the life he wanted to leave behind, in order to find out the truth why they are still after him.",
+    "director": [
+      "Paul Greengrass"
+    ],
+    "cast": [
+      "Matt Damon",
+      "Franka Potente",
+      "Brian Cox",
+      "Julia Stiles"
+    ],
+    "release_date": "2004-07-23",
+    "runtime": 108,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BYTIyMDFmMmItMWQzYy00MjBiLTg2M2UtM2JiNDRhOWE4NjBhXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Action",
+      "Mystery",
+      "Thriller"
+    ]
+  },
+  {
+    "title": "The Bourne Ultimatum",
+    "plot": "Bourne is once again brought out of hiding, this time inadvertently by London-based reporter Simon Ross who is trying to unveil Operation Blackbriar--an upgrade to Project Treadstone--in a series of newspaper columns. Bourne sets up a meeting with Ross and realizes instantly they're being scanned. Information from the reporter stirs a new set of memories, and Bourne must finally, ultimately, uncover his dark past whilst dodging The Company's best efforts in trying to eradicate him.",
+    "director": [
+      "Paul Greengrass"
+    ],
+    "cast": [
+      "Matt Damon",
+      "Julia Stiles",
+      "David Strathairn",
+      "Scott Glenn"
+    ],
+    "release_date": "2007-08-03",
+    "runtime": 115,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BNGNiNmU2YTMtZmU4OS00MjM0LTlmYWUtMjVlYjAzYjE2N2RjXkEyXkFqcGdeQXVyNDk3NzU2MTQ@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Action",
+      "Mystery",
+      "Thriller"
+    ]
+  },
+  {
+    "title": "Jason Bourne",
+    "plot": "Jason Bourne is again being hunted by the CIA. It begins when Nicky Parson a former CIA operative who helped Bourne, who went under and now works with a man who's a whistle blower and is out to expose the CIA's black ops. Nicky hacks into the CIA and downloads everything on all their Black Ops, including Treadstone which Bourne was a part of. And Heather Lee, a CIA agent, discovers the hack and brings it to the attention of CIA Director Dewey, the man behind the Black Ops. He orders Parsons be found and, hopefully, Bourne, too.",
+    "director": [
+      "Paul Greengrass"
+    ],
+    "cast": [
+      "Matt Damon",
+      "Tommy Lee Jones",
+      "Alicia Vikander",
+      "Vincent Cassel"
+    ],
+    "release_date": "2016-07-29",
+    "runtime": 123,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BNGJlYjVkMjQtN2NlZC00NTJhLThmZjItMTRlZDczMmE3YmI3XkEyXkFqcGdeQXVyMzI0NDc4ODY@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Action",
+      "Thriller"
+    ]
+  },
+  {
+    "title": "Inception",
+    "plot": "Dom Cobb is a skilled thief, the absolute best in the dangerous art of extraction, stealing valuable secrets from deep within the subconscious during the dream state, when the mind is at its most vulnerable. Cobb's rare ability has made him a coveted player in this treacherous new world of corporate espionage, but it has also made him an international fugitive and cost him everything he has ever loved. Now Cobb is being offered a chance at redemption. One last job could give him his life back but only if he can accomplish the impossible - inception. Instead of the perfect heist, Cobb and his team of specialists have to pull off the reverse: their task is not to steal an idea but to plant one. If they succeed, it could be the perfect crime. But no amount of careful planning or expertise can prepare the team for the dangerous enemy that seems to predict their every move. An enemy that only Cobb could have seen coming.",
+    "director": [
+      "Christopher Nolan"
+    ],
+    "cast": [
+      "Leonardo DiCaprio",
+      "Joseph Gordon-Levitt",
+      "Ellen Page",
+      "Tom Hardy"
+    ],
+    "release_date": "2010-07-16",
+    "runtime": 148,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Action",
+      "Adventure",
+      "Sci-Fi"
+    ]
+  },
+  {
+    "title": "Raiders of the Lost Ark",
+    "plot": "The year is 1936. An archeology professor named Indiana Jones is venturing in the jungles of South America searching for a golden statue. Unfortunately, he sets off a deadly trap but miraculously escapes. Then, Jones hears from a museum curator named Marcus Brody about a biblical artifact called The Ark of the Covenant, which can hold the key to humanly existence. Jones has to venture to vast places such as Nepal and Egypt to find this artifact. However, he will have to fight his enemy Rene Belloq and a band of Nazis in order to reach it.",
+    "director": [
+      "Steven Spielberg"
+    ],
+    "cast": [
+      "Harrison Ford",
+      "Karen Allen",
+      "Paul Freeman",
+      "Ronald Lacey"
+    ],
+    "release_date": "1981-06-12",
+    "runtime": 115,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMjA0ODEzMTc1Nl5BMl5BanBnXkFtZTcwODM2MjAxNA@@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Action",
+      "Adventure"
+    ]
+  },
+  {
+    "title": "Snatch",
+    "plot": "Turkish and his close friend/accomplice Tommy get pulled into the world of match fixing by the notorious Brick Top. Things get complicated when the boxer they had lined up gets badly beaten by Pitt, a 'pikey' ( slang for an Irish Gypsy)- who comes into the equation after Turkish, an unlicensed boxing promoter wants to buy a caravan off the Irish Gypsies. They then try to convince Pitt not only to fight for them, but to lose for them too. Whilst all this is going on, a huge diamond heist takes place, and a fistful of motley characters enter the story, including 'Cousin Avi', 'Boris The Blade', 'Franky Four Fingers' and 'Bullet Tooth Tony'. Things go from bad to worse as it all becomes about the money, the guns, and the damned dog!",
+    "director": [
+      "Guy Ritchie"
+    ],
+    "cast": [
+      "Benicio Del Toro",
+      "Dennis Farina",
+      "Vinnie Jones",
+      "Brad Pitt",
+      "Jason Statham"
+    ],
+    "release_date": "2001-01-19",
+    "runtime": 102,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTA2NDYxOGYtYjU1Mi00Y2QzLTgxMTQtMWI1MGI0ZGQ5MmU4XkEyXkFqcGdeQXVyNDk3NzU2MTQ@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Comedy",
+      "Crime"
+    ]
+  },
+  {
+    "title": "Heat",
+    "plot": "Hunters and their prey--Neil and his professional criminal crew hunt to score big money targets (banks, vaults, armored cars) and are, in turn, hunted by Lt. Vincent Hanna and his team of cops in the Robbery/Homicide police division. A botched job puts Hanna onto their trail while they regroup and try to put together one last big 'retirement' score. Neil and Vincent are similar in many ways, including their troubled personal lives. At a crucial moment in his life, Neil disobeys the dictum taught to him long ago by his criminal mentor--'Never have anything in your life that you can't walk out on in thirty seconds flat, if you spot the heat coming around the corner'--as he falls in love. Thus the stage is set for the suspenseful ending....",
+    "director": [
+      "Michael Mann"
+    ],
+    "cast": [
+      "Al Pacino",
+      "Robert De Niro",
+      "Val Kilmer",
+      "Jon Voight"
+    ],
+    "release_date": "1995-12-05",
+    "runtime": 170,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BNGMwNzUwNjYtZWM5NS00YzMyLWI4NjAtNjM0ZDBiMzE1YWExXkEyXkFqcGdeQXVyNDk3NzU2MTQ@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Action",
+      "Crime",
+      "Drama"
+    ]
+  },
+  {
+    "title": "Warrior",
+    "plot": "Two brothers face the fight of a lifetime - and the wreckage of their broken family - within the brutal, high-stakes world of Mixed Martial Arts (MMA) fighting in Lionsgate's action/drama, WARRIOR. A former Marine, haunted by a tragic past, Tommy Riordan returns to his hometown of Pittsburgh and enlists his father, a recovered alcoholic and his former coach, to train him for an MMA tournament awarding the biggest purse in the history of the sport. As Tommy blazes a violent path towards the title prize, his brother, Brendan, a former MMA fighter unable to make ends meet as a public school teacher, returns to the amateur ring to provide for his family. Even though years have passed, recriminations and past betrayals keep Brendan bitterly estranged from both Tommy and his father. But when Brendan's unlikely rise as an underdog sets him on a collision course with Tommy, the two brothers must finally confront the forces that tore them apart, all the while waging the most intense, winner-takes-all battle of their lives.",
+    "director": [
+      "Gavin O'Connor"
+    ],
+    "cast": [
+      "Joel Edgerton",
+      "Tom Hardy",
+      "Nick Nolte",
+      "Jennifer Morrison"
+    ],
+    "release_date": "2011-09-09",
+    "runtime": 140,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTk4ODk5MTMyNV5BMl5BanBnXkFtZTcwMDMyNTg0Ng@@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Action",
+      "Drama",
+      "Sport"
+    ]
+  },
+  {
+    "title": "The Matrix",
+    "plot": "Thomas A. Anderson is a man living two lives. By day he is an average computer programmer and by night a hacker known as Neo. Neo has always questioned his reality, but the truth is far beyond his imagination. Neo finds himself targeted by the police when he is contacted by Morpheus, a legendary computer hacker branded a terrorist by the government. Morpheus awakens Neo to the real world, a ravaged wasteland where most of humanity have been captured by a race of machines that live off of the humans' body heat and electrochemical energy and who imprison their minds within an artificial reality known as the Matrix. As a rebel against the machines, Neo must return to the Matrix and confront the agents: super-powerful computer programs devoted to snuffing out Neo and the entire human rebellion.",
+    "director": [
+      "Lana Wachowski",
+      "Lilly Wachowski"
+    ],
+    "cast": [
+      "Keanu Reeves",
+      "Laurence Fishburne",
+      "Carrie-Anne Moss",
+      "Hugo Weaving",
+      "Gloria Foster",
+      "Joe Pantoliano",
+      "Marcus Chong",
+      "Julian Arahanga",
+      "Matt Doran"
+    ],
+    "release_date": "1999-03-31",
+    "runtime": 136,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
+    "language": "en",
+    "genres": [
+      "Action",
+      "Sci-Fi"
+    ]
+  },{
+    "title" : "The Silence of the Lambs",
+    "plot" :"FBI trainee Clarice Starling works hard to advance her career, including trying to hide or put behind her West Virginia roots, of which if some knew would automatically classify her as being backward or white trash. After graduation, she aspires to work in the agency's Behavioral Science Unit under the leadership of Jack Crawford. While she is still a trainee, Crawford does ask her to question Dr. Hannibal Lecter, a psychiatrist imprisoned thus far for eight years in maximum security isolation for being a serial killer, he who cannibalized his victims. Clarice is able to figure out the assignment is to pick Lecter's brains to help them solve another serial murder case, that of someone coined by the media as Buffalo Bill who has so far killed five victims, all located in the eastern US, all young women who are slightly overweight especially around the hips, all who were drowned in natural bodies of water, and all who were stripped of large swaths of skin. She also figures that Crawford chose her as a woman to be able to trigger some emotional response from Lecter. After speaking to Lecter for the first time, she realizes that everything with him will be a psychological game with her having often to read between the very cryptic lines he provides. She has to decide how much she will play along as his request in return for talking to him is to expose herself emotionally to him. The case takes more dire turns when a sixth victim is discovered, this one from who they are able to retrieve a key piece of evidence if Lecter is being forthright as to its meaning. A potential seventh victim is high profile Catherine Martin, the daughter of Senator Ruth Martin, which places greater scrutiny on the case as they search for a hopefully still alive Catherine. Who may factor into what happens is Dr. Frederick Chilton, the warden at the prison, he an opportunist who sees the higher profile with Catherine, meaning a higher profile for himself if he can insert himself successfully into the proceedings.",
+    "director" : ["Jonathan Demme"],
+    "cast" : ["Jodie Foster", "Anthony Hopkins", "Lawrence A. Bonney", "Kasi Lemmons", "Lawrence T. Wrentz", "Scott Glenn", "Anthony Heald"],
+    "release_date" : "1991-02-14",
+    "runtime" : 118,
+    "poster" : "https://images-na.ssl-images-amazon.com/images/M/MV5BNjNhZTk0ZmEtNjJhMi00YzFlLWE1MmEtYzM1M2ZmMGMwMTU4XkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
+    "language" : "en",
+    "genres" : ["Crime", "Drama", "Thriller"]
+  },{
+    "title" : "Interstellar",
+    "plot" : "Earth's future has been riddled by disasters, famines, and droughts. There is only one way to ensure mankind's survival: Interstellar travel. A newly discovered wormhole in the far reaches of our solar system allows a team of astronauts to go where no man has gone before, a planet that may have the right environment to sustain human life.",
+    "director" : ["Christopher Nolan"],
+    "cast" : ["Ellen Burstyn", "Matthew McConaughey", "Mackenzie Foy", "John Lithgow", "Timothée Chalamet", "David Oyelowo", "Collette Wolfe"],
+    "release_date" : "2014-11-07",
+    "runtime" : 169,
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMjIxNTU4MzY4MF5BMl5BanBnXkFtZTgwMzM4ODI3MjE@._V1_SX300.jpg",
+    "language" : "en",
+    "genres" : ["Adventure", "Drama", "Sci-Fi"]
+  },{
+    "title" : "Fight Club",
+    "plot" : "A nameless first person narrator (Edward Norton) attends support groups in attempt to subdue his emotional state and relieve his insomniac state. When he meets Marla (Helena Bonham Carter), another fake attendee of support groups, his life seems to become a little more bearable. However when he associates himself with Tyler (Brad Pitt) he is dragged into an underground fight club and soap making scheme. Together the two men spiral out of control and engage in competitive rivalry for love and power. When the narrator is exposed to the hidden agenda of Tyler's fight club, he must accept the awful truth that Tyler may not be who he says he is.",
+    "director" : ["David Fincher"],
+    "cast": ["Edward Norton", "Brad Pitt", "Meat Loaf", "Zach Grenier"],
+    "release_date": "1999-10-15",
+    "runtime": 139,
+    "poster" : "https://images-na.ssl-images-amazon.com/images/M/MV5BZGY5Y2RjMmItNDg5Yy00NjUwLThjMTEtNDc2OGUzNTBiYmM1XkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
+    "language": "en",
+    "genres" : ["Drama"]
+  },{
+    "title" : "Django Unchained",
+    "plot": "A German dentist buys the freedom of a slave and trains him with the intent to make him his deputy bounty hunter. Instead, he is led to the site of the slave's wife who belongs to a ruthless plantation owner.",
+    "director" : ["Quentin Tarantino"],
+    "cast": ["Jamie Foxx", "Christoph Waltz", "Leonardo DiCaprio", "Kerry Washington", "Samuel L. Jackson", "Walton Goggins", "Dennis Christopher", "James Remar"],
+    "release_date" : "2012-12-25",
+    "runtime" : 165,
+    "poster" : "https://images-na.ssl-images-amazon.com/images/M/MV5BMjIyNTQ5NjQ1OV5BMl5BanBnXkFtZTcwODg1MDU4OA@@._V1_SX300.jpg",
+    "language" : "en",
+    "genres" : ["Drama", "Western"]
+  },{
+    "title": "Inglourious Basterds",
+    "plot": "In German-occupied France, young Jewish refugee Shosanna Dreyfus witnesses the slaughter of her family by Colonel Hans Landa. Narrowly escaping with her life, she plots her revenge several years later when German war hero Fredrick Zoller takes a rapid interest in her and arranges an illustrious movie premiere at the theater she now runs. With the promise of every major Nazi officer in attendance, the event catches the attention of the \"Basterds\", a group of Jewish-American guerrilla soldiers led by the ruthless Lt. Aldo Raine. As the relentless executioners advance and the conspiring young girl's plans are set in motion, their paths will cross for a fateful evening that will shake the very annals of history.",
+    "director" : ["Quentin Tarantino"],
+    "cast" : ["Brad Pitt", "Mélanie Laurent", "Christoph Waltz", "Eli Roth", "Michael Fassbender", "Diane Kruger", "Daniel Brühl"],
+    "release_date": "2009-08-21",
+    "runtime" : 153,
+    "poster" : "https://images-na.ssl-images-amazon.com/images/M/MV5BOTJiNDEzOWYtMTVjOC00ZjlmLWE0NGMtZmE1OWVmZDQ2OWJhXkEyXkFqcGdeQXVyNTIzOTk5ODM@._V1_SX300.jpg",
+    "language" : "en",
+    "genres" : ["Adventure", "Drama", "War"]
+  },{
+    "title" : "Old School",
+    "plot" : "Mitch, Frank and Beanie are disillusioned with their personal lives begining when Mitch's nymphomanic girlfriend, Heidi, cheats on him, then former party animal Frank gets married, but unwilling to let go of his wild life, and Beanie is a family man seeking to reclaim his wild and crazy youth. Beanie suggests that they form their own fraternity in Mitch's new house on a college campus to re-live their glory days by bringing together a variety of misfit college students, losers, middle-aged and elderly retirees as their new friends and later try to avoid being evicted by the new Dean of Students, Pritchard, whom still holds a personal grudge against all three of them.",
+    "director" : ["Todd Phillips"],
+    "cast" : ["Luke Wilson", "Will Ferrell", "Vince Vaughn", "Jeremy Piven", "Ellen Pompeo", "Juliette Lewis", "Leah Remini", "Seann William Scott", "Matt Walsh"],
+    "release_date" : "2003-02-21",
+    "runtime" : 88,
+    "poster" : "https://images-na.ssl-images-amazon.com/images/M/MV5BN2VjNDQ4MDctMDY3Yy00MmZmLTlhM2MtMWE4NjJhZTlmNTAxL2ltYWdlXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
+    "language" : "en",
+    "genres" : ["Comedy"]
+  },{
+    "title": "Anchorman: The Legend of Ron Burgundy",
+    "plot" : "In 1970s San Diego, journalism was a well respected profession and people actually cared about what they saw on TV. And the top rated anchor man in the city is Ron Burgundy. He enjoys his run at the top, and has for the last five years. And his news team is equally as good as he is. Professional jock and former professional baseball player Champ Kind handles the sports, the curiously dim witted Brick Tamland - who's a few channels short of a cable subscription - handles the weather, and ladies' man Brian Fantana - whose collection of fine scents would be in the Guinness Book Of Records - handles the on-field reporting. But now all that is about to change forever. The TV station Burgundy works for, Channel 4, has embraced diversity and has hired a beautiful new female anchor named Veronica Corningstone. While Ron Burgundy and the rest of the Channel 4 news team enjoys fighting with competitors, drinking, and flirting with the ladies, Veronica quietly climbs her way to the top. And Veronica's success drives Ron Burgundy crazy. So much that Veronica's meddling causes Ron to get demoted and ultimately lose his job with Channel 6. Now left with nothing, Ron must find a way to get back to the top - and that involves a story about a rare Chinese panda giving birth on US soil. Will Ron be the one to report the story on a national level?",
+    "director": ["Adam McKay"],
+    "cast" : ["Will Ferrell", "Christina Applegate", "Paul Rudd", "Steve Carell", "David Koechner", "Fred Willard", "Chris Parnell", "Seth Rogen"],
+    "release_date" : "2004-07-09",
+    "runtime" : 94,
+    "poster" : "https://images-na.ssl-images-amazon.com/images/M/MV5BMTQ2MzYwMzk5Ml5BMl5BanBnXkFtZTcwOTI4NzUyMw@@._V1_SX300.jpg",
+    "language" : "en",
+    "genres" : ["Comedy"]
+  },{
+      "title": "The Hangover",
+      "plot" : "Angelenos Doug Billings and Tracy Garner are about to get married. Two days before the wedding, the four men in the wedding party - Doug, Doug's two best buddies Phil Wenneck and Stu Price, and Tracy's brother Alan Garner - hop into Tracy's father's beloved Mercedes convertible for a 24-hour stag party to Las Vegas. Phil, a married high school teacher, has the same maturity level as his students when he's with his pals. Stu, a dentist, is worried about everything, especially what his controlling girlfriend Melissa thinks. Because she disapproves of traditional male bonding rituals, Stu has to lie to her about the stag, he telling her that they are going on a wine tasting tour in the Napa Valley. Regardless, he intends on eventually marrying her, against the advice and wishes of his friends. And Alan seems to be unaware of what are considered the social graces of the western world. The morning after their arrival in Las Vegas, they awaken in their hotel suite each with the worst hangover. None remembers what happened in the past twelve or so hours. The suite is in shambles. And certain things are in the suite that shouldn't be, and certain things that should be in the suite are missing. Probably the most important in the latter category is Doug. As Phil, Stu and Alan try to find Doug using only what little pieces of information they have at hand, they go on a journey of discovery of how certain things got into the suite and what happened to the missing items. However they are on a race for time as if they can't find Doug in the next few hours, they are going to have to explain to Tracy why they are not yet back in Los Angeles. And even worse, they may not find Doug at all before the wedding.",
+      "director" : ["Todd Phillips"],
+      "cast" : ["Bradley Cooper", "Ed Helms", "Zach Galifianakis", "Justin Bartha", "Heather Graham"],
+      "release_date" : "2009-06-05",
+      "runtime" : 100,
+      "poster" : "https://images-na.ssl-images-amazon.com/images/M/MV5BMTU1MDA1MTYwMF5BMl5BanBnXkFtZTcwMDcxMzA1Mg@@._V1_SX300.jpg",
+      "language" : "en",
+      "genres": ["Comedy"]
+  },{
+      "title": "American Sniper",
+      "plot" : "Chris Kyle was nothing more than a Texan man who dreamed of becoming a cowboy, but in his thirties he found out that maybe his life needed something different, something where he could express his real talent, something that could help America in its fight against terrorism. So he joined the SEALs in order to become a sniper. After marrying, Kyle and the other members of the team are called for their first tour of Iraq. Kyle's struggle isn't with his missions, but about his relationship with the reality of the war and, once returned at home, how he manages to handle it with his urban life, his wife and kids.",
+      "director" : ["Clint Eastwood"],
+      "cast" : [ "Bradley Cooper", "Kyle Gallner", "Cole Konis", "Ben Reed"],
+      "release_date" : "2015-01-16",
+      "runtime": 133,
+      "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTkxNzI3ODI4Nl5BMl5BanBnXkFtZTgwMjkwMjY4MjE@._V1_SX300.jpg",
+      "language": "en",
+      "genres" : ["Action", "Biography", "Drama"]
+  },{
+      "title": "Captain Phillips",
+      "plot": "Captain Phillips is a multi-layered examination of the 2009 hijacking of the U.S. container ship Maersk Alabama by a crew of Somali pirates. It is - through director Paul Greengrass's distinctive lens - simultaneously a pulse-pounding thriller, and a complex portrait of the myriad effects of globalization. The film focuses on the relationship between the Alabama's commanding officer, Captain Richard Phillips (two time Academy Award®-winner Tom Hanks), and the Somali pirate captain, Muse (Barkhad Abdi), who takes him hostage. Phillips and Muse are set on an unstoppable collision course when Muse and his crew target Phillips' unarmed ship; in the ensuing standoff, 145 miles off the Somali coast, both men will find themselves at the mercy of forces beyond their control.",
+      "director" : ["Paul Greengrass"],
+      "cast": ["Tom Hanks", "Catherine Keener", "Barkhad Abdi", "Barkhad Abdirahman"],
+      "release_date": "2013-10-11",
+      "runtime" : 134,
+      "poster" : "https://images-na.ssl-images-amazon.com/images/M/MV5BMTQzNzExMDg3Ml5BMl5BanBnXkFtZTgwODU1NzEzMDE@._V1_SX300.jpg",
+      "language" : "en",
+      "genres" : ["Biography", "Drama", "Thriller"]
+  },{
+      "title": "The Imitation Game",
+      "plot" : "Based on the real life story of legendary cryptanalyst Alan Turing, the film portrays the nail-biting race against time by Turing and his brilliant team of code-breakers at Britain's top-secret Government Code and Cypher School at Bletchley Park, during the darkest days of World War II.",
+      "director" : ["Morten Tyldum"],
+      "cast": ["Benedict Cumberbatch", "Keira Knightley", "Matthew Goode", "Rory Kinnear"],
+      "release_date" : "2014-12-25",
+      "runtime" : 114,
+      "poster" : "https://images-na.ssl-images-amazon.com/images/M/MV5BOTgwMzFiMWYtZDhlNS00ODNkLWJiODAtZDVhNzgyNzJhYjQ4L2ltYWdlXkEyXkFqcGdeQXVyNzEzOTYxNTQ@._V1_SX300.jpg",
+      "language" : "en",
+      "genres" : ["Biography", "Drama", "Thriller"]
+  },{
+      "title": "Dallas Buyers Club",
+      "plot": "Dallas 1985. Electrician and sometimes rodeo bull rider Ron Woodroof lives hard, which includes heavy smoking, drinking, drug use (primarily cocaine) and casual sex. He is racist and homophobic. While in the hospital on a work related injury, the doctors discover and inform him that he is HIV+, and that he will most-likely die within thirty days. Ron is initially in angry denial that he would have a disease that only \"faggots\" have, but upon quick reflection comes to the realization that the diagnosis is probably true. He begins to read whatever research is available about the disease, which at this time seems to be most effectively treated by the drug AZT. AZT, however, is only in the clinical trials stage within the US. Incredulous that he, as a dying man, cannot pay for any drug which may save or at least prolong his life, he goes searching for it by whatever means possible. It eventually leads him to Mexico and a \"Dr.\" Vass, an American physician whose license was revoked in the US because of his AIDS related work against US regulations. Dr. Vass leads Ron to a cocktail of other drugs, some vitamins, he believes are more effective in treating the symptoms, since the virus, as Ron learns, will always be in the system of those who have been exposed to it. Ron begins to smuggle these drugs not approved by the FDA into the US, not only for his own use but for sale to other HIV+ persons. In this venture, he goes into an unlikely partnership with a HIV+ transgender woman named Rayon, who he met in the hospital and who has greater contact with AIDS patients through the gay community. As they try to work both above ground to get the meds to those that need them and underground to avoid detection by especially the FDA, Ron comes up with an idea to circumvent the fact of selling the drugs - which are not considered drugs yet since they are not FDA approved - directly to the HIV+ population, which then should should not be against the law. Richard Barkley and Dr. Sevard, the FDA's lead man on the file and one of Ron's doctors respectively, the latter who sees clinical trials as the only way to determine the efficacy of drugs despite the fact that Ron and others would have probably died already without these drugs, try to stop Ron and Rayon at every turn. Caught in the middle is Dr. Eve Saks, another of Ron's doctors, who understands why policies are in place, but who can sympathize with Ron, Rayon and others - all her patients, directly or indirectly - in their situation.",
+      "director" : ["Jean-Marc Vallée"],
+      "cast" : ["Matthew McConaughey", "Jennifer Garner", "Jared Leto", "Denis O'Hare"],
+      "release_date" : "2013-11-22",
+      "runtime": 117,
+      "poster" :"https://images-na.ssl-images-amazon.com/images/M/MV5BMTYwMTA4MzgyNF5BMl5BanBnXkFtZTgwMjEyMjE0MDE@._V1_SX300.jpg",
+      "language" : "en",
+      "genres" : ["Biography", "Drama"]
+  },{
+      "title": "Black Swan",
+      "plot" : "Nina (Portman) is a ballerina in a New York City ballet company whose life, like all those in her profession, is completely consumed with dance. She lives with her obsessive former ballerina mother Erica (Hershey) who exerts a suffocating control over her. When artistic director Thomas Leroy (Cassel) decides to replace prima ballerina Beth MacIntyre (Ryder) for the opening production of their new season, Swan Lake, Nina is his first choice. But Nina has competition: a new dancer, Lily (Kunis), who impresses Leroy as well. Swan Lake requires a dancer who can play both the White Swan with innocence and grace, and the Black Swan, who represents guile and sensuality. Nina fits the White Swan role perfectly but Lily is the personification of the Black Swan. As the two young dancers expand their rivalry into a twisted friendship, Nina begins to get more in touch with her dark side - a recklessness that threatens to destroy her.",
+      "director" : ["Darren Aronofsky"],
+      "cast" : ["Natalie Portman", "Mila Kunis", "Vincent Cassel", "Barbara Hershey"],
+      "release_date" : "2010-12-17",
+      "runtime": 108,
+      "poster" : "https://images-na.ssl-images-amazon.com/images/M/MV5BNzY2NzI4OTE5MF5BMl5BanBnXkFtZTcwMjMyNDY4Mw@@._V1_SX300.jpg",
+      "language" : "en",
+      "genres" : ["Drama, Thriller"]
+  }
+]
