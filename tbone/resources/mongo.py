@@ -12,7 +12,6 @@ from tbone.resources.http import *
 
 LIMIT = 20
 OFFSET = 0
-SEARCH_OPERAND = 'q'
 
 logger = logging.getLogger(__file__)
 
@@ -57,9 +56,9 @@ class MongoResource(Resource):
         offset = int(kwargs.pop('offset', OFFSET))
         projection = None
         # perform full text search or standard filtering
-        if SEARCH_OPERAND in kwargs.keys():
+        if self._meta.fts_operator in kwargs.keys():
             filters = {
-                '$text': {'$search': kwargs['q']}
+                '$text': {'$search': kwargs[self._meta.fts_operator]}
             }
             projection = {'score': {'$meta': 'textScore'}}
             sort = [('score', {'$meta': 'textScore'}, )]
