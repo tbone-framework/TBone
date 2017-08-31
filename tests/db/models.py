@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import datetime
+from pymongo import ASCENDING
 from tbone.data.fields import *
 from tbone.data.fields.mongo import ObjectIdField
 from tbone.data.models import *
@@ -44,7 +45,7 @@ class Profile(Model):
     title = StringField()
     first_name = StringField(required=True)
     last_name = StringField(required=True)
-    suffix = StringField(export_if_none=False)
+    suffix = StringField(projection=False)
     avatar = StringField()
     DOB = DateField()
 
@@ -64,7 +65,7 @@ class CreditCard(Model):
 class Address(Model):
     city = StringField(required=True)
     street_name = StringField(required=True)
-    street_number = IntegerField(required=True)
+    street_number = IntegerField()
     zipcode = StringField()
     state = StringField()
     country = StringField(required=True)
@@ -87,4 +88,15 @@ class Account(BaseModel):
     children = ListField(ModelField(Child))
     credit_card = ModelField(CreditCard)
     skills = ListField(StringField)
+
+    indices = [
+        {
+            'fields': [('email', ASCENDING)],
+            'unique': True
+        }, {
+            'fields': [('phone_number', ASCENDING)],
+            'unique': True
+        }
+
+    ]
 
