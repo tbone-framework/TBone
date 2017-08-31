@@ -14,6 +14,7 @@ class ModelMeta(type):
         ''' Adds the export decorator so member methods can be decorated for export '''
         def export(func):
             func._export_method_ = True
+
             @wraps(func)
             def wrapper(*args, **kwargs):
                 return func(*args, **kwargs)
@@ -40,7 +41,7 @@ class ModelMeta(type):
         for key, value in attrs.items():
             if getattr(value, '_export_method_', None):
                 exports[key] = value
-                
+
             if isinstance(value, BaseField):
                 fields[key] = value
 
@@ -53,13 +54,25 @@ class ModelMeta(type):
 
 
 class Model(object, metaclass=ModelMeta):
+    '''
+    Base class for all data models. This is the heart  of the ODM.
+    Provides field declaration and export methods. 
+
+    Example:
+
+    .. code-block:: python
+
+        class Person(Model):
+            first_name = StringField()
+            last_name = StringField()
+
+    '''
 
     def __init__(self, data={}, **kwargs):
         self._data = {}
         if bool(data):
             self.import_data(data)
             self.validate()
-
 
     def __repr__(self):
         return '<%s instance>' % self.__class__.__name__
@@ -84,30 +97,16 @@ class Model(object, metaclass=ModelMeta):
                 return False
         return True
 
-
-
     def to_data(self):
         '''
         Convert all data in model from python data types to simple form for serialization.
-
+        Take into account the field's projection property when serializing
         '''
-        data = {}
-        # iterate through all fields
-        for field_name, field in self._fields.items():
-            field_data = field.to_data(self._data.get(field_name))
-            if field_data:
-                data[field_name] = field_data
-            elif field._export_if_none is True:
-                data[field_name] = None
-
-        # iterate through all export methods
-        for name, func in self._exports.items():
-            data[name] = func(self)
-
-        return data
+        return self._export(native=False)
 
     def to_python(self):
-        return self._convert(self._data)
+        ''' Returns a serialized from of the model as a dictionary with Python primitives as values'''
+        return self._export(native=True)
 
     def _validate(self, data):
         ''' Internal method to run validation with all model fields given the data provided '''
@@ -119,7 +118,6 @@ class Model(object, metaclass=ModelMeta):
         self._validate(self._data)
 
     def _convert(self, data):
-        ''' Converts given data from primitive form to Python variables and objects '''
         converted_data = {}
         for name, field in self._fields.items():
             converted_data[name] = field.to_python(data.get(name))
@@ -136,7 +134,20 @@ class Model(object, metaclass=ModelMeta):
     def items(self):
         return [(field, self._data[field]) for field in self]
 
-    @classmethod
-    def _export(self, data):  # TODO: implement this
-        pass
+    def _export(self, native=True):
+        data = {}
+        # iterate through all fields
+        for field_name, field in self._fields.items():
+            if native:
+                field_data = field.to_python(self._data.get(field_name))
+            else:
+                field_data = field.to_data(self._data.get(field_name))
+            if field_data and field._projection == True:
+                data[field_name] = field_data
+            elif field._projection == False:
+                data[field_name] = None
 
+        # iterate through all export methods
+        for name, func in self._exports.items():
+            data[name] = func(self)
+        return data
