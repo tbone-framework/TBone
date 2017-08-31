@@ -7,6 +7,7 @@ from .resources import Resource
 
 Route = namedtuple('Route', 'path, handler, methods, name')
 
+
 class Router(object):
     ''' Creates a url list for a group of resources. '''
     def __init__(self, name):
@@ -51,8 +52,6 @@ class Router(object):
                 name='{}_{}_detail'.format(self.name, endpoint).replace('/', '_')
             ))
         return url_patterns
-
-
 
     def urls2(self):
         '''

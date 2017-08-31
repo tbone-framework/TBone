@@ -42,7 +42,7 @@ class FieldDescriptor(object):
 
     def __get__(self, instance, instance_type=None):
         if instance is not None:
-            return instance._data.get(self.field.name)
+            return instance._data.get(self.field.name) or self.field.default
         return self.field
 
     def __set__(self, instance, value):

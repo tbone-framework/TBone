@@ -79,3 +79,22 @@ def test_model_items():
         assert value == data[key]
 
 
+def test_field_projection():
+    class M(Model):
+        first_name = StringField()
+        last_name = StringField()
+        dob = DateTimeField()
+        number_of_views = IntegerField(default=0, projection=None)
+
+    data = {'first_name': 'Ron', 'last_name': 'Burgundy', 'dob': datetime.datetime.now()}
+    mo = M(data)
+
+    serialized = mo.to_data()
+    for key in data.keys():
+        assert key in serialized
+
+    assert 'number_of_views' not in serialized
+
+
+
+

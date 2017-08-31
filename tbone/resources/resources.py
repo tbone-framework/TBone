@@ -310,10 +310,16 @@ class Resource(object, metaclass=ResourceMeta):
     async def update(self, *args, **kwargs):
         raise MethodNotImplemented()
 
+    async def modify(self, *args, **kwargs):
+        raise MethodNotImplemented()
+
     async def delete(self, *args, **kwargs):
         raise MethodNotImplemented()
 
     async def update_list(self, *args, **kwargs):
+        raise MethodNotImplemented()
+
+    async def modify_list(self, *args, **kwargs):
         raise MethodNotImplemented()
 
     async def create_detail(self, *args, **kwargs):
