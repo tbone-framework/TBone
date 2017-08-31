@@ -83,7 +83,7 @@ async def test_collection_pagination_and_sorting(request, db):
     # create a collection with a large number of documents
     futures = []
     for i in range(COUNT):
-        m = Number({'number': random.randint(0, COUNT) * 35})
+        m = Number({'number': random.randint(1, COUNT) * 35})
         futures.append(m.save(db))
     await asyncio.wait(futures)
     # make sure the collection contains the right amount of documents
@@ -103,20 +103,6 @@ async def test_collection_pagination_and_sorting(request, db):
     
     assert len(numbers) == COUNT
     assert numbers == sorted(numbers)
-
-
-
-# @pytest.mark.asyncio
-# async def test_complex_model(event_loop, json_fixture):
-#     # load datafixture for this test
-#     app = App(db=json_fixture('accounts.json'))
-
-
-# @pytest.mark.asyncio
-# async def test_collection_filtering(request, db):
-#     pass
-
-
 
 
 

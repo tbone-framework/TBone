@@ -80,7 +80,6 @@ async def test_mongo_collection_with_resource_defined_query(load_account_collect
     class PremiumAccountResource(AccountResource):
         ''' Derived account resource limited only to premium accounts '''
         class Meta(AccountResource.Meta):
-            # object_class = Account
             query = {'premium': True}
 
     app = load_account_collection
