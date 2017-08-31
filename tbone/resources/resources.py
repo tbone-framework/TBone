@@ -14,17 +14,48 @@ logger = logging.getLogger(__file__)
 
 class ResourceOptions(object):
     '''
-    A configuration class for Models. Provides all the defaults and
-    allows overriding inside model definition using the class Meta
+    A configuration class for Resources. Provides all the defaults and
+    allows overriding inside the resource's definition using the ``Meta`` class
+
+    :param  name:
+        Declare the resource's name. If ``None`` the class name will be used. Default is ``None``
+
+    :param object_class:
+        Declare the class of the underlying data object. Used in ``MongoResource`` to bind the resource class to a ``Model``
+
+    :param query:
+        Define a query which the resource will apply on all ``list`` calls. Used in ``MongoResource`` to apply a default query fiter.
+        Useful for cases where the entire collection is never queried.
+
+    :param fts_operator:
+        Define the FTS (full text search) operator used in url parameters. Used in ``MongoResource`` to perform FTS on a collection.
+        Default is set to `q`.
+
+    :param allowed_list:
+        Define the methods the resource allows access to with out a primary key.
+        Defaults to a full access ``['get', 'post', 'put', 'patch', 'delete']``
+
+    :param allowed_detail:
+        Same as ``allowed_list`` but for requests which include a primary key
+
+    :param serializer:
+        Provides an instance to a serialization class the resource will be using when serlializing and de-serializing text.
+        The default is ``JSONSerializer``. Developers can subclass ``Serializer`` base class and provide implementations to other formats.
+
+    :param authentication:
+        Provides and instance to the authentication class the resource will be using when authenticating requests.
+        Default is ``NoAuthentication``.
+        Developers must subclass the ``NoAuthentication`` class to provide their own resource authentication, based on the application's authentication choices.
+
     '''
+    name = None
     object_class = None
     query = None
-    resource_name = None                    #
+    fts_operator = 'q'
     allowed_list = ['get', 'post', 'put', 'patch', 'delete']
     allowed_detail = ['get', 'post', 'put', 'patch', 'delete']
     serializer = JSONSerializer()
     authentication = NoAuthentication()
-    excludes = []
 
     def __init__(self, meta=None):
         if meta:
@@ -42,6 +73,9 @@ class ResourceMeta(type):
 
 
 class Resource(object, metaclass=ResourceMeta):
+    '''
+    Base class for all resources. 
+    '''
     status_map = {
         'list': OK,
         'detail': OK,
@@ -134,6 +168,12 @@ class Resource(object, metaclass=ResourceMeta):
         return False
 
     async def dispatch(self, endpoint, *args, **kwargs):
+        '''
+        This method handles the actual request to the resource.
+        It performs all the neccesary checks and then executes the relevant member method which is mapped to the method name.
+        Handles authentication and de-serialization before calling the required method.
+        Handles the serialization of the response
+        '''
         self.endpoint = endpoint
         method = self.request_method()
 
@@ -170,7 +210,9 @@ class Resource(object, metaclass=ResourceMeta):
         return self.build_response(serialized, status=status)
 
     def dispatch_error(self, err):
-        # serialize error information
+        '''
+        Handles the dispatch of errors
+        '''
         try:
             data = {'error': [l for l in err.args]}
             body = self._meta.serializer.serialize(data)
@@ -188,8 +230,7 @@ class Resource(object, metaclass=ResourceMeta):
         override this method within your subclass.
         :param data: The body of the response to send
         :type data: string
-        :param status: (Optional) The status code to respond with. Default is
-            ``200``
+        :param status: (Optional) The status code to respond with. Default is ``200``
         :type status: integer
         :returns: A response object
         '''
@@ -251,11 +292,9 @@ class Resource(object, metaclass=ResourceMeta):
         return self._meta.serializer.serialize(self.get_resource_data(data))
 
     def get_resource_data(self, data):
-        ''' Filter object data based on fields and excludes. Currently support only excludes'''
         resource_data = {}
         for k, v in data.items():
-            if k not in self._meta.excludes:
-                resource_data[k] = v
+            resource_data[k] = v
         return resource_data
 
     #  methods which derived classes should implement
