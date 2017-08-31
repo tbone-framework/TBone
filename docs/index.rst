@@ -1,31 +1,30 @@
-.. tbone documentation master file, created by
-   sphinx-quickstart on Thu Aug 24 20:58:13 2017.
+.. TBone documentation master file, created by
+   sphinx-quickstart on Tue Aug 29 12:13:14 2017.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
 =================================
-TBone
+TBone Framework
 =================================
 
-TBone is a framework for building full-duplex, RESTFul APIs on top of a Python asynchronous web-server using asyncio.
+TBone is a framework for building full-duplex, RESTful APIs on top of a Python asynchronous web-server using asyncio.
 
-TBone is web-server agnostic, assuming it is built on with asyncio.
-This means that it can work with either Sanic or Aiohttp and can be extended for other web-servers as well.
+TBone is web-server agnostic, provided that the web-server is built on `asyncio`.
+This means that it can work with either Sanic or Aiohttp and can be extended for other asyncio-based web-servers as well.
+TBone was designed to be nonblocking and every component is implemented such that it works with the ```asyncio``` event loop 
 
 Overview
 ------------
 
 TBone is comprised of 3 major components:
 
-1. Data management
-2. Persistency 
-3. API Resources
+1. Data Structure - an ODM-like modeling mechanism for data validation and serialization
+2. Data Persistency - Persistency mixin classes for document stores with a full implementation for MongoDB
+3. Resources - Mechanism for creating RESTful APIs
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
 
-   tbone/getting_started
+
+.. include:: source/contents.rst
 
 
 

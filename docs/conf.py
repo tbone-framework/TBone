@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# tbone documentation build configuration file, created by
-# sphinx-quickstart on Thu Aug 24 20:58:13 2017.
+# TBone documentation build configuration file, created by
+# sphinx-quickstart on Tue Aug 29 12:13:14 2017.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -17,6 +17,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('.'))
+
 import os
 import sys
 
@@ -34,11 +38,11 @@ import tbone
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
+extensions = [
+    'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode']
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -54,8 +58,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'TBone'
-copyright = '2017, 475 Cumulus Ltd.'
-author = '475 Cumulus Ltd.'
+copyright = '2017, 475 Cumulus Ltd'
+author = '475 Cumulus Ltd'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -71,16 +75,7 @@ release = tbone.__version__
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
-
-
-source_parsers = {
-   '.md': 'recommonmark.parser.CommonMarkParser',
-}
-
-source_suffix = ['.rst', '.md']
-
-
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -131,7 +126,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'tbonedoc'
+htmlhelp_basename = 'TBonedoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -158,8 +153,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'tbone.tex', 'tbone Documentation',
-     'Amit Nabarro', 'manual'),
+    (master_doc, 'TBone.tex', 'TBone Documentation',
+     '475 Cumulus Ltd', 'manual'),
 ]
 
 
@@ -168,7 +163,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'tbone', 'tbone Documentation',
+    (master_doc, 'tbone', 'TBone Documentation',
      [author], 1)
 ]
 
@@ -179,8 +174,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'tbone', 'tbone Documentation',
-     author, 'tbone', 'One line description of project.',
+    (master_doc, 'TBone', 'TBone Documentation',
+     author, 'TBone', 'One line description of project.',
      'Miscellaneous'),
 ]
 
