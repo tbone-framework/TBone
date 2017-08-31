@@ -2,11 +2,39 @@
 # encoding: utf-8
 
 from collections import OrderedDict
+from functools import wraps
+
+__all__ = ['BaseField']
+
+
+class Ternary(object):
+    ''' A class for managing a ternary object with 3 possible states '''
+    def __init__(self, value=None):
+        if any(value is v for v in (True, False, None)):
+            self.value = value
+        else:
+            raise ValueError('Ternary value must be True, False, or None')
+
+    def __eq__(self, other):
+        return (self.value is other.value if isinstance(other, Ternary)
+                else self.value is other)
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __bool__(self):
+        raise TypeError('Ternary object may not be used as a Boolean')
+
+    def __str__(self):
+        return str(self.value)
+
+    def __repr__(self):
+        return "Ternary(%s)" % self.value
 
 
 class FieldDescriptor(object):
     '''
-    Descriptor for exposing fields to allow access to the underlying data
+    ``FieldDescriptor`` for exposing fields to allow access to the underlying data
     '''
 
     def __init__(self, field):
@@ -25,7 +53,25 @@ class FieldDescriptor(object):
 
 
 class FieldMeta(type):
+    '''
+    Meta class for BaseField. Accumulated error messages and validator methods
+    '''
+    @classmethod
+    def __prepare__(mcl, name, bases):
+        ''' Adds the validator decorator so member methods can be decorated as validation methods '''
+        def validator(func):
+            func._validation_method_ = True
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+
+            return wrapper
+        d = dict()
+        d['validator'] = validator
+        return d
+
     def __new__(mcl, name, bases, attrs):
+        del attrs['validator']
         errors = {}
         validators = OrderedDict()
 
@@ -41,18 +87,44 @@ class FieldMeta(type):
         # store commined error messages of all field class and its bases
         attrs['_errors'] = errors
 
-        # store validators
-        for name, attr in attrs.items():
-            if name.startswith('validate_') and callable(attr):
-                validators[name] = attr
+        # store validators - locate member methods which are decorated as validator functions
+        for key, attr in attrs.items():
+            if getattr(attr, '_validation_method_', None):
+                validators[key] = attr
 
         attrs['_validators'] = validators
+
         return super(FieldMeta, mcl).__new__(mcl, name, bases, attrs)
 
 
 class BaseField(object, metaclass=FieldMeta):
     '''
-    Base class for all model types
+    Base class for all fields in TBone models. Added to subclasses of ``Model`` to define the model's schema.
+
+    :param required:
+        Invalidates the field of no data is provided.
+        Default: False
+
+    :param default:
+        Provides a default value when none is provided. Can be a callable
+        Default: None
+
+    :param choices:
+        Used to limit a field's choices of value.
+        Requires a list of acceptable values.
+        If not ``None`` validates the value against a the provided list.
+
+    :param validators:
+        An optional list of validator functions. Requires a list of calllables.
+        Used for validation functions which are not implemented as internal ``Field`` methods
+
+    :param projection:
+        Determines if the field is serlized by the model using either ``to_python`` or ``to_data`` methods.
+        Useful when specific control over the model behavior is required.
+        Acceptable values are ``True``, ``False`` and ``None``.
+        Using ``True`` implies the field will always be serialized
+        Using ``False`` implies the field will be serialized only if the value is not ``None``
+        Using ``None`` implies the field will never be serialized
     '''
     data_type = None
     python_type = None
@@ -65,15 +137,16 @@ class BaseField(object, metaclass=FieldMeta):
     }
 
     def __init__(self, required=False, default=None, choices=None,
-                 validators=None, export_if_none=True, **kwargs):
+                 validators=None, projection=True, **kwargs):
         super(BaseField, self).__init__()
 
         self._required = required
         self._default = default
         self._choices = choices
-        self._export_if_none = export_if_none       # Whether the field should be exported when is None
+        self._projection = Ternary(projection)
         self._bound = False                         # Whether the Field is bound to a Model
 
+        # accumulate all validators to a single list
         self.validators = [getattr(self, name) for name in self._validators]
         if isinstance(validators, list):
             for validator in validators:
@@ -150,7 +223,8 @@ class BaseField(object, metaclass=FieldMeta):
         for validator in self.validators:
             validator(value)
 
-    def validate_choices(self, value):
+    @validator
+    def choices(self, value):
         if self._choices:
             if value not in self._choices and value is not None:
                 raise ValueError(

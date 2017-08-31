@@ -12,8 +12,17 @@ class EmailField(StringField):
     def __init__(self, **kwargs):
         super(EmailField, self).__init__(**kwargs)
 
-    def validate_email(self, value):
+    @validator
+    def email(self, value):
         match = re.match(self.REGEXP, value)
         if match is None:
             raise ValueError('Malformed email address')
+        return value
+
+
+class URLField(StringField):
+
+    @validator
+    def url(self, value):
+        # TODO: implement this
         return value

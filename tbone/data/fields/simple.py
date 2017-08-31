@@ -29,7 +29,8 @@ class NumberField(BaseField):
         self.max = max
         super(NumberField, self).__init__(**kwargs)
 
-    def validate_range(self, value):
+    @validator
+    def range(self, value):
         if self.min is not None and value < self.min:
             raise ValueError(self._errors['min'].format(self.min))
 
@@ -37,6 +38,11 @@ class NumberField(BaseField):
             raise ValueError(self._errors['max'].format(self.max))
 
         return value
+
+    def _import(self, value):
+        if value is None:
+            return None
+        return self.python_type(value)
 
 
 class IntegerField(NumberField):
@@ -77,9 +83,13 @@ class DTBaseField(BaseField):
         return value.isoformat()
 
     def to_python(self, value):
-        if isinstance(value, self.python_type):
+        if value is None:
+            return None
+        elif isinstance(value, self.python_type) or isinstance(value, datetime.datetime):
             return value
-        return dateutil.parser.parse(value)
+        elif isinstance(value, str):
+            return dateutil.parser.parse(value)
+        raise ValueError('{0} Unacceptable type for {1} field'.format(value.__class__.__name__, self.python_type.__name__))
 
 
 class TimeField(DTBaseField):
@@ -87,7 +97,12 @@ class TimeField(DTBaseField):
     python_type = datetime.time
 
     def to_python(self, value):
+        if value is None:
+            return None
+        if isinstance(value, self.python_type):
+            return value
         return super(TimeField, self).to_python(value).time()
+
 
 class DateField(DTBaseField):
     ''' Date field, exposes datetime.date as the python field '''
@@ -103,5 +118,6 @@ class DateField(DTBaseField):
 
 class DateTimeField(DTBaseField):
     ''' Date field, exposes datetime.datetime as the python field '''
-    python_type = datetime.datetime
+    python_type = datetime.time
+
 
