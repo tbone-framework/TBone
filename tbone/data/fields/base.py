@@ -36,13 +36,12 @@ class FieldDescriptor(object):
     '''
     ``FieldDescriptor`` for exposing fields to allow access to the underlying data
     '''
-
     def __init__(self, field):
         self.field = field
 
     def __get__(self, instance, instance_type=None):
         if instance is not None:
-            return instance._data.get(self.field.name) or self.field.default
+            return instance._data.get(self.field.name, None) or self.field.default
         return self.field
 
     def __set__(self, instance, value):
@@ -61,6 +60,7 @@ class FieldMeta(type):
         ''' Adds the validator decorator so member methods can be decorated as validation methods '''
         def validator(func):
             func._validation_method_ = True
+
             @wraps(func)
             def wrapper(*args, **kwargs):
                 return func(*args, **kwargs)
@@ -146,6 +146,9 @@ class BaseField(object, metaclass=FieldMeta):
         self._projection = Ternary(projection)
         self._bound = False                         # Whether the Field is bound to a Model
 
+        if required and default is not None:
+            raise AttributeError('Required and default cannot co-exist')
+
         # accumulate all validators to a single list
         self.validators = [getattr(self, name) for name in self._validators]
         if isinstance(validators, list):
@@ -154,6 +157,10 @@ class BaseField(object, metaclass=FieldMeta):
                     self.validators.append(validator)
 
     def _export(self, value):
+        '''
+        Coerce the input data to primitive form
+        Override in sub classes to add specialized behavior
+        '''
         if value is None:
             if self._required:
                 raise ValueError(self._errors['required'])
@@ -161,6 +168,10 @@ class BaseField(object, metaclass=FieldMeta):
         return self.data_type(value)
 
     def _import(self, value):
+        '''
+        Imports field data and coerce to the field's python type.
+        Overrride in sub classes to add specialized behavior
+        '''
         return self.python_type(value)
 
     def to_data(self, value):
@@ -208,8 +219,8 @@ class BaseField(object, metaclass=FieldMeta):
     def add_to_class(self, cls, name):
         '''
         Hook that replaces the `Field` attribute on a class with a named
-        `FieldDescriptor`. Called by the metaclass during construction of the
-        `Model`.
+        ``FieldDescriptor``. Called by the metaclass during construction of the
+        ``Model``.
         '''
         self.name = name
         self.container_model_class = cls
