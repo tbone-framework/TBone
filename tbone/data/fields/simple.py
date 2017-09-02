@@ -59,6 +59,7 @@ class FloatField(NumberField):
     '''
     data_type = float
     python_type = float
+    # TODO: add field attribute to determine the number of digits after the dot
 
 
 class BooleanField(BaseField):

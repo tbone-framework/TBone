@@ -5,6 +5,7 @@ import pytest
 import datetime
 from tbone.data.fields import *
 from tbone.data.models import Model
+from tests.fixtures import event_loop
 
 
 def test_list_field():
@@ -55,7 +56,8 @@ def test_model_field():
     assert isinstance(data['ts'], datetime.datetime)
 
 
-def test_model_field_complete():
+@pytest.mark.asyncio
+async def test_model_field_complete():
     class Person(Model):
         first_name = StringField(required=True)
         last_name = StringField(required=True)
@@ -79,7 +81,7 @@ def test_model_field_complete():
     }
 
     book = Book(raw_data)
-    export_data = book.to_data()
+    export_data = await book.to_data()
     assert export_data == raw_data
 
 

@@ -5,6 +5,8 @@ import pytest
 import datetime
 from tbone.data.fields import *
 from tbone.data.models import Model
+from tests.fixtures import event_loop
+
 
 def test_field_meta():
     ''' Test custom FieldMeta class to make sure field data is managed for all base classes '''
@@ -19,7 +21,7 @@ def test_field_meta():
 
 def test_string_field():
     s = StringField()
-    assert s.to_data(None) == None
+    assert s.to_data(None) is None
 
 
 def test_datetime_field():
@@ -46,11 +48,14 @@ def test_time_field():
 
 
 def test_default():
+    number = IntegerField(default=5)
+    assert number.to_data(None) == 5
+
     class M(Model):
         number = IntegerField(default=5)
 
     m = M()
-    assert m.to_data()['number'] == 5
+    assert m.number == 5
 
 
 def test_choices():
@@ -73,13 +78,28 @@ def test_required():
 
     assert 5 == number.to_data(5)
 
-def test_field_export_if_none():
+    with pytest.raises(AttributeError):
+        number = IntegerField(required=True, default=0)
+
+
+@pytest.mark.asyncio
+async def test_field_projection():
     class M(Model):
-        number = IntegerField(export_if_none=False)
+        name = StringField(default='Ron Burgundy')
+        number = IntegerField(projection=False)
+        age = IntegerField(projection=None)
 
     m = M()
-    assert 'number' not in m.to_data()
+    ser = await m.to_data()
+    assert 'name' in ser
+    assert 'number' not in ser
+    assert 'age' not in ser
 
+    m = M({'number': 40})
+    ser = await m.to_data()
+    assert 'name' in ser
+    assert 'number' in ser
+    assert 'age' not in ser
 
 
 def test_integer_field_validation():

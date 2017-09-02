@@ -5,7 +5,7 @@ import logging
 import asyncio
 from datetime import timedelta
 from bson.objectid import ObjectId
-from pymongo.errors import ConnectionFailure
+from pymongo.errors import *
 from pymongo import ReturnDocument
 from tbone.dispatch import Signal
 
@@ -17,7 +17,7 @@ post_save = Signal()
 
 
 class MongoCollectionMixin(object):
-    ''' Mixin for schematics models, provides a persistency layer over a MongoDB collection '''
+    ''' Mixin for data models, provides a persistency layer over a MongoDB collection '''
 
     primary_key = '_id'             # default field as primary key
     primary_key_type = ObjectId     # default type for primary key
@@ -45,8 +45,11 @@ class MongoCollectionMixin(object):
 
     @staticmethod
     def connection_retries():
-        ''' returns the number of connection retries '''
-        return range(5) # options.db_connection_retries + 1)
+        '''
+        returns the number of connection retries.
+        Subclass to obtain this variable from the app's global settings
+        '''
+        return range(5)
 
     @classmethod
     async def check_reconnect_tries_and_wait(cls, reconnect_number, method_name):
@@ -163,26 +166,21 @@ class MongoCollectionMixin(object):
                 del data[new_key]
         return cls(data)
 
-    def prepare_data(self, data):
-        data = data or self.to_python()
+    def prepare_data(self, data=None):
+        data = data or self.export_data(native=True)
         if '_id' in data and data['_id'] is None:
             del data['_id']
         return data
 
-    async def save(self, db=None, data=None):
+    async def save(self, db=None):
         '''
         If object has _id, then object will be created or fully rewritten.
         If not, object will be inserted and _id will be assigned.
         '''
         self._db = db or self._db
-        data = self.prepare_data(data)
+        data = self.prepare_data()
         # validate object
         self.validate()
-        # remove extra fields which do not belong to the model
-        field_names = set(self._fields.keys())
-        extra_keys = set(data.keys()) - field_names
-        for key in extra_keys:
-            data.pop(key, None)
         # connect to DB to save the model
         result = None
         for i in self.connection_retries():
@@ -224,11 +222,11 @@ class MongoCollectionMixin(object):
         db = db or self.db
         if data:
             self.import_data(data)
-            ndata = self.to_python()
+            ndata = self.export_data(native=True)
             ndata = self.prepare_data(ndata)
             data = {x: ndata[x] for x in ndata if x in data or x == self.primary_key}
         else:
-            data = self.to_python()
+            data = self.export_data(native=True)
 
         if self.primary_key not in data or data[self.primary_key] is None:
             raise Exception('Missing object id')
@@ -268,15 +266,20 @@ async def create_collections(db):
                 # create collection
                 await db.create_collection(name)
             except CollectionInvalid:
-                raise
+                pass  # collection already exists
+
+
             # create indices
             if hasattr(model_class, 'indices'):
                 for index in model_class.indices:
-                    await db[name].create_index(
-                        index['fields'],
-                        name=index.get('name', '_'.join([x[0] for x in index['fields']])),
-                        unique=index.get('unique', False),
-                        sparse=index.get('sparse', False),
-                        expireAfterSeconds=index.get('expireAfterSeconds', None),
-                        background=True
-                    )
+                    try:
+                        await db[name].create_index(
+                            index['fields'],
+                            name=index.get('name', '_'.join([x[0] for x in index['fields']])),
+                            unique=index.get('unique', False),
+                            sparse=index.get('sparse', False),
+                            expireAfterSeconds=index.get('expireAfterSeconds', None),
+                            background=True
+                        )
+                    except OperationFailure:
+                        pass  # index already exists

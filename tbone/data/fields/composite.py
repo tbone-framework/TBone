@@ -11,7 +11,11 @@ class CompositeField(BaseField):
     '''
     def __init__(self, **kwargs):
         super(CompositeField, self).__init__(**kwargs)
-        self.is_composite = True
+        self._is_composite = True
+
+    @property
+    def is_composite(self):
+        return self._is_composite
 
 
 class ListField(CompositeField):
@@ -57,7 +61,6 @@ class ModelField(CompositeField):
     '''
     A field that can hold an instance of the specified model
     '''
-
     data_type = dict
 
     def __init__(self, model_class, **kwargs):
@@ -80,26 +83,20 @@ class ModelField(CompositeField):
 
     def to_python(self, value):
         if isinstance(value, self.model_class):
-            return value.to_python()
+            return value.export_data(native=True)
         elif isinstance(value, dict):
             m = self.model_class(value)
-            return m.to_python()
+            return m.export_data(native=True)
         else:
             raise ValueError('Cannot convert type {} to {}'.format(type(value), self.model_class.__name__))
 
     def to_data(self, value):
         if isinstance(value, self.model_class):
-            return value.to_data()
+            return value.export_data(native=False)
         elif isinstance(value, dict):
             m = self.model_class(value)
-            return m.to_data()
+            return m.export_data(native=False)
         else:
             raise ValueError('Cannot convert type {} to {}'.format(type(value), self.model_class.__name__))
-
-        m = self.model_class(value)
-        return m.to_data()
-
-
-
 
 

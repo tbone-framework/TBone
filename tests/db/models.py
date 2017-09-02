@@ -18,7 +18,7 @@ class BaseModel(Model, MongoCollectionMixin):
     _id = ObjectIdField()
 
     @export
-    def created(self):
+    async def created(self):
         return self._id.generation_time
 
 
@@ -30,7 +30,7 @@ class Person(BaseModel):
     last_name = StringField(required=True)
 
     @export
-    def full_name(self):  # redundant but good for testing
+    async def full_name(self):  # redundant but good for testing
         return '{} {}'.format(self.first_name, self.last_name)
 
 

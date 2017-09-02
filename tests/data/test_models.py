@@ -6,6 +6,7 @@ import datetime
 from itertools import zip_longest
 from tbone.data.fields import *
 from tbone.data.models import *
+from tests.fixtures import event_loop
 
 
 def test_model_repr():
@@ -16,7 +17,8 @@ def test_model_repr():
     assert repr(m) == '<M instance>'
 
 
-def test_model_creation_and_export():
+@pytest.mark.asyncio
+async def test_model_creation_and_export():
     '''
     Simple model creation test
     '''
@@ -29,37 +31,42 @@ def test_model_creation_and_export():
     m = M({'name': 'Ron Burgundy', 'age': 45, 'decimal': '34.77', 'dt': '2017-07-25T12:34:14.414471'})
 
     # convert model to primitive form
-    data = m.to_data()
+    data = await m.to_data()
     # check result is dict
     assert isinstance(data, dict)
     # check keys match
     assert all(a == b for a, b in zip_longest(m._fields.keys(), data.keys(), fillvalue=None))
 
 
-def test_model_import():
+@pytest.mark.asyncio
+async def test_model_import():
     class M(Model):
         first_name = StringField()
         last_name = StringField()
 
     m = M()
     m.import_data({'first_name': 'Ron', 'last_name': 'Burgundy'})
-    data = m.to_data()
+    data = await m.to_data()
 
     assert data['first_name'] == 'Ron'
     assert data['last_name'] == 'Burgundy'
 
+    with pytest.raises(ValueError):
+        m.import_data('Ron Burgundy')
 
-def test_model_export_decorator():
+
+@pytest.mark.asyncio
+async def test_model_export_decorator():
     class M(Model):
         first_name = StringField()
         last_name = StringField()
 
         @export
-        def full_name(self):
+        async def full_name(self):
             return '{} {}'.format(self.first_name, self.last_name)
 
     m = M({'first_name': 'Ron', 'last_name': 'Burgundy'})
-    data = m.to_data()
+    data = await m.to_data()
 
     assert data['first_name'] == 'Ron'
     assert data['last_name'] == 'Burgundy'
@@ -79,7 +86,8 @@ def test_model_items():
         assert value == data[key]
 
 
-def test_field_projection():
+@pytest.mark.asyncio
+async  def test_field_projection():
     class M(Model):
         first_name = StringField()
         last_name = StringField()
@@ -89,12 +97,8 @@ def test_field_projection():
     data = {'first_name': 'Ron', 'last_name': 'Burgundy', 'dob': datetime.datetime.now()}
     mo = M(data)
 
-    serialized = mo.to_data()
+    serialized = await mo.to_data()
     for key in data.keys():
         assert key in serialized
 
     assert 'number_of_views' not in serialized
-
-
-
-

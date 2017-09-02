@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import asyncio
 from copy import deepcopy
 from collections import OrderedDict
 from .fields import BaseField
@@ -53,10 +54,55 @@ class ModelMeta(type):
         return cls
 
 
-class Model(object, metaclass=ModelMeta):
+class ModelSerializer(object):
+    ''' Mixin class for adding nonblocking serialization methods '''
+    async def _execute(self, func, *args, **kwargs):
+        ''' Helper method to execute methods if they're coroutines  '''
+        if asyncio.iscoroutinefunction(func):
+            return await func(*args, **kwargs)
+        return func(*args, **kwargs)
+
+    async def to_data(self):
+        '''
+        Returns a serialized from of the model as a dictionary with data primitives as values.
+        Includes export methods and projection rules
+        '''
+        return await self._serialize(native=False)
+
+    async def to_python(self):
+        '''
+        Returns a serialized from of the model as a dictionary with Python variables as values.
+        Includes export methods and projection rules
+        '''
+        return await self._serialize(native=True)
+
+    async def _serialize(self, native=True, exports=True, projection=True):
+        data = {}
+        # iterate through all fields
+        for field_name, field in self._fields.items():
+            # serialize field data
+            raw_data = self._data.get(field_name)
+            if native:
+                field_data = await self._execute(field.to_python, raw_data)
+            else:
+                field_data = await self._execute(field.to_data, raw_data)
+
+            # add field's data to model data based on projection settings
+            if field_data and field._projection != None:
+                data[field_name] = field_data
+            elif field_data is None and field._projection == True:
+                data[field_name] = None
+
+        # iterate through all export methods
+        for name, func in self._exports.items():
+            data[name] = await func(self)
+        return data
+
+
+class Model(ModelSerializer, metaclass=ModelMeta):
     '''
     Base class for all data models. This is the heart  of the ODM.
-    Provides field declaration and export methods. 
+    Provides field declaration and export methods.
 
     Example:
 
@@ -85,6 +131,9 @@ class Model(object, metaclass=ModelMeta):
     def fields(cls):
         return list(iter(cls._fields))
 
+    def items(self):
+        return [(field, self._data[field]) for field in self]
+
     def __eq__(self, other):
         ''' Override equal operator to compare field values '''
         if self is other:
@@ -97,17 +146,6 @@ class Model(object, metaclass=ModelMeta):
                 return False
         return True
 
-    def to_data(self):
-        '''
-        Convert all data in model from python data types to simple form for serialization.
-        Take into account the field's projection property when serializing
-        '''
-        return self._export(native=False)
-
-    def to_python(self):
-        ''' Returns a serialized from of the model as a dictionary with Python primitives as values'''
-        return self._export(native=True)
-
     def _validate(self, data):
         ''' Internal method to run validation with all model fields given the data provided '''
         for name, field in self._fields.items():
@@ -117,37 +155,28 @@ class Model(object, metaclass=ModelMeta):
         ''' calls internal validate method with model's existing data '''
         self._validate(self._data)
 
-    def _convert(self, data):
+    def _convert(self, data, native=True):
         converted_data = {}
         for name, field in self._fields.items():
-            converted_data[name] = field.to_python(data.get(name))
+            if native is True:
+                converted_data[name] = field.to_python(data.get(name))
+            else:
+                converted_data[name] = field.to_data(data.get(name))
         return converted_data
 
-    def import_data(self, data):
+    def import_data(self, data: dict):
         '''
         Imports data into model and converts to python form.
         Merges with existing if data is partial
         '''
+        if not isinstance(data, dict):
+            raise ValueError('Cannot import data not as dict')
         self._data.update(data)
         self._data = self._convert(self._data)
 
-    def items(self):
-        return [(field, self._data[field]) for field in self]
-
-    def _export(self, native=True):
-        data = {}
-        # iterate through all fields
-        for field_name, field in self._fields.items():
-            if native:
-                field_data = field.to_python(self._data.get(field_name))
-            else:
-                field_data = field.to_data(self._data.get(field_name))
-            if field_data and field._projection == True:
-                data[field_name] = field_data
-            elif field._projection == False:
-                data[field_name] = None
-
-        # iterate through all export methods
-        for name, func in self._exports.items():
-            data[name] = func(self)
-        return data
+    def export_data(self, native):
+        '''
+        Export the model into a dictionary.
+        This method does not include projection rules and export methods
+        '''
+        return self._convert(self._data, native)
