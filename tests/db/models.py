@@ -34,8 +34,7 @@ class Person(BaseModel):
         return '{} {}'.format(self.first_name, self.last_name)
 
 
-class Number(Model, MongoCollectionMixin):
-    _id = ObjectIdField()
+class Number(BaseModel):
     number = IntegerField()
 
 

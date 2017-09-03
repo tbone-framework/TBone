@@ -20,7 +20,7 @@ async def load_account_collection(json_fixture, db):
     # load data
     data = json_fixture('accounts.json')
     # create collection in db
-    coll_name = AccountResource._meta.object_class.get_collection()
+    coll_name = AccountResource._meta.object_class.get_collection_name()
     coll = await db.create_collection(coll_name)
     # insert raw data into collection
     await coll.insert_many(data)

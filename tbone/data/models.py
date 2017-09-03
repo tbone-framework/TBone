@@ -85,9 +85,13 @@ class ModelMeta(type):
 
 
 class ModelSerializer(object):
-    ''' Mixin class for adding nonblocking serialization methods '''
+    '''
+    Mixin class for adding nonblocking serialization methods.
+    Provides serialization methods to data primitives and to python types.
+    Performs serialization taking into account projection attributes and export methods
+    '''
     async def _execute(self, func, *args, **kwargs):
-        ''' Helper method to execute methods if they're coroutines  '''
+        ''' Helper method to verify and execute methods as they coroutines  '''
         if asyncio.iscoroutinefunction(func):
             return await func(*args, **kwargs)
         return func(*args, **kwargs)
@@ -131,8 +135,8 @@ class ModelSerializer(object):
 
 class Model(ModelSerializer, metaclass=ModelMeta):
     '''
-    Base class for all data models. This is the heart  of the ODM.
-    Provides field declaration and export methods.
+    Base class for all data models. This is the heart of the ODM.
+    Provides field declaration and export methods implementations.
 
     Example:
 
@@ -151,18 +155,14 @@ class Model(ModelSerializer, metaclass=ModelMeta):
             self.validate()
 
     def __repr__(self):
-        return '<%s instance>' % self.__class__.__name__
+        desc = self.description()
+        if desc is None:
+            return '<%s instance>' % self.__class__.__name__
+        return '<%s instance: %s>' % (self.__class__.__name__, desc)
 
     def __iter__(self):
         ''' Implements iterator on model matching only fields with data matching them '''
         return (key for key in self._fields if key in self._data)
-
-    @classmethod
-    def fields(cls):
-        return list(iter(cls._fields))
-
-    def items(self):
-        return [(field, self._data[field]) for field in self]
 
     def __eq__(self, other):
         ''' Override equal operator to compare field values '''
@@ -175,6 +175,20 @@ class Model(ModelSerializer, metaclass=ModelMeta):
             if getattr(self, k) != getattr(other, k):
                 return False
         return True
+
+    def description(self):
+        '''
+        Adds an instance description to the class's ``repr``.
+        Override in sub classes to provide desired functionality
+        '''
+        return None
+
+    @classmethod
+    def fields(cls):
+        return list(iter(cls._fields))
+
+    def items(self):
+        return [(field, self._data[field]) for field in self]
 
     def _validate(self, data):
         ''' Internal method to run validation with all model fields given the data provided '''

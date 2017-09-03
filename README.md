@@ -30,7 +30,7 @@ class BookResource(AioHttpResource, MongoResource):
 
 ## Nonblocking 
 
-TBone was designed to develop asynchorous web applications and web services. The entire infrastructure is build around `coroutines`.
+TBone was designed to develop asynchorous web applications and web services. The entire infrastructure was built around `coroutines`.
 TBone utilizes only asynchronous 3rd party components to make sure that your app is truly nonblocking. 
 
 ## Requirements
