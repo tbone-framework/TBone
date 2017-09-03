@@ -66,6 +66,7 @@ If your application is based on ``AioHttp`` your resources will be defined like 
     It obviously makes no sense to have resources mixed with both ``SanicResource`` and ``AioHttpResource`` in the same project.
 
 
+
 Resource Options
 ------------------
 
@@ -78,7 +79,7 @@ Such options can be overriden using the ``Meta`` class within the resource class
         class Meta:
             allowed_detail = ['get', 'post']  # In this example, only GET and POST methods are allowed
 
-Resource options are essential with resource who wish to override built-in functionality such as:
+Resource options are essential to resources who wish to override built-in functionality such as:
     
     * Serialization
     * Authentication

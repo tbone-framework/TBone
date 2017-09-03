@@ -43,6 +43,16 @@ Fields
 Fields are great
 
 
+.. note::
+    Why is TBone not using an external Python schema and validation library such as `Marshmallow <https://github.com/marshmallow-code/marshmallow>`_ or `Schematics <https://github.com/schematics/schematics>`_ ?
+
+    Both libraries mentioned above are excellent for performing the tasks of schema definition, data validation and serialization.
+    However, both libraries were developed to be generic and do not use the asynchronous capabilities of TBone to their advantage.
+    Therefore TBone implements its own data modeling capabilities which are designed to work in an asynchronous nonblocking environment.
+    An example of this is explained in detail in the `Export Methods`_ section
+
+
+
 Nested Models
 ~~~~~~~~~~~~~~
 
@@ -101,12 +111,204 @@ Model Options
 ~~~~~~~~~~~~~~
 
 
+Import Data
+----------------
+
+There are multiple ways to manipulate data on a ``Model``. 
+
+The most obvious is to access it's fields directly, like so::
+
+    >>> book = Book()
+    >>> b.title = 'Crime and Punishment'
+
+While this example is pretty straighforward, it may not be very efficient if in cases were data is already stored in a ``dict`` which needs to be imported into a ``Model``.
+
+The ``import_data`` method takes care of that, like so::
+
+    >>> data = {
+    ...     'title': 'Crime and Punishment',
+    ...     'author': ' Fyodor Dostoyevsky',
+    ...     'publication_date': '1866-01-01'  # actual date varies
+    ... }
+    >>> 
+    >>> book = Book()
+    >>> book.import_data(data)
+
+A quicker way would be to use the ``Model`` constructor, like so::
+
+    >> book = Book(data)
+
+Data can be imported in a ``dict`` containing Python types, or data primitives. Once data is imported into the model is coerced into Python types.
+
+
 Validation
 ----------------
 
 
 Serialization
 ----------------
+
+Models are responsible not only for declaring a schema and validating the data, but also for serializing the models to useful data structures. 
+Controlling the way data models are serialized is extremely useful when creating APIs.
+More often than not, developers may not want a straightforward one-to-one mapping between the data attributes of a model and the API.
+In some cases there may be a need to omit some data, which is meant only for internal use and not for API consumption. 
+In other cases there may be additional data attributes, required as part of an API endpoint, which are a result of a calculation, aggregation, or data manipulation between 1 or more data attributes. 
+
+The following section reviews the tools that are implemented on the ``Model`` class and how they can be used to yield the desired results.
+
+
+Serialization methods
+~~~~~~~~~~~~~~~~~~~~~
+
+The ``Model`` class has two methods for data serialization, which produce similar results but are intended for different uses.
+
+The first method is ``to_python``. This method will serialize the model's fields and export methods (to be explained shortly) based on the rules dictated by the model. The result is a ``dict`` object containing all the relevant data.
+
+The second method is ``to_data``. This method yields very similar result as ``to_python``. It also returns  ``dict`` object containing the fields and export methods. However, the difference is in the data types. 
+
+The first method ``to_python`` serializes data primitives using native Python types.
+the second method ``to_data`` serializes data primitives to data types which are not bound to the Python language. 
+
+Serialization methods are co-routines and can only be run in an event loop.
+
+
+The following example illustrates this::
+
+    >>> from tbone.data.models import *
+    >>> from tbone.data.fields import *
+    >>> class Author(Model):
+    ...     name = StringField()
+    ...     dob = DateField()
+    ...     rating = FloatField()
+    ... 
+    >>> a = Author({'name': 'John Steinbeck', 'dob' : '1902-02-27', 'rating': 4.7})
+
+Now that we have an ``Author`` instance, lets see the difference between the two serialization methods::
+
+    >>> obj = await a.to_python()
+    >>> obj
+    {'name': 'John Steinbeck', 'dob': datetime.date(1902, 2, 27), 'rating': 4.7}
+    >>> type(obj)
+    <class 'dict'>    
+
+    >>> obj = await a.to_data()
+    >>> obj
+    {'name': 'John Steinbeck', 'dob': '1902-02-27', 'rating': 4.7}
+    >>> type(obj)
+    <class 'dict'>
+
+.. note::
+    Plain Python shell does cannot run co-routines as it does not have a running event loop. You can either script this code wrapped as a co-routine or use a 3rd party Python shell which supports an event loop.
+
+Looking at the example above, both methods return a ``dict`` object with the ``Author`` instance's data. 
+However, ``to_python`` returned ``dob`` as a ``datetime.date`` object while ``to_data`` returned ``dob`` as a ``str`` object.
+
+The reason for this difference lies in the purpose of both methods.
+The ``to_python`` method is meant for **inbound** serialization while the ``to_data`` method is meant for **outbound** serialization.
+
+Inbound serialization is targeted at datastores, where Python's data primitives help maintain the data types more accurately. 
+Outbound serialization is targted at APIs that use language-agnostic transport protocols such as ``JSON`` where Python data primitives are not valid.
+
+
+Projection
+~~~~~~~~~~~
+
+The previous section went over ``Model`` serialization methods. This section covers specific instructions that can be added to the ``Field`` in order to determine how it is serialized. 
+
+Every ``Field`` in the ``Model`` has a ``projection`` attribute, which defaults to ``True``. 
+The projection field is a `ternary <https://en.wikipedia.org/wiki/Three-valued_logic>`_ value which can be set to either ``True``, ``False`` or ``None`` and determines the field's serialization in the following way:
+    
+    1. ``True`` means that the ``Field`` will always be serialized, even if its value is ``None``
+    2. ``False`` means that the ``Field`` will only be serialized if its value is **not** ``None`` and will be skipped otherwise.
+    3. ``None`` means that the ``Field`` will never be serialized, regardless of its value.
+
+When a ``Model`` serialization method is called, it iterates through all the fields and uses the ``projection`` attribute to determine if and how to serialize the specific field.
+
+The following example illustrates this::
+
+    >>> from tbone.data.models import *
+    >>> from tbone.data.fields import *
+    >>> class BlogPost(Model):
+    ...     title = StringField()
+    ...     body = StringField()
+    ...     number_of_views = IntegerField(default=0, projection=False)
+    ... 
+    >>> post = BlogPost({'title': 'Trees Are Tall', 'body': 'Trees can grow to be very tall ...'})
+    >>> await post.to_data()
+    {'title': 'Trees Are Tall', 'body': 'Trees can grow to be very tall ...'}
+    >>> post.number_of_views += 1
+
+The above example illustrates a ``Model`` that has a field used, in this case, for analytics, and is not required to be included as part of the API
+
+
+Export methods
+~~~~~~~~~~~~~~~
+
+When designing APIs, it is sometimes required to expose data which is not directly mapped to a single field in the model's schema.
+Such data can be a result on a calculation, data aggregation or even data fetched sources ourside the model.
+For this purpose, the ``Model`` class can implement export methods.
+
+Export methods are regular member methods on the model with the following attributes:
+
+    1. Export methods accept no external parameters and rely only on the model's data
+    2. Export methods always return a primitive value
+    3. Export methods are decorated with the ``@export`` decorator
+    4. Export methods are coroutines and therefore are prefixed with ``async``
+
+The following example illustrates this::
+
+    >>> from tbone.data.models import *
+    >>> from tbone.data.fields import *
+    >>> class Trainee(Model):
+    ...     weight = FloatField()
+    ...     height = FloatField()
+    ...     @export
+    ...     async def bmi(self): # body mass index
+    ...         return (self.weight*703)/(self.height*self.height)
+    ... 
+    >>> t = Trainee({'weight': 81.5, 'height' : 178})
+    >>> t.to_data()
+    {'weight': 81.5, 'height': 178.0, 'bmi': 1.8083101881075623}
+
+(Please do not consider the above example to be a real BMI calculator)
+
+
+The example above brings the quetion of why export methods need to be coroutines. 
+In the ``bmi`` export example there are no lines of code which make use of the application's event loop.
+However, export functions may include data from external sources as well. If such an implementation would not be using a coroutine the code will be blocking.
+The following example illustrates this::
+
+    from aiohttp import client
+    from tbone.data.models import Model
+    from tbone.data.fields import *
+
+    API_KEY = '<get your own for free>';
+    QUERY_URL = 'http://api.openweathermap.org/data/2.5/forecast?appid={key}&q={city},{state}'
+
+    class CityInfo(Model):
+        city = StringField()
+        state = StringField()
+
+        @export
+        async def current_weather(self):
+            async with aiohttp.ClientSession() as session:
+                async with session.get(QUERY_URL.format(key=API_KEY, city=self.city, state=self.state)) as resp:
+                    if resp.status == 200:  # http OK
+                        data = await resp.json()
+                        return data['list'][0]['main']['temp']
+                    return None
+    .
+    .
+    .
+    city_info = CityInfo({'city': 'San Francisco', 'state': 'CA'})
+    serialized_data = await city_info.to_data()
+
+
+To see a fully working example, please visit the examples page
+
+
+
+
 
 
 De-serialization
