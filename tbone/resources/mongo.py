@@ -79,7 +79,7 @@ class MongoResource(Resource):
         total_count = await cursor.count()
         object_list = await self._meta.object_class.find(cursor)
         # serialize results
-        serialized_objects = await asyncio.gather(*[obj.to_data() for obj in object_list])
+        serialized_objects = await asyncio.gather(*[obj.serialize() for obj in object_list])
         return {
             'meta': {
                 'total_count': total_count,
@@ -94,18 +94,16 @@ class MongoResource(Resource):
             pk = self.pk_type(kwargs.get('pk'))
             obj = await self._meta.object_class.find_one(self.db, {self.pk: pk})
             if obj:
-                return await obj.to_data()
+                return await obj.serialize()
             raise NotFound('Object matching the given {} with value {} was not found'.format(self.pk, str(pk)))
         except InvalidId:
             raise NotFound('Invalid ID')
 
     async def create(self, **kwargs):
         try:
-
-            obj = self._meta.object_class(self.data)
-            # TODO: what about the validate ?
-            # await obj.insert(db=self.db)
-            await obj.save(db=self.db)
+            obj = self._meta.object_class()
+            obj.deserialize(self.data)
+            await obj.insert(db=self.db)
             return obj
         except Exception as ex:
             logger.exception(ex)
@@ -124,7 +122,7 @@ class MongoResource(Resource):
             result = await self._meta.object_class().update(self.db, data=self.data)
             if result is None:
                 raise NotFound('Object matching the given {} was not found'.format(self.pk))
-            return await result.to_data()
+            return await result.serialize()
 
         except Exception as ex:
             logger.exception(ex)
@@ -137,14 +135,6 @@ class MongoResource(Resource):
         except Exception as ex:
             logger.exception(ex)
             raise BadRequest(ex)
-
-    def serialize(self, method, endpoint, data):
-        ''' We override this method to handle schematics object exporting'''
-        # if isinstance(data, self._meta.object_class):
-        #     data = data.to_data()
-        # elif isinstance(data, list):
-        #     data = [obj.to_data() for obj in data]
-        return super(MongoResource, self).serialize(method, endpoint, data)
 
     def build_filters(self, **kwargs):
         ''' Break url parameters and turn into filters '''

@@ -81,7 +81,7 @@ async def test_model_field_complete():
     }
 
     book = Book(raw_data)
-    export_data = await book.to_data()
+    export_data = await book.serialize()
     assert export_data == raw_data
 
 

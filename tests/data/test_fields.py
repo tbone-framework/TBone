@@ -90,13 +90,13 @@ async def test_field_projection():
         age = IntegerField(projection=None)
 
     m = M()
-    ser = await m.to_data()
+    ser = await m.serialize()
     assert 'name' in ser
     assert 'number' not in ser
     assert 'age' not in ser
 
     m = M({'number': 40})
-    ser = await m.to_data()
+    ser = await m.serialize()
     assert 'name' in ser
     assert 'number' in ser
     assert 'age' not in ser

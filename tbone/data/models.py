@@ -100,21 +100,11 @@ class ModelSerializer(object):
             return await func(*args, **kwargs)
         return func(*args, **kwargs)
 
-    async def to_data(self):
+    async def serialize(self, native=False, exports=True, projection=True):
         '''
         Returns a serialized from of the model as a dictionary with data primitives as values.
         Includes export methods and projection rules
         '''
-        return await self._serialize(native=False)
-
-    async def to_python(self):
-        '''
-        Returns a serialized from of the model as a dictionary with Python variables as values.
-        Includes export methods and projection rules
-        '''
-        return await self._serialize(native=True)
-
-    async def _serialize(self, native=True, exports=True, projection=True):
         data = {}
         # iterate through all fields
         for field_name, field in self._fields.items():
@@ -135,6 +125,14 @@ class ModelSerializer(object):
         for name, func in self._exports.items():
             data[name] = await func(self)
         return data
+
+    async def deserialize(self, data):
+        deserialized_data = {}
+        for name, field in self._fields.items():
+            if field._readonly is False and name in data:
+                deserialized_data[name] = data.get(name)
+        self.import_data(deserialized_data)
+        self.validate()
 
 
 class Model(ModelSerializer, metaclass=ModelMeta):

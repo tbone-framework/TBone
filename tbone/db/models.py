@@ -198,19 +198,24 @@ class MongoCollectionMixin(object):
                 if exceed:
                     raise ex
 
-    async def insert(self, db=None, data=None):
+    async def insert(self, db=None):
         '''
         If object has _id then a DuplicateError will be thrown.
         If not, object will be inserted and _id will be assigned.
         '''
         db = db or self.db
-        data = self.prepare_data(data)
+        data = self.prepare_data(self._data)
         for i in self.connection_retries():
             try:
                 result = await db[self.get_collection_name()].insert(data)
-                if result:
-                    self._id = result
-                return
+                self._id = result
+                # emit post save
+                asyncio.ensure_future(post_save.send(
+                    sender=self.__class__,
+                    instance=self,
+                    created=created)
+                )
+                break
             except ConnectionFailure as ex:
                 exceed = await self.check_reconnect_tries_and_wait(i, 'insert')
                 if exceed:

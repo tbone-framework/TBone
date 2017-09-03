@@ -31,7 +31,7 @@ async def test_model_creation_and_export():
     m = M({'name': 'Ron Burgundy', 'age': 45, 'decimal': '34.77', 'dt': '2017-07-25T12:34:14.414471'})
 
     # convert model to primitive form
-    data = await m.to_data()
+    data = await m.serialize()
     # check result is dict
     assert isinstance(data, dict)
     # check keys match
@@ -46,7 +46,7 @@ async def test_model_import():
 
     m = M()
     m.import_data({'first_name': 'Ron', 'last_name': 'Burgundy'})
-    data = await m.to_data()
+    data = await m.serialize()
 
     assert data['first_name'] == 'Ron'
     assert data['last_name'] == 'Burgundy'
@@ -66,7 +66,7 @@ async def test_model_export_decorator():
             return '{} {}'.format(self.first_name, self.last_name)
 
     m = M({'first_name': 'Ron', 'last_name': 'Burgundy'})
-    data = await m.to_data()
+    data = await m.serialize()
 
     assert data['first_name'] == 'Ron'
     assert data['last_name'] == 'Burgundy'
@@ -97,7 +97,7 @@ async  def test_field_projection():
     data = {'first_name': 'Ron', 'last_name': 'Burgundy', 'dob': datetime.datetime.now()}
     mo = M(data)
 
-    serialized = await mo.to_data()
+    serialized = await mo.serialize()
     for key in data.keys():
         assert key in serialized
 
