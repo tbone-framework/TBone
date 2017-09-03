@@ -128,6 +128,10 @@ class BaseField(object, metaclass=FieldMeta):
         Using ``False`` implies the field will be serialized only if the value is not ``None``
         Using ``None`` implies the field will never be serialized
 
+    :param readonly:
+        Determines if the field can be overriden using the ``deserialize`` method.
+        Has no effect on direct data manipulation
+
     :param primary_key:
         Declares the field as the model's primary key. Only one field can be declared like so.
         This declaration has no impact on the datastore, and is used by the ``Resource`` class as the model's identifier.
@@ -145,13 +149,15 @@ class BaseField(object, metaclass=FieldMeta):
     }
 
     def __init__(self, required=False, default=None, choices=None,
-                 validators=None, projection=True, primary_key=False, **kwargs):
+                 validators=None, projection=True, readonly=False,
+                 primary_key=False, **kwargs):
         super(BaseField, self).__init__()
 
         self._required = required
         self._default = default
         self._choices = choices
         self._projection = Ternary(projection)
+        self._readonly = readonly
         self._primary_key = primary_key
         if primary_key:
             self._required = True
