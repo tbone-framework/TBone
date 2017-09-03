@@ -19,9 +19,6 @@ post_save = Signal()
 class MongoCollectionMixin(object):
     ''' Mixin for data models, provides a persistency layer over a MongoDB collection '''
 
-    primary_key = '_id'             # default field as primary key
-    primary_key_type = ObjectId     # default type for primary key
-
     @property
     def db(self):
         return getattr(self, '_db', None)
@@ -41,7 +38,7 @@ class MongoCollectionMixin(object):
             np = getattr(cls._meta, 'namespace', None)
             cname = getattr(cls._meta, 'name', None)
             if np:
-                return '{}_{}'.format(np, cname or cls.__name__.lower())
+                return '{}.{}'.format(np, cname or cls.__name__.lower())
         return cname or cls.__name__.lower()
 
     @staticmethod
@@ -230,7 +227,7 @@ class MongoCollectionMixin(object):
             data = self.export_data(native=True)
 
         if self.primary_key not in data or data[self.primary_key] is None:
-            raise Exception('Missing object id')
+            raise Exception('Missing object primary key')
         query = {self.primary_key: data.pop(self.primary_key, None)}
         data = {'$set': data}
         for i in self.connection_retries():
@@ -258,28 +255,38 @@ class MongoCollectionMixin(object):
                     raise ex
 
 
-async def create_collections(db):
-    ''' load all models in app and create collections in db with specified indices'''
-    for model_class in MongoCollectionMixin.__subclasses__():
-        name = model_class.get_collection_name()
-        if name:
-            try:
-                # create collection
-                await db.create_collection(name)
-            except CollectionInvalid:
-                pass  # collection already exists
+async def create_collection(db, model_class):
+    name = model_class.get_collection_name()
+    if name:
+        try:
+            # create collection
+            coll = await db.create_collection(name)
+        except CollectionInvalid:  # collection already exists
+            coll = db[name]
 
-            # create indices
-            if hasattr(model_class, 'indices'):
-                for index in model_class.indices:
-                    try:
-                        await db[name].create_index(
-                            index['fields'],
-                            name=index.get('name', '_'.join([x[0] for x in index['fields']])),
-                            unique=index.get('unique', False),
-                            sparse=index.get('sparse', False),
-                            expireAfterSeconds=index.get('expireAfterSeconds', None),
-                            background=True
-                        )
-                    except OperationFailure:
-                        pass  # index already exists
+        # create indices
+        if hasattr(model_class, 'indices'):
+            for index in model_class.indices:
+                try:
+                    await db[name].create_index(
+                        index['fields'],
+                        name=index.get('name', '_'.join([x[0] for x in index['fields']])),
+                        unique=index.get('unique', False),
+                        sparse=index.get('sparse', False),
+                        expireAfterSeconds=index.get('expireAfterSeconds', None),
+                        partialFilterExpression=index.get('partialFilterExpression', None),
+                        background=True
+                    )
+                except OperationFailure:
+                    pass  # index already exists
+        return coll
+    return None
+
+
+async def create_app_collections(db):
+    ''' load all models in app and create collections in db with specified indices'''
+    futures = []
+    for model_class in MongoCollectionMixin.__subclasses__():
+        futures.append(create_collection(db, model_class))
+
+    await asyncio.gather(*futures)

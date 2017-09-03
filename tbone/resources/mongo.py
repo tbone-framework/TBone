@@ -20,6 +20,9 @@ class MongoResource(Resource):
 
     def __init__(self, *args, **kwargs):
         super(MongoResource, self).__init__(*args, **kwargs)
+        if not hasattr(self._meta.object_class, 'primary_key') or not hasattr(self._meta.object_class, 'primary_key_type'):
+            raise Exception('Cannot create a MongoResource to model {} without a primary key'.format(self._meta.object_class.__name__))
+
         self.pk = self._meta.object_class.primary_key
         self.pk_type = self._meta.object_class.primary_key_type
         self.view_type = kwargs.get('view_type', None)
@@ -77,7 +80,6 @@ class MongoResource(Resource):
         object_list = await self._meta.object_class.find(cursor)
         # serialize results
         serialized_objects = await asyncio.gather(*[obj.to_data() for obj in object_list])
-
         return {
             'meta': {
                 'total_count': total_count,

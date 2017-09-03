@@ -34,12 +34,10 @@ def create_database(request, event_loop):
     '''
     Fixture for creating a mongodb database before all tests are run in the db module
     '''
-    print('initialize database')
     client = AsyncIOMotorClient(io_loop=event_loop)
     db = client.get_database('test_db')
 
     def teardown():
-        print("drop database")
         client.drop_database(db)
 
     request.addfinalizer(teardown)

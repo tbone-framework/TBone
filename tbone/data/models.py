@@ -76,6 +76,10 @@ class ModelMeta(type):
         # apply field descriptors
         for name, field in fields.items():
             field.add_to_class(cls, name)
+            if field._primary_key:
+                # assign primary key information
+                cls.primary_key = field.name
+                cls.primary_key_type = field.python_type
 
         # add model options
         opts = getattr(cls, 'Meta', None)
@@ -185,7 +189,8 @@ class Model(ModelSerializer, metaclass=ModelMeta):
 
     @classmethod
     def fields(cls):
-        return list(iter(cls._fields))
+        # return list(iter(cls._fields))
+        return iter(cls._fields)
 
     def items(self):
         return [(field, self._data[field]) for field in self]

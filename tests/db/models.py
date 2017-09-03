@@ -14,12 +14,12 @@ class CreditCardNumberField(StringField):
 
 
 class BaseModel(Model, MongoCollectionMixin):
-    ''' Base model which adds a mongofb default _id field and an export method for object creation '''
-    _id = ObjectIdField()
+    ''' Base model which adds a mongodb default _id field and an export method for object creation timestamp'''
+    _id = ObjectIdField(primary_key=True)
 
     @export
     async def created(self):
-        return self._id.generation_time
+        return self._id.generation_time.isoformat()
 
 
 # ------  Basic  ------- #
@@ -38,7 +38,27 @@ class Number(BaseModel):
     number = IntegerField()
 
 
+
 # ------  Advanced  ------- #
+
+
+class Book(Model, MongoCollectionMixin):
+    isbn = StringField(primary_key=True)
+    title = StringField(required=True)
+    author = ListField(StringField)
+    format = StringField(choices=['Paperback', 'Hardcover', 'Digital', 'Audiobook'])
+    publication_date = DateTimeField()  # MongoDB cannot persist dates only and accepts only datetime
+
+    class Meta:
+        name = 'books'
+
+    indices = [{
+        'name': '_isbn',
+        'fields': [('isbn', ASCENDING)],
+        'unique': True
+    }]
+
+
 
 class Profile(Model):
     title = StringField()
@@ -76,8 +96,8 @@ class Account(BaseModel):
     Useful when loading accounts.json fixture
     '''
     email = EmailField(required=True)
-    password = StringField(required=True)
-    joined = DateTimeField(default=datetime.datetime.utcnow())
+    password = StringField(required=True, projection=None)
+    joined = DateTimeField(default=datetime.datetime.utcnow(), projection=None)
     profile = ModelField(Profile, required=True)
     gender = StringField(choices=['Male', 'Female'])
     home_address = ModelField(Address)
@@ -88,14 +108,17 @@ class Account(BaseModel):
     credit_card = ModelField(CreditCard)
     skills = ListField(StringField)
 
+    class Meta:
+        name = 'accounts'
+
     indices = [
         {
             'fields': [('email', ASCENDING)],
             'unique': True
         }, {
             'fields': [('phone_number', ASCENDING)],
-            'unique': True
+            'unique': True,
+            'partialFilterExpression': {'phone_number': {'$ne': None}}
         }
-
     ]
 

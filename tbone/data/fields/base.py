@@ -9,6 +9,7 @@ __all__ = ['BaseField']
 
 class Ternary(object):
     ''' A class for managing a ternary object with 3 possible states '''
+
     def __init__(self, value=None):
         if any(value is v for v in (True, False, None)):
             self.value = value
@@ -36,6 +37,7 @@ class FieldDescriptor(object):
     '''
     ``FieldDescriptor`` for exposing fields to allow access to the underlying data
     '''
+
     def __init__(self, field):
         self.field = field
 
@@ -125,6 +127,12 @@ class BaseField(object, metaclass=FieldMeta):
         Using ``True`` implies the field will always be serialized
         Using ``False`` implies the field will be serialized only if the value is not ``None``
         Using ``None`` implies the field will never be serialized
+
+    :param primary_key:
+        Declares the field as the model's primary key. Only one field can be declared like so.
+        This declaration has no impact on the datastore, and is used by the ``Resource`` class as the model's identifier.
+        If the model is also mixed with a persistency class, it would make sense that the field which 
+        is defined as the primary key may also be indexed as unique
     '''
     data_type = None
     python_type = None
@@ -137,13 +145,16 @@ class BaseField(object, metaclass=FieldMeta):
     }
 
     def __init__(self, required=False, default=None, choices=None,
-                 validators=None, projection=True, **kwargs):
+                 validators=None, projection=True, primary_key=False, **kwargs):
         super(BaseField, self).__init__()
 
         self._required = required
         self._default = default
         self._choices = choices
         self._projection = Ternary(projection)
+        self._primary_key = primary_key
+        if primary_key:
+            self._required = True
         self._bound = False                         # Whether the Field is bound to a Model
 
         if required and default is not None:

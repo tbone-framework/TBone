@@ -5,9 +5,10 @@ import asyncio
 import pytest
 import re
 import random
+from tbone.db.models import create_collection
 from tbone.testing import *
-from .resources import *
 from tests.fixtures import *
+from .resources import *
 
 
 @pytest.mark.asyncio
@@ -19,11 +20,11 @@ async def load_account_collection(json_fixture, db):
 
     # load data
     data = json_fixture('accounts.json')
-    # create collection in db
-    coll_name = AccountResource._meta.object_class.get_collection_name()
-    coll = await db.create_collection(coll_name)
+    # create collection in db and optional indices
+    coll = await create_collection(db, AccountResource._meta.object_class)
     # insert raw data into collection
-    await coll.insert_many(data)
+    if coll:
+        await coll.insert_many(data)
     return app
 
 
