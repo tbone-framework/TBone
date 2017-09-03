@@ -36,12 +36,13 @@ class MongoCollectionMixin(object):
         return dict(query)
 
     @classmethod
-    def get_collection(cls):
-        if hasattr(cls, 'Options'):
-            np = getattr(cls.Options, 'namespace', None)
+    def get_collection_name(cls):
+        if hasattr(cls, '_meta'):
+            np = getattr(cls._meta, 'namespace', None)
+            cname = getattr(cls._meta, 'name', None)
             if np:
-                return '{}_{}'.format(np, getattr(cls, 'COLLECTION', cls.__name__.lower()))
-        return getattr(cls, 'COLLECTION', cls.__name__.lower())
+                return '{}_{}'.format(np, cname or cls.__name__.lower())
+        return cname or cls.__name__.lower()
 
     @staticmethod
     def connection_retries():
@@ -68,7 +69,7 @@ class MongoCollectionMixin(object):
     async def count(cls, db):
         for i in cls.connection_retries():
             try:
-                result = await db[cls.get_collection()].count()
+                result = await db[cls.get_collection_name()].count()
                 return result
             except ConnectionFailure as ex:
                 exceed = await cls.check_reconnect_tries_and_wait(i, 'count')
@@ -81,7 +82,7 @@ class MongoCollectionMixin(object):
         query = cls.process_query(query)
         for i in cls.connection_retries():
             try:
-                result = await db[cls.get_collection()].find_one(query)
+                result = await db[cls.get_collection_name()].find_one(query)
                 if result:
                     result = cls.create_model(result)
                 return result
@@ -93,13 +94,13 @@ class MongoCollectionMixin(object):
     @classmethod
     def get_cursor(cls, db, query={}, projection=None, sort=[]):
         query = cls.process_query(query)
-        return db[cls.get_collection()].find(filter=query, projection=projection, sort=sort)
+        return db[cls.get_collection_name()].find(filter=query, projection=projection, sort=sort)
 
     @classmethod
     async def create_index(cls, db, indices, **kwargs):
         for i in cls.connection_retries():
             try:
-                result = await db[cls.get_collection()].create_index(indices, **kwargs)
+                result = await db[cls.get_collection_name()].create_index(indices, **kwargs)
             except ConnectionFailure as e:
                 exceed = await cls.check_reconnect_tries_and_wait(i, 'create_index')
                 if exceed:
@@ -125,10 +126,10 @@ class MongoCollectionMixin(object):
     async def distinct(cls, db, key):
         for i in cls.connection_retries():
             try:
-                result = await db[cls.get_collection()].distinct(key)
+                result = await db[cls.get_collection_name()].distinct(key)
                 return result
             except ConnectionFailure as ex:
-                exceed = await cls.check_reconnect_tries_and_wait(i, 'count')
+                exceed = await cls.check_reconnect_tries_and_wait(i, 'distinct')
                 if exceed:
                     raise ex
 
@@ -138,10 +139,10 @@ class MongoCollectionMixin(object):
         query = cls.process_query(query)
         for i in cls.connection_retries():
             try:
-                result = await db[cls.get_collection()].remove(query)
+                result = await db[cls.get_collection_name()].remove(query)
                 return result
             except ConnectionFailure as ex:
-                exceed = await cls.check_reconnect_tries_and_wait(i, 'remove_entries')
+                exceed = await cls.check_reconnect_tries_and_wait(i, 'delete_entries')
                 if exceed:
                     raise ex
 
@@ -151,7 +152,7 @@ class MongoCollectionMixin(object):
         return result
 
     @classmethod
-    def create_model(cls, data, fields=None):
+    def create_model(cls, data: dict, fields=None):
         '''
         Creates model instance from data (dict).
         '''
@@ -186,7 +187,7 @@ class MongoCollectionMixin(object):
         for i in self.connection_retries():
             try:
                 created = False if '_id' in data else True
-                result = await self.db[self.get_collection()].save(data)
+                result = await self.db[self.get_collection_name()].save(data)
                 self._id = result
                 # emit post save
                 asyncio.ensure_future(post_save.send(
@@ -209,7 +210,7 @@ class MongoCollectionMixin(object):
         data = self.prepare_data(data)
         for i in self.connection_retries():
             try:
-                result = await db[self.get_collection()].insert(data)
+                result = await db[self.get_collection_name()].insert(data)
                 if result:
                     self._id = result
                 return
@@ -234,7 +235,7 @@ class MongoCollectionMixin(object):
         data = {'$set': data}
         for i in self.connection_retries():
             try:
-                result = await db[self.get_collection()].find_one_and_update(
+                result = await db[self.get_collection_name()].find_one_and_update(
                     filter=query,
                     update=data,
                     return_document=ReturnDocument.AFTER
@@ -260,14 +261,13 @@ class MongoCollectionMixin(object):
 async def create_collections(db):
     ''' load all models in app and create collections in db with specified indices'''
     for model_class in MongoCollectionMixin.__subclasses__():
-        name = model_class.get_collection()
+        name = model_class.get_collection_name()
         if name:
             try:
                 # create collection
                 await db.create_collection(name)
             except CollectionInvalid:
                 pass  # collection already exists
-
 
             # create indices
             if hasattr(model_class, 'indices'):

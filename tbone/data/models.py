@@ -8,6 +8,28 @@ from .fields import BaseField
 from functools import wraps
 
 
+class ModelOptions(object):
+    '''
+    A configuration class for data Models. Provides all the defaults and
+    allows overriding inside the model's definition using the ``Meta`` class
+    :param name:
+        The name of the data model.
+        Persistency mixins use this to determine the name of the data collection in the datastore.
+        Defaults to the class's name with ``None``.
+
+    :param namespace:
+        Defines a namespace for the model name. Used by persistency mixins to prepend to the collection's name
+    '''
+    name = None
+    namespace = None
+
+    def __init__(self, meta=None):
+        if meta:
+            for attr in dir(meta):
+                if not attr.startswith('_'):
+                    setattr(self, attr, getattr(meta, attr))
+
+
 class ModelMeta(type):
     '''Metaclass for Model'''
     @classmethod
@@ -48,9 +70,17 @@ class ModelMeta(type):
 
         attrs['_fields'] = fields
         attrs['_exports'] = exports
+
+        # create class
         cls = super(ModelMeta, mcl).__new__(mcl, name, bases, attrs)
+        # apply field descriptors
         for name, field in fields.items():
             field.add_to_class(cls, name)
+
+        # add model options
+        opts = getattr(cls, 'Meta', None)
+        cls._meta = ModelOptions(opts)
+
         return cls
 
 
