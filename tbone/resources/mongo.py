@@ -101,10 +101,14 @@ class MongoResource(Resource):
 
     async def create(self, **kwargs):
         try:
+            # create model
             obj = self._meta.object_class()
-            obj.deserialize(self.data)
+            # deserialize data from request body
+            await obj.deserialize(self.data)
+            # create document in DB
             await obj.insert(db=self.db)
-            return obj
+            # serialize object for response
+            return await obj.serialize()
         except Exception as ex:
             logger.exception(ex)
             raise BadRequest(ex)
