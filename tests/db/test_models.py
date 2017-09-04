@@ -4,6 +4,8 @@
 import asyncio
 import pytest
 import random
+from motor.motor_asyncio import AsyncIOMotorCollection
+from pymongo.errors import DuplicateKeyError
 from tbone.testing import *
 from tests.fixtures import *
 from .models import *
@@ -11,6 +13,31 @@ from .models import *
 
 COUNT = 100
 PAGE = 10
+
+
+@pytest.mark.asyncio
+async def test_model_name_and_namespace(request, db):
+    class M(BaseModel):
+        name = StringField()
+
+        class Meta:
+            namespace = 'kitchen'
+            name = 'hats'
+
+    m = M({'name': 'Toque'})
+    await m.save(db)
+    # verify defined namespace.name exists
+    names = await db.collection_names()
+    assert 'kitchen.hats' in names
+
+    class M2(BaseModel):
+        name = StringField()
+
+    m = M2({'name': 'Toque'})
+    await m.save(db)
+    # verify default model class name exists
+    names = await db.collection_names()
+    assert 'm2' in names
 
 
 @pytest.mark.asyncio
@@ -31,6 +58,10 @@ async def test_model_crud_operations(request, db):
     assert p3
     assert p2.pk == p3.pk
     assert p3.first_name == 'Michael'
+
+    # fail to insert model that already has a mongodb _id
+    with pytest.raises(DuplicateKeyError):
+        await p2.insert(db)
 
     # update model in db explicit
     p3 = await p3.update(db, {'first_name': 'Ron'})
@@ -100,11 +131,6 @@ async def test_collection_pagination_and_sorting(request, db):
         ms = await Number.find(cursor)
         assert len(ms) == PAGE
         numbers += [m.number for m in ms]
-    
+
     assert len(numbers) == COUNT
     assert numbers == sorted(numbers)
-
-
-
-
-
