@@ -207,6 +207,7 @@ class MongoCollectionMixin(object):
         data = self.prepare_data(self._data)
         for i in self.connection_retries():
             try:
+                created = False if '_id' in data else True
                 result = await db[self.get_collection_name()].insert(data)
                 self._id = result
                 # emit post save
@@ -279,11 +280,11 @@ async def create_collection(db, model_class):
                         unique=index.get('unique', False),
                         sparse=index.get('sparse', False),
                         expireAfterSeconds=index.get('expireAfterSeconds', None),
-                        partialFilterExpression=index.get('partialFilterExpression', None),
+                        partialFilterExpression=index.get('partialFilterExpression', {}),
                         background=True
                     )
                 except OperationFailure:
-                    pass  # index already exists
+                    pass  # index already exists ? TODO: do something with this
         return coll
     return None
 
