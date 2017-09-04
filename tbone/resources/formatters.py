@@ -26,21 +26,21 @@ class ExtendedJSONEncoder(json.JSONEncoder):
             return super(ExtendedJSONEncoder, self).default(data)
 
 
-class Serializer(object):
+class Formatter(object):
     ''' Base class for all serializers '''
-    def deserialize(self, body):
+    def parse(self, body):
         raise NotImplementedError()
 
-    def serialize(self, data):
+    def format(self, data):
         raise NotImplementedError()
 
 
-class JSONSerializer(Serializer):
+class JSONFormatter(Formatter):
     ''' Implements JSON serialization '''
-    def deserialize(self, body):
+    def parse(self, body):
         if isinstance(body, bytes):
             return json.loads(body.decode('utf-8'))
         return json.loads(body)
 
-    def serialize(self, data):
+    def format(self, data):
         return json.dumps(data, cls=ExtendedJSONEncoder)

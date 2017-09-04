@@ -5,7 +5,7 @@
 import logging
 import asyncio
 from dateutil import parser
-from .serializers import JSONSerializer
+from .formatters import JSONFormatter
 from .authentication import NoAuthentication
 from .http import *
 
@@ -38,9 +38,9 @@ class ResourceOptions(object):
     :param allowed_detail:
         Same as ``allowed_list`` but for requests which include a primary key
 
-    :param serializer:
-        Provides an instance to a serialization class the resource will be using when serlializing and de-serializing text.
-        The default is ``JSONSerializer``. Developers can subclass ``Serializer`` base class and provide implementations to other formats.
+    :param formatter:
+        Provides an instance to a formatting class the resource will be using when formatting and parsing data.
+        The default is ``JSONFormatter``. Developers can subclass ``Formatter`` base class and provide implementations to other formats.
 
     :param authentication:
         Provides and instance to the authentication class the resource will be using when authenticating requests.
@@ -54,7 +54,7 @@ class ResourceOptions(object):
     fts_operator = 'q'
     allowed_list = ['get', 'post', 'put', 'patch', 'delete']
     allowed_detail = ['get', 'post', 'put', 'patch', 'delete']
-    serializer = JSONSerializer()
+    formatter = JSONFormatter()
     authentication = NoAuthentication()
 
     def __init__(self, meta=None):
@@ -196,18 +196,18 @@ class Resource(object, metaclass=ResourceMeta):
                 raise Unauthorized()
 
             body = await self.request_body()
-            self.data = self.deserialize(method, endpoint, body)
+            self.data = self.parse(method, endpoint, body)
             kwargs.update(self.request_args())
             view_method = getattr(self, self.http_methods[endpoint][method])
             # call request method
             data = await view_method(*args, **kwargs)
             # add request_uri
-            serialized = self.serialize(method, endpoint, data)
+            formatted = self.format(method, endpoint, data)
         except Exception as ex:
             return self.dispatch_error(ex)
 
         status = self.status_map.get(self.http_methods[endpoint][method], OK)
-        return self.build_response(serialized, status=status)
+        return self.build_response(formatted, status=status)
 
     def dispatch_error(self, err):
         '''
@@ -215,10 +215,10 @@ class Resource(object, metaclass=ResourceMeta):
         '''
         try:
             data = {'error': [l for l in err.args]}
-            body = self._meta.serializer.serialize(data)
+            body = self._meta.formatter.format(data)
         except Exception as ex:
             data = {'error': str(err)}
-            body = self._meta.serializer.serialize(data)
+            body = self._meta.formatter.format(data)
 
         status = getattr(err, 'status', 500)
         return self.build_response(body, status=status)
@@ -247,49 +247,49 @@ class Resource(object, metaclass=ResourceMeta):
     def get_resource_uri(self):
         return '/{}/{}/'.format(getattr(self.__class__, 'api_name', None), getattr(self.__class__, 'resource_name', None))
 
-    def deserialize(self, method, endpoint, body):
-        ''' calls deserialize on list or detail '''
+    def parse(self, method, endpoint, body):
+        ''' calls parse on list or detail '''
         if endpoint == 'list':
-            return self.deserialize_list(body)
+            return self.parse_list(body)
 
-        return self.deserialize_detail(body)
+        return self.parse_detail(body)
 
-    def deserialize_list(self, body):
+    def parse_list(self, body):
         if body:
-            return self._meta.serializer.deserialize(body)
+            return self._meta.formatter.parse(body)
         return []
 
-    def deserialize_detail(self, body):
+    def parse_detail(self, body):
         if body:
-            return self._meta.serializer.deserialize(body)
+            return self._meta.formatter.parse(body)
         return {}
 
-    def serialize(self, method, endpoint, data):
-        ''' Calls serialize on list or detail '''
+    def format(self, method, endpoint, data):
+        ''' Calls format on list or detail '''
         if data is None and method == 'GET':
             raise NotFound()
 
         if endpoint == 'list':
             if method == 'POST':
-                return self.serialize_detail(data)
+                return self.format_detail(data)
 
-            return self.serialize_list(data)
-        return self.serialize_detail(data)
+            return self.format_list(data)
+        return self.format_detail(data)
 
-    def serialize_list(self, data):
+    def format_list(self, data):
         if data is None:
             return ''
         # add resource uri
         for item in data['objects']:
             item['resource_uri'] = '{}{}/'.format(self.get_resource_uri(), item[self.pk])
 
-        return self._meta.serializer.serialize(data)
+        return self._meta.formatter.format(data)
 
-    def serialize_detail(self, data):
+    def format_detail(self, data):
         if data is None:
             return ''
         data['resource_uri'] = '{}{}/'.format(self.get_resource_uri(), data[self.pk])
-        return self._meta.serializer.serialize(self.get_resource_data(data))
+        return self._meta.formatter.format(self.get_resource_data(data))
 
     def get_resource_data(self, data):
         resource_data = {}
