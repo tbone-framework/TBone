@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 
+import asyncio
 import logging
 from functools import wraps
 from weakref import WeakMethod, ref
@@ -47,11 +48,12 @@ class Signal(object):
         if not self.receivers:
             return []
         responses = []
+        futures = []
         for receiver in self._get_receivers(sender):
             method = receiver()
             if callable(method):
-                response = await method(sender=sender, **kwargs)
-                responses.append((receiver, response))
+                futures.append(method(sender=sender, **kwargs))
+            responses = await asyncio.gather(*futures)
         return responses
 
     def _get_receivers(self, sender):
