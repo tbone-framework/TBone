@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import datetime
-from pymongo import ASCENDING
+from pymongo import ASCENDING, TEXT
 from tbone.data.fields import *
 from tbone.data.fields.mongo import ObjectIdField
 from tbone.data.models import *
@@ -38,26 +38,45 @@ class Number(BaseModel):
     number = IntegerField()
 
 
-
 # ------  Advanced  ------- #
+
+
+class Review(Model):
+    user = StringField(required=True)
+    ratings = DictField(IntegerField)
+    text = StringField()
+
+    @export
+    async def total_rating(self):
+        return sum(self.ratings.values(), 0.0) / len(self.ratings.values())
 
 
 class Book(Model, MongoCollectionMixin):
     isbn = StringField(primary_key=True)
     title = StringField(required=True)
     author = ListField(StringField)
-    format = StringField(choices=['Paperback', 'Hardcover', 'Digital', 'Audiobook'])
+    format = StringField(choices=['Paperback', 'Hardcover', 'Digital', 'Audiobook'], default='Paperback')
     publication_date = DateTimeField()  # MongoDB cannot persist dates only and accepts only datetime
+    reviews = ListField(ModelField(Review))
+    # internal attributes
+    impressions = IntegerField(default=0, projection=None)
+    views = IntegerField(default=0, projection=None)
 
     class Meta:
         name = 'books'
+        namespace = 'catalog'
 
     indices = [{
         'name': '_isbn',
         'fields': [('isbn', ASCENDING)],
         'unique': True
+    }, {
+        'name': '_fts',
+        'fields': [
+            ('title', TEXT),
+            ('author', TEXT)
+        ]
     }]
-
 
 
 class Profile(Model):
@@ -121,4 +140,3 @@ class Account(BaseModel):
             'partialFilterExpression': {'phone_number': {'$ne': None}}
         }
     ]
-

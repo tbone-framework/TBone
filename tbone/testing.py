@@ -19,6 +19,7 @@ class DummyResource(object):
     Dummy resource mixin to emulate the behavior of an async http library.
     Used for testing without Sanic or Aiohttp
     '''
+
     def build_response(self, data, status=200):
         return Response(
             data=data,
@@ -49,17 +50,22 @@ class ResourceTestClient(object):
     A test client used to perform basic http requests in a test environment on a Resource.
     Initialize with an app-like object and the Resource class being tested
     '''
+
     def __init__(self, app, resource_class):
         self._app = app
         self._router = Router(name='api')
         self._router.register(resource_class, resource_class.__name__)
 
+    def __del__(self):
+        for endpoint in self._router.endpoints():
+            self._router.unregister(endpoint)
+
     def parse_response_data(self, response):
         return json.loads(response.data)
 
     async def process_request(self, method, url, headers, args, body):
-        hander = None
-        # match the given url to urls in the router then activate the relevant resource 
+        handler = None
+        # match the given url to urls in the router then activate the relevant resource
         for route in self._router.urls2():
             match = re.match(route.path, url)
             if match:
@@ -76,10 +82,10 @@ class ResourceTestClient(object):
                 headers=headers,
                 body=body
             )
-            return await handler(request)
-        return Response({
-            'status': 404  # not found
-        })
+            response = await handler(request)
+            return response
+        return Response(headers={}, data=None, status=404)
+
 
     async def get(self, url, headers={}, args={}, body={}):
         return await self.process_request('GET', url, headers, args, body)
@@ -101,4 +107,3 @@ class ResourceTestClient(object):
 
     async def head(self, url, headers={}, args={}, body={}):
         return await self.process_request('HEAD', url, headers, args, body)
-

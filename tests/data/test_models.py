@@ -18,7 +18,7 @@ def test_model_repr():
 
 
 @pytest.mark.asyncio
-async def test_model_creation_and_export():
+async def test_model_creation_and_serialization():
     '''
     Simple model creation test
     '''

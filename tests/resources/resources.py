@@ -6,7 +6,7 @@ from tbone.resources import Resource
 from tbone.resources.mongo import *
 from tbone.resources.http import *
 from tbone.testing import DummyResource
-from tests.db.models import Account
+from tests.db.models import Account, Book
 
 
 class PersonResource(DummyResource, Resource):
@@ -58,3 +58,8 @@ class AccountResource(DummyResource, MongoResource):
     '''
     class Meta:
         object_class = Account
+
+
+class BookResource(DummyResource, MongoResource):
+    class Meta:
+        object_class = Book

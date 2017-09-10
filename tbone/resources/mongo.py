@@ -7,8 +7,10 @@ from functools import singledispatch
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from tbone.db.models import post_save
+from tbone.dispatch import MongoChannel
 from tbone.resources import Resource
 from tbone.resources.http import *
+from tbone.resources.signals import *
 
 LIMIT = 20
 OFFSET = 0
@@ -20,13 +22,11 @@ class MongoResource(Resource):
 
     def __init__(self, *args, **kwargs):
         super(MongoResource, self).__init__(*args, **kwargs)
+        # verify object class has a defined primary key
         if not hasattr(self._meta.object_class, 'primary_key') or not hasattr(self._meta.object_class, 'primary_key_type'):
             raise Exception('Cannot create a MongoResource to model {} without a primary key'.format(self._meta.object_class.__name__))
-
         self.pk = self._meta.object_class.primary_key
         self.pk_type = self._meta.object_class.primary_key_type
-        self.view_type = kwargs.get('view_type', None)
-        post_save.connect(self.post_save, sender=self._meta.object_class)
 
     @property
     def limit(self):
@@ -36,22 +36,40 @@ class MongoResource(Resource):
     def offset(self):
         return OFFSET
 
-    async def emit(self, db, key, data):
-        pubsub = Channel(db, 'pubsub')
+    @classmethod
+    async def emit(cls, db, key, data):
+        pubsub = MongoChannel(db, 'pubsub')
         await pubsub.create_channel()
-        pubsub.publish(key, data)
+        await pubsub.publish(key, data)
 
-    async def post_save(self, sender, instance, created):
-        ''' Receiver function for the object class's post_save signal '''
-        if instance.pk is not None:
-            # fetch resource (like detail)
-            self.db = instance.db
-            obj = await self.detail(pk=instance.pk)
-            obj['resource_uri'] = '{}{}/'.format(self.get_resource_uri(), instance.pk)
-            if created is True and self.view_type == 'list':
-                await self.emit(instance.db, 'resource_create', obj)
-            elif created is False and self.view_type == 'detail':
-                await self.emit(instance.db, 'resource_update', obj)
+    # ---------- receivers ------------ #
+
+    @classmethod
+    @receiver(post_save)
+    async def post_save(cls, sender, db, instance, created):
+        if instance.pk is None:
+            return
+
+        resource = cls()
+        obj = await instance.serialize()
+        obj['resource_uri'] = '{}{}/'.format(resource.get_resource_uri(), instance.pk)
+        if created is True:
+            await resource.emit(db, 'resource_create', obj)
+        else:
+            await resource.emit(db, 'resource_update', obj)
+
+    @classmethod
+    @receiver(resource_post_list)
+    async def post_list(cls, sender, db, instances):
+        '''
+        Hook to capture the results of a list query.
+        Useful when wanting to know when certain documents have come up in a query.
+        Implement in resource subclasses to provide domain-specific behavior
+        '''
+        serialized_objects = await asyncio.gather(*[obj.serialize() for obj in instances])
+        await cls.emit(db, 'resource_get_list', serialized_objects)
+
+    # ------------- resource overrides ---------------- #
 
     async def list(self, *args, **kwargs):
         limit = int(kwargs.pop('limit', [LIMIT])[0])
@@ -80,6 +98,12 @@ class MongoResource(Resource):
         object_list = await self._meta.object_class.find(cursor)
         # serialize results
         serialized_objects = await asyncio.gather(*[obj.serialize() for obj in object_list])
+        # signal post list
+        asyncio.ensure_future(resource_post_list.send(
+            sender=self._meta.object_class,
+            db=self.db,
+            instances=object_list)
+        )
         return {
             'meta': {
                 'total_count': total_count,
@@ -113,32 +137,37 @@ class MongoResource(Resource):
             logger.exception(ex)
             raise BadRequest(ex)
 
-    async def update(self, **kwargs):
+    async def modify(self, **kwargs):
         try:
-            return MethodNotImplemented()
+            self.data[self.pk] = self.pk_type(kwargs['pk'])
+            result = await self._meta.object_class().update(self.db, data=self.data, modify=True)
+            if result is None:
+                raise NotFound('Object matching the given {} was not found'.format(self.pk))
+            return await result.serialize()
         except Exception as ex:
             logger.exception(ex)
             raise BadRequest(ex)
 
-    async def modify(self, **kwargs):
+    async def update(self, **kwargs):
         try:
             self.data[self.pk] = self.pk_type(kwargs['pk'])
-            result = await self._meta.object_class().update(self.db, data=self.data)
-            if result is None:
+            updated_obj = await self._meta.object_class().update(self.db, data=self.data, modify=False)
+            if updated_obj is None:
                 raise NotFound('Object matching the given {} was not found'.format(self.pk))
-            return await result.serialize()
-
+            return await updated_obj.serialize()
         except Exception as ex:
             logger.exception(ex)
             raise BadRequest(ex)
 
     async def delete(self, *args, **kwargs):
-        try:
-            pk = self.pk_type(kwargs['pk'])
-            await self._meta.object_class.delete_entries(db=self.db, query={self.pk: pk})
-        except Exception as ex:
-            logger.exception(ex)
-            raise BadRequest(ex)
+        pk = self.pk_type(kwargs['pk'])
+        result = await self._meta.object_class.delete_entries(db=self.db, query={self.pk: pk})
+        if result.acknowledged:
+            if result.deleted_count == 0:
+                raise NotFound()
+        else:
+            raise BadRequest('Failed to delete object')
+
 
     def build_filters(self, **kwargs):
         ''' Break url parameters and turn into filters '''

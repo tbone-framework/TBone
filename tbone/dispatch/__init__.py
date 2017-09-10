@@ -3,3 +3,4 @@
 
 
 from .signals import *
+from .channels import *

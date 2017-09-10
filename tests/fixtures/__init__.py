@@ -10,11 +10,17 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 
 @pytest.fixture(scope='session')
-def event_loop():
+def event_loop(request):
     '''
     Fixture for creating a single event loop for the entire test loop
     '''
-    return asyncio.new_event_loop()
+    loop = asyncio.get_event_loop()
+
+    def teardown():
+        loop.stop()
+
+    request.addfinalizer(teardown)
+    return loop
 
 
 @pytest.fixture(scope='function')
