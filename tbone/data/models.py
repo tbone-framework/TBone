@@ -62,7 +62,7 @@ class ModelMeta(type):
 
         # collect all defined fields and export methods
         for key, value in attrs.items():
-            if getattr(value, '_export_method_', None):
+            if hasattr(value, '_export_method_'):
                 exports[key] = value
 
             if isinstance(value, BaseField):

@@ -76,6 +76,8 @@ class MongoCollectionMixin(object):
     @classmethod
     async def find_one(cls, db, query):
         result = None
+        if db is None:
+            raise Exception('Missing DB connection')
         query = cls.process_query(query)
         for i in cls.connection_retries():
             try:
@@ -136,17 +138,22 @@ class MongoCollectionMixin(object):
         query = cls.process_query(query)
         for i in cls.connection_retries():
             try:
-                result = await db[cls.get_collection_name()].remove(query)
+                result = await db[cls.get_collection_name()].delete_many(query)
                 return result
             except ConnectionFailure as ex:
                 exceed = await cls.check_reconnect_tries_and_wait(i, 'delete_entries')
                 if exceed:
                     raise ex
 
-    async def delete(self, db=None):
-        ''' Delete current document from collection '''
-        result = await self.delete_entries(db, {'_id': self.pk})
-        return result
+    async def delete(self, db):
+        ''' Delete document '''
+        for i in self.connection_retries():
+            try:
+                return await db[self.get_collection_name()].delete_one({self.primary_key: self.pk})
+            except ConnectionFailure as ex:
+                exceed = await self.check_reconnect_tries_and_wait(i, 'delete')
+                if exceed:
+                    raise ex
 
     @classmethod
     def create_model(cls, data: dict, fields=None):
@@ -175,12 +182,11 @@ class MongoCollectionMixin(object):
         If object has _id, then object will be created or fully rewritten.
         If not, object will be inserted and _id will be assigned.
         '''
-        self._db = db or self._db
+        self._db = db or self.db
         data = self.prepare_data()
         # validate object
         self.validate()
         # connect to DB to save the model
-        result = None
         for i in self.connection_retries():
             try:
                 created = False if '_id' in data else True
@@ -189,6 +195,7 @@ class MongoCollectionMixin(object):
                 # emit post save
                 asyncio.ensure_future(post_save.send(
                     sender=self.__class__,
+                    db=self.db,
                     instance=self,
                     created=created)
                 )
@@ -203,8 +210,10 @@ class MongoCollectionMixin(object):
         If object has _id then a DuplicateError will be thrown.
         If not, object will be inserted and _id will be assigned.
         '''
-        db = db or self.db
+        self._db = db or self.db
         data = self.prepare_data(self._data)
+        # validate object
+        self.validate()
         for i in self.connection_retries():
             try:
                 created = False if '_id' in data else True
@@ -213,6 +222,7 @@ class MongoCollectionMixin(object):
                 # emit post save
                 asyncio.ensure_future(post_save.send(
                     sender=self.__class__,
+                    db=self.db,
                     instance=self,
                     created=created)
                 )
@@ -222,7 +232,7 @@ class MongoCollectionMixin(object):
                 if exceed:
                     raise ex
 
-    async def update(self, db=None, data=None, full=True):
+    async def update(self, db=None, data=None, modify=False):
         db = db or self.db
         if data:
             self.import_data(data)
@@ -234,21 +244,28 @@ class MongoCollectionMixin(object):
 
         if self.primary_key not in data or data[self.primary_key] is None:
             raise Exception('Missing object primary key')
-        query = {self.primary_key: data.pop(self.primary_key, None)}
-        data = {'$set': data}
+        query = {self.primary_key: self.pk}
         for i in self.connection_retries():
             try:
-                result = await db[self.get_collection_name()].find_one_and_update(
-                    filter=query,
-                    update=data,
-                    return_document=ReturnDocument.AFTER
-                )
+                if modify:
+                    result = await db[self.get_collection_name()].find_one_and_update(
+                        filter=query,
+                        update={'$set': data},
+                        return_document=ReturnDocument.AFTER
+                    )
+                else:
+                    result = await db[self.get_collection_name()].find_one_and_replace(
+                        filter=query,
+                        replacement=data,
+                        return_document=ReturnDocument.AFTER
+                    )
                 if result:
                     updated_obj = self.create_model(result)
                     updated_obj._db = db
                     # emit post save
                     asyncio.ensure_future(post_save.send(
                         sender=self.__class__,
+                        db=db,
                         instance=updated_obj,
                         created=False)
                     )
