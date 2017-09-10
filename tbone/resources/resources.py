@@ -5,9 +5,14 @@
 import logging
 import asyncio
 from dateutil import parser
+from copy import deepcopy
+from collections import OrderedDict
+from functools import wraps
+from tbone.dispatch import Channel
 from .formatters import JSONFormatter
 from .authentication import NoAuthentication
 from .http import *
+
 
 logger = logging.getLogger(__file__)
 
@@ -47,10 +52,13 @@ class ResourceOptions(object):
         Default is ``NoAuthentication``.
         Developers must subclass the ``NoAuthentication`` class to provide their own resource authentication, based on the application's authentication choices.
 
+    :param channel:
+        Defines the Channel class which the resource will emit events into. Defaults to in-memory
     '''
     name = None
     object_class = None
     query = None
+    channel_class = Channel
     fts_operator = 'q'
     allowed_list = ['get', 'post', 'put', 'patch', 'delete']
     allowed_detail = ['get', 'post', 'put', 'patch', 'delete']
@@ -65,7 +73,26 @@ class ResourceOptions(object):
 
 
 class ResourceMeta(type):
+    @classmethod
+    def __prepare__(mcl, name, bases):
+        ''' Adds the signal decorator so member methods can be decorated as signal receivers '''
+        def receiver(signal):
+            def _receiver(func):
+                func._signal_receiver_ = signal
+
+                @wraps(func)
+                def wrapper(*args, **kwargs):
+                    return func(*args, **kwargs)
+
+                return wrapper
+            return _receiver
+
+        d = dict()
+        d['receiver'] = receiver
+        return d
+
     def __new__(mcl, name, bases, attrs):
+        del attrs['receiver']
         cls = super(ResourceMeta, mcl).__new__(mcl, name, bases, attrs)
         opts = getattr(cls, 'Meta', None)
         cls._meta = ResourceOptions(opts)
@@ -138,7 +165,7 @@ class Resource(object, metaclass=ResourceMeta):
         '''
         def _wrapper(request, *args, **kwargs):
             ''' Make a new instance of the resource class '''
-            instance = cls(*init_args, **init_kwargs)
+            instance = cls(*init_args, view_type=view_type, **init_kwargs)
             instance.request = request
             return instance.dispatch(view_type, *args, **kwargs)
 
