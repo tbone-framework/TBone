@@ -31,6 +31,8 @@ class ListField(CompositeField):
             self.field = field()
         elif isinstance(field, BaseField):  # an instance of field was passed
             self.field = field
+        elif isinstance(field, ModelMeta):  # we're being nice
+            raise TypeError('To define a list of models, use ListField(ModelField(...))')
         else:
             raise TypeError("'{}' is not a field or type of field".format(field.__class__.__qualname__))
 
@@ -53,6 +55,43 @@ class ListField(CompositeField):
         data = []
         for value in value_list:
             data.append(self.field.to_data(value))
+
+        return data
+
+
+class DictField(CompositeField):
+    data_type = dict
+    python_type = dict
+
+    def __init__(self, field, **kwargs):
+        super(DictField, self).__init__(**kwargs)
+        # the provided field can be a field class or field instance
+        if isinstance(field, FieldMeta):  # a field type was passed
+            self.field = field()
+        elif isinstance(field, BaseField):  # an instance of field was passed
+            self.field = field
+        else:
+            raise TypeError("'{}' is not a field or type of field".format(field.__class__.__qualname__))
+
+    def _export(self, value):
+        if value is None:
+            return None
+        return self.data_type(value)
+
+    def _import(self, value):
+        if value is None:
+            return None
+        return self.python_type(value)
+
+    def to_data(self, associative):
+        if associative is None:
+            return None
+        if not isinstance(associative, dict):
+            raise ValueError('Data is not of type dict')
+
+        data = {}
+        for key, value in associative.items():
+            data[key] = self.field.to_data(value)
 
         return data
 
