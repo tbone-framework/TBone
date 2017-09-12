@@ -134,3 +134,42 @@ async def test_collection_pagination_and_sorting(request, db):
 
     assert len(numbers) == COUNT
     assert numbers == sorted(numbers)
+
+
+@pytest.mark.asyncio
+async def test_model_custom_methods(request, db):
+    ''' Test custom methods for model updating implemented in the model class '''
+
+    # create a new book and save to DB
+    book = Book({
+        'isbn': '9781602523692',
+        'title': 'War and Peace',
+        'author': ['Leo Tolstoy'],
+        'publication_date': '1869-01-01T00:00:00.000+0000'
+    })
+    await book.save(db)
+    # create review and add, using custom method on model
+    result = await book.add_review(db, {
+        'user': 'Ron Burgundy',
+        'ratings': {
+            'smooth_read': 4,
+            'language': 5,
+            'pace': 3,
+            'originality': 2
+        },
+        'text': 'Good read, really enjoyed it, even though it took me so long to finish'
+    })
+    assert result.matched_count == 1
+    assert result.modified_count == 1
+    # increment view
+    result = await book.inc_number_of_views(db)
+    assert result.matched_count == 1
+    assert result.modified_count == 1
+
+    new_book = Book()
+    new_book = await Book.find_one(db, {book.primary_key: book.pk})
+    assert len(new_book.reviews) == 1
+    assert new_book.number_of_views == 1
+
+
+
