@@ -34,9 +34,9 @@ class ModelMeta(type):
     '''Metaclass for Model'''
     @classmethod
     def __prepare__(mcl, name, bases):
-        ''' Adds the export decorator so member methods can be decorated for export '''
-        def export(func):
-            func._export_method_ = True
+        ''' Adds the ``serialize`` decorator so member methods can be decorated for serialization '''
+        def serialize(func):
+            func._serialize_method_ = True
 
             @wraps(func)
             def wrapper(*args, **kwargs):
@@ -44,32 +44,32 @@ class ModelMeta(type):
 
             return wrapper
         d = dict()
-        d['export'] = export
+        d['serialize'] = serialize
         return d
 
     def __new__(mcl, name, bases, attrs):
-        del attrs['export']
+        del attrs['serialize']
         fields = OrderedDict()
-        exports = OrderedDict()
+        serialize_methods = OrderedDict()
 
         # get model fields and exports from base classes
         for base in reversed(bases):
             if hasattr(base, '_fields'):
                 fields.update(deepcopy(base._fields))
 
-            if hasattr(base, '_exports'):
-                exports.update(deepcopy(base._exports))
+            if hasattr(base, '_serialize_methods'):
+                serialize_methods.update(deepcopy(base._serialize_methods))
 
         # collect all defined fields and export methods
         for key, value in attrs.items():
-            if hasattr(value, '_export_method_'):
-                exports[key] = value
+            if hasattr(value, '_serialize_method_'):
+                serialize_methods[key] = value
 
             if isinstance(value, BaseField):
                 fields[key] = value
 
         attrs['_fields'] = fields
-        attrs['_exports'] = exports
+        attrs['_serialize_methods'] = serialize_methods
 
         # create class
         cls = super(ModelMeta, mcl).__new__(mcl, name, bases, attrs)
@@ -92,7 +92,7 @@ class ModelSerializer(object):
     '''
     Mixin class for adding nonblocking serialization methods.
     Provides serialization methods to data primitives and to python types.
-    Performs serialization taking into account projection attributes and export methods
+    Performs serialization taking into account projection attributes and serialize methods
     '''
     async def _execute(self, func, *args, **kwargs):
         ''' Helper method to verify and execute methods as they coroutines  '''
@@ -122,7 +122,7 @@ class ModelSerializer(object):
                 data[field_name] = None
 
         # iterate through all export methods
-        for name, func in self._exports.items():
+        for name, func in self._serialize_methods.items():
             data[name] = await func(self)
         return data
 

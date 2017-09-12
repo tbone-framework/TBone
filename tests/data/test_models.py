@@ -61,7 +61,7 @@ async def test_model_export_decorator():
         first_name = StringField()
         last_name = StringField()
 
-        @export
+        @serialize
         async def full_name(self):
             return '{} {}'.format(self.first_name, self.last_name)
 

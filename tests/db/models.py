@@ -14,10 +14,10 @@ class CreditCardNumberField(StringField):
 
 
 class BaseModel(Model, MongoCollectionMixin):
-    ''' Base model which adds a mongodb default _id field and an export method for object creation timestamp'''
+    ''' Base model which adds a mongodb default _id field and an serialize method for object creation timestamp'''
     _id = ObjectIdField(primary_key=True)
 
-    @export
+    @serialize
     async def created(self):
         return self._id.generation_time.isoformat()
 
@@ -29,7 +29,7 @@ class Person(BaseModel):
     first_name = StringField(required=True)
     last_name = StringField(required=True)
 
-    @export
+    @serialize
     async def full_name(self):  # redundant but good for testing
         return '{} {}'.format(self.first_name, self.last_name)
 
@@ -46,7 +46,7 @@ class Review(Model):
     ratings = DictField(IntegerField)
     text = StringField()
 
-    @export
+    @serialize
     async def total_rating(self):
         return sum(self.ratings.values(), 0.0) / len(self.ratings.values())
 
@@ -57,10 +57,10 @@ class Book(Model, MongoCollectionMixin):
     author = ListField(StringField)
     format = StringField(choices=['Paperback', 'Hardcover', 'Digital', 'Audiobook'], default='Paperback')
     publication_date = DateTimeField()  # MongoDB cannot persist dates only and accepts only datetime
-    reviews = ListField(ModelField(Review))
+    reviews = ListField(ModelField(Review), default=[])
     # internal attributes
-    impressions = IntegerField(default=0, projection=None)
-    views = IntegerField(default=0, projection=None)
+    number_of_impressions = IntegerField(default=0, projection=None)
+    number_of_views = IntegerField(default=0, projection=None)
 
     class Meta:
         name = 'books'
@@ -77,6 +77,46 @@ class Book(Model, MongoCollectionMixin):
             ('author', TEXT)
         ]
     }]
+
+    async def add_review(self, db, review_data):
+        ''' Adds a review to the list of reviews, without updating the entire document '''
+        db = db or self.db
+        # create review model instand and verify
+        new_rev = Review(review_data)
+        new_rev.validate()
+        data = new_rev.export_data(native=True)
+        # use model's pk as query
+        query = {self.primary_key: self.pk}
+        # push review
+        result = await db[self.get_collection_name()].update_one(
+            filter=query,
+            update={'$push': {'reviews': data}},
+        )
+        return result
+
+    async def inc_number_of_impressions(self, db):
+        ''' Increment the number of views by 1 '''
+        db = db or self.db
+        # use model's pk as query
+        query = {self.primary_key: self.pk}
+        # push review
+        result = await db[self.get_collection_name()].update_one(
+            filter=query,
+            update={'$inc': {'number_of_impressions': 1}},
+        )
+        return result
+
+    async def inc_number_of_views(self, db):
+        ''' Increment the number of views by 1 '''
+        db = db or self.db
+        # use model's pk as query
+        query = {self.primary_key: self.pk}
+        # push review
+        result = await db[self.get_collection_name()].update_one(
+            filter=query,
+            update={'$inc': {'number_of_views': 1}},
+        )
+        return result
 
 
 class Profile(Model):
