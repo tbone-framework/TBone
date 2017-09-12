@@ -23,6 +23,11 @@ def test_list_field():
     # check None works on data export
     assert numbers.to_data(None) is None
 
+    # check default value
+    names = ListField(StringField, default=[])
+    assert names.to_python(None) == []
+    assert names.to_data(None) == []
+
 
 def test_model_field():
     class Comment(Model):

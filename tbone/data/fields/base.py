@@ -105,7 +105,7 @@ class BaseField(object, metaclass=FieldMeta):
 
     :param required:
         Invalidates the field of no data is provided.
-        Default: False
+        Default: None
 
     :param default:
         Provides a default value when none is provided. Can be a callable
@@ -193,10 +193,10 @@ class BaseField(object, metaclass=FieldMeta):
 
     def to_data(self, value):
         '''
-        Export python data type to simple form for serialization.
+        Coerce python data type to simple form for serialization.
         If default value was defined returns the default value if None was passed
         '''
-        if value is None and self._default:
+        if value is None and self._default is not None:
             return self.default
         try:
             value = self._export(value)
@@ -206,10 +206,10 @@ class BaseField(object, metaclass=FieldMeta):
 
     def to_python(self, value):
         '''
-        Import data from primitive form to native Python types.
+        Coerce data from primitive form to native Python types.
         Returns the default type (if exists)
         '''
-        if value is None and self._default:
+        if value is None and self._default is not None:
             return self.default
         if not isinstance(value, self.python_type):
             try:

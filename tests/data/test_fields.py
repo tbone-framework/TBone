@@ -50,6 +50,11 @@ def test_time_field():
 def test_default():
     number = IntegerField(default=5)
     assert number.to_data(None) == 5
+    assert number.to_python(None) == 5
+
+    number2 = IntegerField(default=0)
+    assert number2.to_data(None) == 0
+    assert number2.to_python(None) == 0
 
     class M(Model):
         number = IntegerField(default=5)

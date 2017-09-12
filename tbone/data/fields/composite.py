@@ -48,16 +48,27 @@ class ListField(CompositeField):
 
     def to_data(self, value_list):
         if value_list is None:
+            if self._default is not None:
+                return self.default
             return None
         if not isinstance(value_list, list):
             raise ValueError('Data is not of type list')
-
         data = []
         for value in value_list:
             data.append(self.field.to_data(value))
-
         return data
 
+    def to_python(self, value_list):
+        if value_list is None:
+            if self._default is not None:
+                return self.default
+            return None
+        if not isinstance(value_list, list):
+            raise ValueError('Data is not of type list')
+        data = []
+        for value in value_list:
+            data.append(self.field.to_python(value))
+        return data
 
 class DictField(CompositeField):
     data_type = dict
