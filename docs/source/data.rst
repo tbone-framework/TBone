@@ -37,20 +37,63 @@ Defining a model is done like so::
 Each field in the model is defined by its type and by optional parameters which affect its validation and serialization behavior. 
 
 
-Fields
-~~~~~~~~~~~~~
-
-Fields are great
-
-
 .. note::
     Why is TBone not using an external Python schema and validation library such as `Marshmallow <https://github.com/marshmallow-code/marshmallow>`_ or `Schematics <https://github.com/schematics/schematics>`_ ?
 
     Both libraries mentioned above are excellent for performing the tasks of schema definition, data validation and serialization.
     However, both libraries were developed to be generic and do not use the asynchronous capabilities of TBone to their advantage.
     Therefore TBone implements its own data modeling capabilities which are designed to work in an asynchronous nonblocking environment.
-    An example of this is explained in detail in the `Export Methods`_ section
+    An example of this is explained in detail in the `Serialize Methods`_ section
 
+
+
+Fields
+~~~~~~~~~~~~~
+
+Fields are used to describe individual variables in a model schema. There are simple fields for data primitives such as ``int`` and ``str`` and there are composite fields for describing data such as lists and dictionaries. 
+Developers who have a background in ORM implementations such as the one included in Django, should be very familiar with this concept.
+All Field classes subclass the ``BaseField`` class and implement coersion methods to and from Python natives, with respect to their designated data types.
+In addition, fields provide additional attributes pertaining to the way data is validated, and the way data is serialized and deserialized. They also provide additional attributes for database mixins
+
+
+Attributes
+^^^^^^^^^^^
+
+The following table lists the different attributes of fields and how they are used
+
++-----------------+------------------------------------------------------------------------------------+----------------+
+| Attribute       | Usage                                                                              | Default        |
++=================+====================================================================================+================+
+| ``required``    | Determines if the field is required when data is imported or deserialized          |  ``False``     |
++-----------------+------------------------------------------------------------------------------------+----------------+
+| ``default``     | Declares a default value when none is provided. May be a callable                  |  ``None``      |
++-----------------+------------------------------------------------------------------------------------+----------------+
+| ``choices``     | Set a list of choices, limiting the field's acceptable values                      |  ``None``      |
++-----------------+------------------------------------------------------------------------------------+----------------+
+| ``validators``  | A list of callables to provide external validation methods. See validators         |  ``None``      |
++-----------------+------------------------------------------------------------------------------------+----------------+
+| ``projection``  | Determines how the field's data is serialized. See Projection                      |  ``True``      |
++-----------------+------------------------------------------------------------------------------------+----------------+
+| ``readonly``    | Determines if data can be deserialized into this field. See Deserialization        |  ``False``     |
++-----------------+------------------------------------------------------------------------------------+----------------+
+| ``primary_key`` | Used by persistency mixin classes to set the field as the model's primary key      |  ``False``     |
++-----------------+------------------------------------------------------------------------------------+----------------+
+
+
+There are additional attributes which pertain only to specific fields. For example, ``min`` and ``max`` can be defined on an ``IntegerField`` to determine a range of accetable parameters. See the API Reference for more details.
+
+
+Composite Fields
+^^^^^^^^^^^^^^^^^^
+
+Composite fields are used to declare lists and dictionaries using the ``ListField`` and ``DictField`` respectively. A composite field is always based on another field which acts as the base type for the list or the dictionary. 
+A list of integers will be defined as ``ListField(IntegerField)`` and a dictionary of strings will be defined as ``DictField(StringField)`` .
+
+The base field defining the composite field can also take the standard field attributes. The composite field itself can also define attributes related to its own behavior, like so::
+
+    class M(Model):
+        counters = DictField(IntegerField(default=0))
+        tags = ListField(StringField(default='Unknown'), min_size=1, max_size=10)
 
 
 Nested Models
@@ -80,7 +123,7 @@ This data model will produce an output like this::
     }
 
 
-Nested objects can also be added to a root model within arrays, like so::
+Nested objects can also be as the base fields for within lists and dictionaries, like so::
 
     class Book(Model):
         title = StringField(required=True)
@@ -109,6 +152,20 @@ This data model will produce an output like this::
 
 Model Options
 ~~~~~~~~~~~~~~
+
+Every ``Model`` derived class has an internal ``Meta`` class which defines its default parameters. This is a very similar approach to meta information declared in Django models.
+
+The following table lists the model options defined within the ``Meta`` class.
+
++-----------------+------------------------------------------------------------------------------------+----------------+
+| Option          | Usage                                                                              | Default        |
++=================+====================================================================================+================+
+| ``name``        | | Name of the model.                                                               | | name of      |
+|                 | | This is used in persistency mixins to set the name in the datastore              | | the model    |
++-----------------+------------------------------------------------------------------------------------+----------------+
+| ``namespace``   | Declares a namespace which prepends the name of the Model                          |  ``None``      |
++-----------------+------------------------------------------------------------------------------------+----------------+
+
 
 
 Import Data
@@ -241,19 +298,19 @@ The following example illustrates this::
 The above example illustrates a ``Model`` that has a field used, in this case, for analytics, and is not required to be included as part of the API
 
 
-Export methods
-~~~~~~~~~~~~~~~
+``serialize`` methods
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 When designing APIs, it is sometimes required to expose data which is not directly mapped to a single field in the model's schema.
 Such data can be a result on a calculation, data aggregation or even data fetched sources ourside the model.
-For this purpose, the ``Model`` class can implement export methods.
+For this purpose, the ``Model`` class can implement serialize methods.
 
-Export methods are regular member methods on the model with the following attributes:
+Serialize methods are regular member methods on the model with the following attributes:
 
-    1. Export methods accept no external parameters and rely only on the model's data
-    2. Export methods always return a primitive value
-    3. Export methods are decorated with the ``@export`` decorator
-    4. Export methods are coroutines and therefore are prefixed with ``async``
+    1. Serialize methods accept no external parameters and rely only on the model's data
+    2. Serialize methods always return a primitive value
+    3. Serialize methods are decorated with the ``@serialize`` decorator
+    4. Serialize methods are coroutines and therefore are prefixed with ``async``
 
 The following example illustrates this::
 
@@ -262,7 +319,7 @@ The following example illustrates this::
     >>> class Trainee(Model):
     ...     weight = FloatField()
     ...     height = FloatField()
-    ...     @export
+    ...     @serialize
     ...     async def bmi(self): # body mass index
     ...         return (self.weight*703)/(self.height*self.height)
     ... 
@@ -273,9 +330,9 @@ The following example illustrates this::
 (Please do not consider the above example to be a real BMI calculator)
 
 
-The example above brings the quetion of why export methods need to be coroutines. 
-In the ``bmi`` export example there are no lines of code which make use of the application's event loop.
-However, export functions may include data from external sources as well. If such an implementation would not be using a coroutine the code will be blocking.
+The example above brings the quetion of why serialize methods need to be coroutines. 
+In the ``bmi`` serialize example there are no lines of code which make use of the application's event loop.
+However, serialize functions may include data from external sources as well. If such an implementation would not be using a coroutine the code will be blocking.
 The following example illustrates this::
 
     from aiohttp import client
@@ -289,7 +346,7 @@ The following example illustrates this::
         city = StringField()
         state = StringField()
 
-        @export
+        @serialize
         async def current_weather(self):
             async with aiohttp.ClientSession() as session:
                 async with session.get(QUERY_URL.format(key=API_KEY, city=self.city, state=self.state)) as resp:
@@ -313,4 +370,24 @@ To see a fully working example, please visit the examples page
 
 De-serialization
 ----------------
+
+De-serialization is the process of constructing a data model from raw data, usually passed into the API.
+The ``Model`` class implements a ``deserialize`` method which, by default, matches the data being passed to the fields defined on the model. Variables assigned are assigned to their respective fields and the object's data is validated. 
+Developers may want to customize this behavior to control how models are deserialized, from data.
+
+readonly
+~~~~~~~~~
+
+Every model field can be assigned with the ``readonly`` attribute.
+This tells the model never to accept incoming data to certain fields using the deserialization method.
+The following example illustrates this::
+
+    class User(Model):
+        username = StringField(required=True)
+        password = StringField(readonly=True)
+
+
+
+
+
 

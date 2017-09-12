@@ -11,9 +11,9 @@ Authentication
     :members:
 
 
-Serializers
+Formatters
 ------------------
-.. automodule:: tbone.resources.serializers
+.. automodule:: tbone.resources.formatters
     :members:
 
 

@@ -18,9 +18,10 @@ Combining the usage of these 4 components makes it extremely easy to build full-
 
 ```python
 class Book(Model, MongoCollectionMixin):
+    _id = ObjecIdField(primary_key=True)
     title = StringField(required=True)
     author = StringField(required=True)
-    publication_date = DateField()
+    publication_date = DateTimeField()
 
 
 class BookResource(AioHttpResource, MongoResource):
@@ -37,11 +38,12 @@ TBone utilizes only asynchronous 3rd party components to make sure that your app
 
 TBone uses the async/await syntax and is limited to Python version 3.5 and up.
 
-Furthermore, TBone has very little basic requiremets. 
-However, depending on its usage requires additional requiremets.
+Furthermore, TBone has very few basic requiremets. 
+However, depending on its usage requires additional packages may be required.
+
 ## documentation 
 
-[You can find the documentation here](https://tbone.readthedocs.io)
+[Documentation can be found here](https://tbone.readthedocs.io)
 
 
 

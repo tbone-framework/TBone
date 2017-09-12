@@ -88,6 +88,31 @@ Resource options are essential to resources who wish to override built-in functi
 For a full list of resource options see the :doc:`API Reference </ref/resources>`
 
 
+Formatters
+-------------
+
+Formatters are classes which help to convert Python ``dict`` objects to text (or binary), and back, using a certain transport protocol.
+In TBone terminology, formatting turns an native Python object into another representation, such as JSON or XML. Parsing is turning JSON or XML into native Python object.
+
+Formatters are used by resource objects to convert data into a format which can be wired over the net. When using the HTTP protocol, generally APIs expose data in a text-based format. 
+By default, TBone formats and parses objects to and from a JSON representation. However, developers can override this behavior by writing additional ``Formatter`` classes to suit their needs.
+
+
+
+Authentication
+---------------
+
+TBone provides an authentication mechanism which is wired into the resource's flow. All requests made on a resource are routed through a central ``dispatch`` method. Before the request is executed an authentication mechanism is activated to determine if the request is allowed to be processed. Therefore, every resource has an ``Authentication`` object associated with it. This is done using the ``Meta`` class of the resource, like so::
+
+    class BookResource(Resource):
+        class Meta:
+            authentication = Authentication()
+
+
+By default, all resources are associated with a ``NoAuthentication`` class, which does not check for any authentication whatsoever. Developers need to subclass ``NoAuthentication`` to add their own authentication mechanism. Authentication classes implement a single method ``is_authenticated`` which has the request object passed. Normally, developers would use the request headers to check for authentication and return ``True`` or ``False`` based on the content of the request.
+
+
+
 
 Nested Resources
 ------------------
