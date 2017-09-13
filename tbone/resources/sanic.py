@@ -5,7 +5,8 @@ from sanic import request
 from sanic import response
 
 class SanicResource(object):
-    def build_response(self, data, status=200):
+    @classmethod
+    def build_response(cls, data, status=200):
         return response.text(
             data,
             headers={'Content-Type': 'application/json'},

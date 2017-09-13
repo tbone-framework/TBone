@@ -6,7 +6,8 @@ from aiohttp.web import Response
 
 
 class AioHttpResource(object):
-    def build_response(self, data, status=200):
+    @classmethod
+    def build_response(cls, data, status=200):
         res = Response(status=status, text=data, content_type='application/json')
         return res
 

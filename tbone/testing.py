@@ -19,8 +19,8 @@ class DummyResource(object):
     Dummy resource mixin to emulate the behavior of an async http library.
     Used for testing without Sanic or Aiohttp
     '''
-
-    def build_response(self, data, status=200):
+    @classmethod
+    def build_response(cls, data, status=200):
         return Response(
             data=data,
             headers={'Content-Type': 'application/json'},

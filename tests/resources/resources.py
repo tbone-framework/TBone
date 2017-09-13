@@ -2,9 +2,9 @@
 # encoding: utf-8
 
 import json
-from tbone.resources import Resource
+from tbone.resources import Resource, http
 from tbone.resources.mongo import *
-from tbone.resources.http import *
+from tbone.resources.routers import Route
 from tbone.testing import DummyResource
 from tests.db.models import Account, Book
 
@@ -63,3 +63,27 @@ class AccountResource(DummyResource, MongoResource):
 class BookResource(DummyResource, MongoResource):
     class Meta:
         object_class = Book
+
+    @classmethod
+    def nested_routes(cls, base_url):
+        return [
+            Route(
+                path=base_url + '/(?P<pk>[\w\d_.-]+)/reviews/add/',
+                handler=cls.add_review,
+                methods='POST',
+                name='add_review')
+        ]
+
+    @classmethod
+    async def add_review(cls, request, **kwargs):
+        try:
+            if 'pk' not in request.args:
+                raise Exception('Object pk not provided')
+            # add a new review to the document using a custom Model method which pushes the new review to the document
+            book = Book({Book.primary_key: request.args['pk']})
+            update_result = await book.add_review(request.app.db, request.body)
+            if update_result.matched_count != 1 or update_result.modified_count != 1:
+                raise Exception('Database update failed. Unexpected update results')
+            return cls.build_response(None, http.CREATED)
+        except Exception as ex:
+            return cls.build_response({'error': ex}, http.BAD_REQUEST)

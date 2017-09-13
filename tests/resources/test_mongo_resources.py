@@ -6,7 +6,7 @@ import pytest
 import re
 import random
 from tbone.db.models import create_collection
-from tbone.resources.http import *
+from tbone.resources import http
 from tbone.testing import *
 from tests.fixtures import *
 from .resources import *
@@ -30,6 +30,24 @@ async def load_account_collection(json_fixture, db):
 
 
 @pytest.mark.asyncio
+@pytest.fixture(scope='function')
+async def load_book_collection(json_fixture, db):
+    ''' Helper fixture for loading the books.json fixture into the database '''
+    app = App(db=db)
+    url = '/api/'
+
+    # load data
+    data = json_fixture('books.json')
+    # create collection in db and optional indices
+    coll = await create_collection(db, BookResource._meta.object_class)
+    # insert raw data into collection
+    if coll:
+        await coll.insert_many(data)
+    return app
+
+
+
+@pytest.mark.asyncio
 async def test_mongo_resource_create(db):
     app = App(db=db)
     coll = await create_collection(db, BookResource._meta.object_class)
@@ -38,13 +56,13 @@ async def test_mongo_resource_create(db):
 
     # create a new book
     new_book = {
-        'isbn': '9781602523692',
-        'title': 'War and Peace',
-        'author': ['Leo Tolstoy'],
-        'publication_date': '1869-01-01T00:00:00.000+0000'
+        'isbn': '9780140815054',
+        'title': 'A Tale of Two Cities',
+        'author': ['Charles Dickens'],
+        'publication_date': '1859-01-01T00:00:00.000+0000'
     }
     response = await client.post(url, body=new_book)
-    assert response.status == CREATED
+    assert response.status == http.CREATED
     data = client.parse_response_data(response)
     for key in new_book.keys():
         assert key in data
@@ -73,10 +91,10 @@ async def test_mongo_resource_crud(json_fixture, db):
 
     # create a new book
     new_book = {
-        'isbn': '9781602523692',
-        'title': 'War and Peace',
-        'author': ['Leo Tolstoy'],
-        'publication_date': '1869-01-01T00:00:00.000+0000'
+        'isbn': '9788408020011',
+        'title': 'The Old Man and the Sea',
+        'author': ['Ernest Hemingway'],
+        'publication_date': '1953-01-01T00:00:00.000+0000'
     }
     response = await client.post(url, body=new_book)
     assert response.status == CREATED
@@ -268,15 +286,8 @@ async def test_mongo_collection_filtering_operator(load_account_collection):
 
 
 @pytest.mark.asyncio    
-async def test_mongo_collection_custom_indices(json_fixture, db):
-    app = App(db=db)
-            # load data
-    data = json_fixture('books.json')
-    # create collection in db and optional indices
-    coll = await create_collection(db, BookResource._meta.object_class)
-    # insert raw data into collection
-    if coll:
-        await coll.insert_many(data)
+async def test_mongo_collection_custom_indices(load_book_collection):
+    app = load_book_collection
 
     assert BookResource._meta.object_class.primary_key == 'isbn'
     assert BookResource._meta.object_class.primary_key_type == str
@@ -289,6 +300,7 @@ async def test_mongo_collection_custom_indices(json_fixture, db):
     response = await client.get(url)
     # make sure we got a response object
     assert isinstance(response, Response)
+    assert response.status == http.OK
     # parse response and retrieve data
     data = client.parse_response_data(response)
     for obj in data['objects']:
@@ -307,6 +319,35 @@ async def test_mongo_collection_custom_indices(json_fixture, db):
     assert 'error' in data
     assert 'duplicate' in data['error']
 
+
+@pytest.mark.asyncio
+async def test_nested_resources(load_book_collection):
+    app = load_book_collection
+    # create client
+    url = '/api/{}/'.format(BookResource.__name__)
+    comment_url_template = '/api/{}/{}/reviews/add/'
+    client = ResourceTestClient(app, BookResource)
+
+    review = {
+        'user': 'Ron Burgundy',
+        'ratings': {
+            'smooth_read': 4,
+            'language': 5,
+            'pace': 3,
+            'originality': 2
+        },
+        'text': 'Good read, really enjoyed it, even though it took me so long to finish'
+    }
+    # get a book
+    response = await client.get(url)
+    assert response.status == OK
+    data = client.parse_response_data(response)
+    book_data = data['objects'][0]
+    pk = book_data['isbn']
+    # create new comment
+    comment_url = comment_url_template.format(BookResource.__name__, pk)
+    response = await client.post(comment_url, body=review)
+    assert response.status == CREATED
 
 
 

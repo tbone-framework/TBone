@@ -250,7 +250,8 @@ class Resource(object, metaclass=ResourceMeta):
         status = getattr(err, 'status', 500)
         return self.build_response(body, status=status)
 
-    def build_response(self, data, status=200):
+    @classmethod
+    def build_response(cls, data, status=200):
         '''
         Given some data, generates an HTTP response.
         If you're integrating with a new web framework, other than sanic or aiohttp, you **MUST**
