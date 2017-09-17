@@ -326,32 +326,32 @@ class Resource(object, metaclass=ResourceMeta):
         return resource_data
 
     #  methods which derived classes should implement
-    async def list(self, *args, **kwargs):
+    async def list(self, **kwargs):
         raise MethodNotImplemented()
 
-    async def detail(self, *args, **kwargs):
+    async def detail(self, **kwargs):
         raise MethodNotImplemented()
 
-    async def create(self, *args, **kwargs):
+    async def create(self, **kwargs):
         raise MethodNotImplemented()
 
-    async def update(self, *args, **kwargs):
+    async def update(self, **kwargs):
         raise MethodNotImplemented()
 
-    async def modify(self, *args, **kwargs):
+    async def modify(self, **kwargs):
         raise MethodNotImplemented()
 
-    async def delete(self, *args, **kwargs):
+    async def delete(self, **kwargs):
         raise MethodNotImplemented()
 
-    async def update_list(self, *args, **kwargs):
+    async def update_list(self, **kwargs):
         raise MethodNotImplemented()
 
-    async def modify_list(self, *args, **kwargs):
+    async def modify_list(self, **kwargs):
         raise MethodNotImplemented()
 
-    async def create_detail(self, *args, **kwargs):
+    async def create_detail(self, **kwargs):
         raise MethodNotImplemented()
 
-    async def delete_list(self, *args, **kwargs):
+    async def delete_list(self, **kwargs):
         raise MethodNotImplemented()
