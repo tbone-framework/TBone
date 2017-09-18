@@ -29,8 +29,11 @@ class ResourceOptions(object):
         Declare the class of the underlying data object. Used in ``MongoResource`` to bind the resource class to a ``Model``
 
     :param query:
-        Define a query which the resource will apply on all ``list`` calls. Used in ``MongoResource`` to apply a default query fiter.
+        Define a query which the resource will apply to all ``list`` calls. Used in ``MongoResource`` to apply a default query fiter.
         Useful for cases where the entire collection is never queried.
+
+    :param sort:
+        Define a sort directive which the resource will apply to all ``list calls. Used in ``MongoResource`` to declare default sorting for collection.
 
     :param fts_operator:
         Define the FTS (full text search) operator used in url parameters. Used in ``MongoResource`` to perform FTS on a collection.
@@ -58,6 +61,7 @@ class ResourceOptions(object):
     name = None
     object_class = None
     query = None
+    sort = None
     channel_class = Channel
     fts_operator = 'q'
     allowed_list = ['get', 'post', 'put', 'patch', 'delete']
@@ -219,11 +223,13 @@ class Resource(object, metaclass=ResourceMeta):
             if self.is_method_allowed(endpoint, method) is False:
                 raise MethodNotAllowed("Unsupported method '{0}' for {1} endpoint.".format(method, endpoint))
 
-            if not self._meta.authentication.is_authenticated(self.request):
+            if not await self._meta.authentication.is_authenticated(self.request):
                 raise Unauthorized()
 
             body = await self.request_body()
             self.data = self.parse(method, endpoint, body)
+            if method != 'GET':
+                self.data.update(kwargs)
             kwargs.update(self.request_args())
             view_method = getattr(self, self.http_methods[endpoint][method])
             # call request method

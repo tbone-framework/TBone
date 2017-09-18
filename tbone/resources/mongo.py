@@ -91,6 +91,9 @@ class MongoResource(Resource):
                 filters.update(self._meta.query)
             # build sorts from query parameters
             sort = self.build_sort(**kwargs)
+            if isinstance(self._meta.sort, list):
+                sort.extend(self._meta.sort)
+            print(sort)
         cursor = self._meta.object_class.get_cursor(db=self.db, query=filters, projection=projection, sort=sort)
         cursor.skip(offset)
         cursor.limit(limit)
@@ -128,6 +131,7 @@ class MongoResource(Resource):
             # create model
             obj = self._meta.object_class()
             # deserialize data from request body
+            self.data.update(kwargs)
             await obj.deserialize(self.data)
             # create document in DB
             await obj.insert(db=self.db)
