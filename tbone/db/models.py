@@ -283,7 +283,7 @@ async def create_collection(db, model_class):
     if name:
         try:
             # create collection
-            coll = await db.create_collection(name)
+            coll = await db.create_collection(name, **model_class._meta.creation_args)
         except CollectionInvalid:  # collection already exists
             coll = db[name]
 

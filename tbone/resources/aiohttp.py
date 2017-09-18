@@ -17,10 +17,6 @@ class AioHttpResource(object):
             return await self.request.text()
         return {}
 
-    def request_args(self):
-        ''' Returns the url arguments of the current request'''
-        return self.request.args
-
     @classmethod
     def route_methods(cls):
         '''

@@ -22,6 +22,7 @@ class ModelOptions(object):
     '''
     name = None
     namespace = None
+    creation_args = {}
 
     def __init__(self, meta=None):
         if meta:
