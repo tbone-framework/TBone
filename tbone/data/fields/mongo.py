@@ -7,20 +7,16 @@ from .base import BaseField
 
 class ObjectIdField(BaseField):
     '''
-    An field wrapper around MongoDB ObjectIds
+    A field wrapper around MongoDB ObjectIds
     '''
-    # python_type = bson.objectid.ObjectId
+    data_type = str
+    python_type = bson.objectid.ObjectId
     ERRORS = {
-        'convert': "Couldn't cast value as ObjectId",
+        'convert': "Could not cast value as ObjectId",
     }
 
-    def to_python(self, value):
-        if not isinstance(value, bson.objectid.ObjectId):
-            try:
-                value = bson.objectid.ObjectId(str(value))
-            except bson.objectid.InvalidId:
-                raise Exception(self._errors['convert'])
-        return value
+    def _import(self, value):
+        if value is None:
+            return None
+        return self.python_type(value)
 
-    def to_data(self, value):
-        return str(value)
