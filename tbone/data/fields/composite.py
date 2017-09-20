@@ -106,6 +106,18 @@ class DictField(CompositeField):
 
         return data
 
+    def to_python(self, associative):
+        if associative is None:
+            return None
+        if not isinstance(associative, dict):
+            raise ValueError('Data is not of type dict')
+
+        data = {}
+        for key, value in associative.items():
+            data[key] = self.field.to_python(value)
+
+        return data
+
 
 class ModelField(CompositeField):
     '''

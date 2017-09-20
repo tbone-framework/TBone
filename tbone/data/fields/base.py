@@ -196,9 +196,9 @@ class BaseField(object, metaclass=FieldMeta):
         Coerce python data type to simple form for serialization.
         If default value was defined returns the default value if None was passed
         '''
-        if value is None and self._default is not None:
-            return self.default
         try:
+            if value is None and self._default is not None:
+                return self._export(self.default)
             value = self._export(value)
         except ValueError as ex:
             raise Exception(ex, self._errors['to_data'])
