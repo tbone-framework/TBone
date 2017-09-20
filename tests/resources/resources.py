@@ -5,7 +5,7 @@ import json
 from tbone.resources import Resource, http
 from tbone.resources.mongo import *
 from tbone.resources.routers import Route
-from tbone.testing import DummyResource
+from tbone.testing.resources import DummyResource
 from tests.db.models import Account, Book
 
 

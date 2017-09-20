@@ -5,7 +5,7 @@ import pytest
 import datetime
 from tbone.data.fields import *
 from tbone.data.models import Model
-from tests.fixtures import event_loop
+from tbone.testing.fixtures import event_loop
 
 
 def test_field_meta():

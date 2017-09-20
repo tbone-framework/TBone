@@ -6,7 +6,7 @@ import datetime
 from tbone.data.fields import *
 from tbone.data.fields.mongo import *
 from tbone.data.models import Model
-from tests.fixtures import *
+from tbone.testing.fixtures import *
 from .models import BaseModel, Person
 
 

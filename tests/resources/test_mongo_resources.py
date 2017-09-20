@@ -7,8 +7,8 @@ import re
 import random
 from tbone.db.models import create_collection
 from tbone.resources import http
-from tbone.testing import *
-from tests.fixtures import *
+from tbone.testing.clients import *
+from tbone.testing.fixtures import *
 from .resources import *
 
 

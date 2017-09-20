@@ -5,9 +5,9 @@ import asyncio
 import pytest
 import re
 import random
-from tbone.testing import *
+from tbone.testing.clients import *
+from tbone.testing.fixtures import event_loop, json_fixture
 from .resources import *
-from tests.fixtures import event_loop, json_fixture
 
 
 async def get_total_count(client, url):

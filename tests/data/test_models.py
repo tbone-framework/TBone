@@ -6,7 +6,7 @@ import datetime
 from itertools import zip_longest
 from tbone.data.fields import *
 from tbone.data.models import *
-from tests.fixtures import event_loop
+from tbone.testing.fixtures import event_loop
 
 
 def test_model_repr():

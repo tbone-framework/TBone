@@ -7,7 +7,7 @@ import random
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo.errors import DuplicateKeyError
 from tbone.testing import *
-from tests.fixtures import *
+from tbone.testing.fixtures import *
 from .models import *
 
 
