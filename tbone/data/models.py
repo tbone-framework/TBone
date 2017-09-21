@@ -203,7 +203,7 @@ class Model(ModelSerializer, metaclass=ModelMeta):
         ''' calls internal validate method with model's existing data '''
         self._validate(self._data)
 
-    def _convert(self, data, native=True):
+    def _convert(self, data, native):
         converted_data = {}
         for name, field in self._fields.items():
             if native is True:
@@ -220,9 +220,9 @@ class Model(ModelSerializer, metaclass=ModelMeta):
         if not isinstance(data, dict):
             raise ValueError('Cannot import data not as dict')
         self._data.update(data)
-        self._data = self._convert(self._data)
+        self._data = self._convert(self._data, native=True)
 
-    def export_data(self, native):
+    def export_data(self, native=True):
         '''
         Export the model into a dictionary.
         This method does not include projection rules and export methods

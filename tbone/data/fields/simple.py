@@ -80,11 +80,15 @@ class DTBaseField(BaseField):
 
     def to_data(self, value):
         if value is None:
+            if self._default is not None:
+                value = self.default
             return None
         return value.isoformat()
 
     def to_python(self, value):
         if value is None:
+            if self._default is not None:
+                return self.default
             return None
         elif isinstance(value, self.python_type) or isinstance(value, datetime.datetime):
             return value
