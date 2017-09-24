@@ -21,4 +21,3 @@ class MemoryChannel(Channel):
     async def consume_events(self):
         while True:
             data = await self._queue.get()
-            print('Do your thing with the data', data)
