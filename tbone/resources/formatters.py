@@ -3,27 +3,7 @@
 
 
 import json
-import datetime
-import decimal
-import uuid
-
-
-class ExtendedJSONEncoder(json.JSONEncoder):
-    '''
-    Extends the default JSON encoder to support additional data types:
-    datetime.datetime
-    datetime.date
-    datetime.time
-    decimal.Decimal
-    uuid.UUID
-    '''
-    def default(self, data):
-        if isinstance(data, (datetime.datetime, datetime.date, datetime.time)):
-            return data.isoformat()
-        elif isinstance(data, decimal.Decimal) or isinstance(data, uuid.UUID):
-            return str(data)
-        else:
-            return super(ExtendedJSONEncoder, self).default(data)
+from tbone.utils import ExtendedJSONEncoder
 
 
 class Formatter(object):
