@@ -7,7 +7,7 @@ from functools import singledispatch
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from tbone.db.models import post_save
-from tbone.dispatch import MongoChannel
+from tbone.dispatch.channels.mongo import MongoChannel
 from tbone.resources import Resource
 from tbone.resources.http import *
 from tbone.resources.signals import *
@@ -19,6 +19,8 @@ logger = logging.getLogger(__file__)
 
 
 class MongoResource(Resource):
+    class Meta:
+        channel_class = MongoChannel
 
     def __init__(self, *args, **kwargs):
         super(MongoResource, self).__init__(*args, **kwargs)
@@ -38,8 +40,7 @@ class MongoResource(Resource):
 
     @classmethod
     async def emit(cls, db, key, data):
-        pubsub = MongoChannel(db, 'pubsub')
-        await pubsub.create_channel()
+        pubsub = cls._meta.channel_class(name='pubsub', db=db)
         await pubsub.publish(key, data)
 
     # ---------- receivers ------------ #
