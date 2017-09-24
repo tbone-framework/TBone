@@ -25,7 +25,7 @@ class ObjectIdField(BaseField):
 
 
 class RefDict(dict):
-    _keys = ['$ref', '$id']
+    _keys = ['ref', 'id']
 
     def __init__(self, data=None):
         for key in RefDict._keys:
@@ -68,7 +68,7 @@ class DBRefField(CompositeField):
         elif isinstance(value, self.python_type):
             return value
         elif isinstance(value, dict):
-            return self.python_type(value['$ref'], ObjectId(value['$id']))
+            return self.python_type(value['ref'], ObjectId(value['id']))
 
         raise ValueError(self._errors['to_python'])
 
@@ -80,13 +80,13 @@ class DBRefField(CompositeField):
                 raise ValueError(self._errors['invalid_id'])
 
             return self.data_type({
-                '$ref': value.get_collection_name(),
-                '$id': value._id
+                'ref': value.get_collection_name(),
+                'id': value._id
             })
         elif isinstance(value, self.python_type):
             return self.data_type({
-                '$ref': value.collection,
-                '$id': str(value.id)
+                'ref': value.collection,
+                'id': str(value.id)
             })
         raise ValueError(self._errors['to_data'])
 
