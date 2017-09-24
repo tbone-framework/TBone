@@ -8,7 +8,7 @@ from dateutil import parser
 from copy import deepcopy
 from collections import OrderedDict
 from functools import wraps
-from tbone.dispatch import Channel
+from tbone.dispatch.channels import Channel
 from .formatters import JSONFormatter
 from .authentication import NoAuthentication
 from .http import *
@@ -98,8 +98,22 @@ class ResourceMeta(type):
     def __new__(mcl, name, bases, attrs):
         del attrs['receiver']
         cls = super(ResourceMeta, mcl).__new__(mcl, name, bases, attrs)
-        opts = getattr(cls, 'Meta', None)
-        cls._meta = ResourceOptions(opts)
+
+        # create default resource options
+        options = ResourceOptions()
+        # copy over resource options defined in base classes, if any
+        for base in reversed(bases):
+            if not hasattr(base, '_meta'):
+                continue
+            options.__dict__.update(base._meta.__dict__)
+
+        # copy resource options defined in this resource, if any
+        if hasattr(cls, 'Meta'):
+            for attr in dir(cls.Meta):
+                if not attr.startswith('_'):
+                    setattr(options, attr, getattr(cls.Meta, attr))
+        # create the combined resource options class
+        cls._meta = ResourceOptions(options)
         return cls
 
 
@@ -187,6 +201,13 @@ class Resource(object, metaclass=ResourceMeta):
 
     @classmethod
     def nested_routes(cls, base_url):
+        '''
+        Returns an array of ``Route`` objects which define additional routes on the resource.
+        Implement in derived resources to add additional routes to the resource
+
+        :param base_url: 
+
+        '''
         return []
 
     def is_method_allowed(self, endpoint, method):
@@ -330,6 +351,15 @@ class Resource(object, metaclass=ResourceMeta):
         for k, v in data.items():
             resource_data[k] = v
         return resource_data
+
+    @classmethod
+    def connect_signal_receivers(cls):
+        # connect signal receivers
+        for item in dir(cls):
+            attr = getattr(cls, item)
+            if hasattr(attr, '_signal_receiver_'):
+                logger.debug('signal receiver subscription', attr)
+                attr._signal_receiver_.connect(attr, sender=cls._meta.object_class)
 
     #  methods which derived classes should implement
     async def list(self, **kwargs):
