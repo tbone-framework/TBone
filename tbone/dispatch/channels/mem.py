@@ -7,7 +7,6 @@ from . import Channel
 
 class MemoryChannel(Channel):
     def __init__(self, **kwargs):
-        super(MemoryChannel, self).__init__(**kwargs)
         self._queue = asyncio.Queue()
 
     async def publish(self, key, data=None):

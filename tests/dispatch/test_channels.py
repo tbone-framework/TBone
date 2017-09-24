@@ -10,6 +10,6 @@ from tbone.testing.fixtures import event_loop
 @pytest.mark.asyncio
 async def test_memory_channel(event_loop):
     
-    channel = MemoryChannel('pubsub')
+    channel = MemoryChannel(name='pubsub')
 
     await channel.publish('some_event', {'name': 'ron burgundy'})

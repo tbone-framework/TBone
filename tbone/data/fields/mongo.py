@@ -25,18 +25,13 @@ class ObjectIdField(BaseField):
 
 
 class RefDict(dict):
-    _keys = ['ref', 'id']
+    __slots__ = ['ref', 'id']
 
     def __init__(self, data=None):
-        for key in RefDict._keys:
+        for key in RefDict.__slots__:
             self[key] = ''
         if isinstance(data, dict):
             self.update(data)
-
-    def __setitem__(self, key, val):
-        if key not in RefDict._keys:
-            raise KeyError
-        dict.__setitem__(self, key, val)
 
 
 class DBRefField(CompositeField):
