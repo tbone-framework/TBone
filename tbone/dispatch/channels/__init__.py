@@ -41,7 +41,8 @@ class Channel(object):
         self._subscribers[event].append(subscriber)
 
     def unsubscribe(self, event, subscriber):
-        self._subscribers[event].remove(subscriber)
+        if subscriber in self._subscribers[event]:
+            self._subscribers[event].remove(subscriber)
 
     def kickoff(self):
         ''' Initiates the channel and start listening to events '''
