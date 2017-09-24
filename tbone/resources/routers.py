@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+
+import logging
 from collections import namedtuple
 from .resources import Resource
 from tbone.db.models import post_save
 
+
+logger = logging.getLogger(__file__)
 
 Route = namedtuple('Route', 'path, handler, methods, name')
 
@@ -17,17 +21,13 @@ class Router(object):
 
     def register(self, resource, endpoint):
         '''
-        This methods registers a resource with the router and conect all receivers to their respective signals'''
+        This methods registers a resource with the router and connects all receivers to their respective signals'''
         if not issubclass(resource, Resource):
             raise ValueError('Not and instance of ``Resource`` subclass')
-
+        # register resource
         self._registry[endpoint] = resource
-        for item in dir(resource):
-            attr = getattr(resource, item)
-            if hasattr(attr, '_signal_receiver_'):
-                attr._signal_receiver_.connect(attr, sender=resource._meta.object_class)
-        # if resource._meta.object_class is not None:
-            # post_save.connect(resource.post_save, sender=resource._meta.object_class)
+        # connect signal receivers
+        resource.connect_signal_receivers()
 
     def unregister(self, endpoint):
         if endpoint in self._registry:
