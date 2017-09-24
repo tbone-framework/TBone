@@ -35,16 +35,29 @@ class ResourceOptions(object):
     :param sort:
         Define a sort directive which the resource will apply to all ``list calls. Used in ``MongoResource`` to declare default sorting for collection.
 
+    : param add_resource_uri:
+        Specify if the a ``Resource`` should format data and include the unique uri of the resource.
+        Defaults to ``True``
+
     :param fts_operator:
         Define the FTS (full text search) operator used in url parameters. Used in ``MongoResource`` to perform FTS on a collection.
         Default is set to `q`.
 
-    :param allowed_list:
-        Define the methods the resource allows access to with out a primary key.
+    :param incoming_list:
+        Define the methods the resource allows access to without a primary key.
+        These are incoming request methods made to the resource.
         Defaults to a full access ``['get', 'post', 'put', 'patch', 'delete']``
 
-    :param allowed_detail:
-        Same as ``allowed_list`` but for requests which include a primary key
+    :param incoming_detail:
+        Same as ``incoming_list`` but for requests which include a primary key
+
+    :param outgoing_list:
+        Define the resource events which will be emitted without a primary key.
+        These are outgoing resource events which are emitted to subscribers.
+        Defaults to a events ``['created', 'updated', 'deleted']``
+
+    :param outgoing_detail:
+        Same as ``outgoing_list`` but for resource events which include a primary key
 
     :param formatter:
         Provides an instance to a formatting class the resource will be using when formatting and parsing data.
@@ -62,10 +75,13 @@ class ResourceOptions(object):
     object_class = None
     query = None
     sort = None
+    add_resource_uri = True
     channel_class = Channel
     fts_operator = 'q'
-    allowed_list = ['get', 'post', 'put', 'patch', 'delete']
-    allowed_detail = ['get', 'post', 'put', 'patch', 'delete']
+    incoming_list = ['get', 'post', 'put', 'patch', 'delete']
+    incoming_detail = ['get', 'post', 'put', 'patch', 'delete']
+    outgoing_list = ['created', 'updated', 'deleted']
+    outgoing_detail = ['created', 'updated', 'deleted']
     formatter = JSONFormatter()
     authentication = NoAuthentication()
 
@@ -212,10 +228,10 @@ class Resource(object, metaclass=ResourceMeta):
 
     def is_method_allowed(self, endpoint, method):
         if endpoint == 'list':
-            if method.lower() in self._meta.allowed_list:
+            if method.lower() in self._meta.incoming_list:
                 return True
         elif endpoint == 'detail':
-            if method.lower() in self._meta.allowed_detail:
+            if method.lower() in self._meta.incoming_detail:
                 return True
         return False
 
@@ -299,6 +315,14 @@ class Resource(object, metaclass=ResourceMeta):
         '''
         raise NotImplementedError()
 
+    @classmethod
+    def route_param(cls, param):
+        '''
+        Returns the route representation of a url param, pertaining to the web library used.
+        Implemented on the http library resource sub-class to match the requirements of the HTTP library
+        '''
+        raise NotImplementedError()
+
     def get_resource_uri(self):
         return '/{}/{}/'.format(getattr(self.__class__, 'api_name', None), getattr(self.__class__, 'resource_name', None))
 
@@ -334,16 +358,19 @@ class Resource(object, metaclass=ResourceMeta):
     def format_list(self, data):
         if data is None:
             return ''
-        # add resource uri
-        for item in data['objects']:
-            item['resource_uri'] = '{}{}/'.format(self.get_resource_uri(), item[self.pk])
+        
+        if self._meta.add_resource_uri is True:
+            # add resource uri
+            for item in data['objects']:
+                item['resource_uri'] = '{}{}/'.format(self.get_resource_uri(), item[self.pk])
 
         return self._meta.formatter.format(data)
 
     def format_detail(self, data):
         if data is None:
             return ''
-        data['resource_uri'] = '{}{}/'.format(self.get_resource_uri(), data[self.pk])
+        if self._meta.add_resource_uri is True:
+            data['resource_uri'] = '{}{}/'.format(self.get_resource_uri(), data[self.pk])
         return self._meta.formatter.format(self.get_resource_data(data))
 
     def get_resource_data(self, data):

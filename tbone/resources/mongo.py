@@ -51,13 +51,17 @@ class MongoResource(Resource):
         if instance.pk is None:
             return
 
-        resource = cls()
-        obj = await instance.serialize()
-        obj['resource_uri'] = '{}{}/'.format(resource.get_resource_uri(), instance.pk)
-        if created is True:
-            await resource.emit(db, 'resource_create', obj)
-        else:
-            await resource.emit(db, 'resource_update', obj)
+        async def _emit(event_name):
+            resource = cls()
+            obj = await instance.serialize()
+            if cls._meta.add_resource_uri is True:
+                obj['resource_uri'] = '{}{}/'.format(resource.get_resource_uri(), instance.pk)
+            await resource.emit(db, event_name, obj)
+
+        if created is True and 'created' in cls._meta.outgoing_detail:
+            await _emit('resource_create')
+        elif created is False and 'updated' in cls._meta.outgoing_detail:
+            await _emit('resource_update')
 
     @classmethod
     @receiver(resource_post_list)
