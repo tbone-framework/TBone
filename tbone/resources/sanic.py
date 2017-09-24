@@ -28,3 +28,7 @@ class SanicResource(object):
         Implemented on the http library resource sub-class to match the requirements of the HTTP library
         '''
         return ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+
+    @classmethod
+    def route_param(cls, param):
+        return '<%s>' % param

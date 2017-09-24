@@ -60,7 +60,7 @@ class Router(object):
             ))
             # append resource as detail
             url_patterns.append(Route(
-                path='/%s/%s/{pk}/' % (self.name, endpoint),
+                path='/%s/%s/%s/' % (self.name, endpoint, resource_class.route_param('pk')),
                 handler=resource_class.as_detail(),
                 methods=resource_class.route_methods(),
                 name='{}_{}_detail'.format(self.name, endpoint).replace('/', '_')

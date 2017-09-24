@@ -26,6 +26,10 @@ class AioHttpResource(object):
         return '*'
 
 
+    @classmethod
+    def route_param(cls, param):
+        return '{%s}' % param
+
     def request_args(self):
         '''
         Returns the arguments passed with the request in a dictionary.
