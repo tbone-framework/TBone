@@ -31,14 +31,13 @@ class User(BaseModel):
 
     class Meta:
         name = 'users'
-
-    indices = [
-        {
-            'name': '_username',
-            'fields': [('username', ASCENDING)],
-            'unique': True
-        }
-    ]
+        indices = [
+            {
+                'name': '_username',
+                'fields': [('username', ASCENDING)],
+                'unique': True
+            }
+        ]
 
 
 class Room(BaseModel):

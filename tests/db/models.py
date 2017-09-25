@@ -65,18 +65,17 @@ class Book(Model, MongoCollectionMixin):
     class Meta:
         name = 'books'
         namespace = 'catalog'
-
-    indices = [{
-        'name': '_isbn',
-        'fields': [('isbn', ASCENDING)],
-        'unique': True
-    }, {
-        'name': '_fts',
-        'fields': [
-            ('title', TEXT),
-            ('author', TEXT)
-        ]
-    }]
+        indices = [{
+            'name': '_isbn',
+            'fields': [('isbn', ASCENDING)],
+            'unique': True
+        }, {
+            'name': '_fts',
+            'fields': [
+                ('title', TEXT),
+                ('author', TEXT)
+            ]
+        }]
 
     async def add_review(self, db, review_data):
         ''' Adds a review to the list of reviews, without updating the entire document '''
@@ -169,14 +168,13 @@ class Account(BaseModel):
 
     class Meta:
         name = 'accounts'
-
-    indices = [
-        {
-            'fields': [('email', ASCENDING)],
-            'unique': True
-        }, {
-            'fields': [('phone_number', ASCENDING)],
-            'unique': True,
-            'partialFilterExpression': {'phone_number': {'$ne': None}}
-        }
-    ]
+        indices = [
+            {
+                'fields': [('email', ASCENDING)],
+                'unique': True
+            }, {
+                'fields': [('phone_number', ASCENDING)],
+                'unique': True,
+                'partialFilterExpression': {'phone_number': {'$ne': None}}
+            }
+        ]

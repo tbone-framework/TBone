@@ -19,10 +19,17 @@ class ModelOptions(object):
 
     :param namespace:
         Defines a namespace for the model name. Used by persistency mixins to prepend to the collection's name
+
+    :param creation_args:
+        Used when creating a MongoDB collection for passing creation arguments
+
+    :param indices:
+        Used for definding database indices
     '''
     name = None
     namespace = None
     creation_args = {}
+    indices = []
 
     def __init__(self, meta=None):
         if meta:

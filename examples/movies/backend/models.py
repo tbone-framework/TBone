@@ -16,7 +16,7 @@ class Reviews(Model):
 
 
 class Movie(Model, MongoCollectionMixin):
-    _id = ObjectIdField()
+    _id = ObjectIdField(primary_key=True)
     title = StringField(required=True)
     plot = StringField()
     director = StringField()
@@ -24,18 +24,19 @@ class Movie(Model, MongoCollectionMixin):
     release_date = DateField()
     runtime = IntegerField()
     poster = URLField()
-    language = StringField(export_if_none=True)
+    language = StringField(projection=False)
     genres = StringField()
     reviews = ListField(ModelField(Reviews))
 
-    indices = [
-        {
-            'name': '_fts',
-            'fields': [
-                ('title', TEXT),
-                ('plot', TEXT),
-                ('cast', TEXT),
-                ('genres', TEXT)
-            ]
-        }
-    ]
+    class Meta:
+        indices = [
+            {
+                'name': '_fts',
+                'fields': [
+                    ('title', TEXT),
+                    ('plot', TEXT),
+                    ('cast', TEXT),
+                    ('genres', TEXT)
+                ]
+            }
+        ]

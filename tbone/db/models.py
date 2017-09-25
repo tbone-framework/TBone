@@ -288,8 +288,8 @@ async def create_collection(db, model_class):
             coll = db[name]
 
         # create indices
-        if hasattr(model_class, 'indices'):
-            for index in model_class.indices:
+        if hasattr(model_class._meta, 'indices') and isinstance(model_class._meta.indices, list):
+            for index in model_class._meta.indices:
                 try:
                     await db[name].create_index(
                         index['fields'],
