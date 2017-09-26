@@ -31,5 +31,38 @@ The project is hosted at https://github.com/475cumulus/tbone and can be installe
 Running the tests
 =================================
 
+TBone has a suite of tests implemented on top of ``pytest``
+Before running the tests additional requirements need to be installed, including ``pytest`` and ``pytest-asyncio``.
+The file ``test.txt`` in the requirements directory lists all requirements needed for testing. 
+
+To run all the tests execute the command in the root directory of the project::
+
+    pytest
+
+For coverage results run the following commands::
+
+    coverage run --source tbone -m py.test
+    coverage report  
+
+
+
+
+
+
+
 Optional dependencies
 =================================
+
+TBone includes very few Python library dependencies. However, depending on the usage developers may need to manually install additional libraries:
+
+Install ``sanic`` when using TBone with a sanic webserver::
+    
+    pip install sanic
+
+Install ``aiohttp`` when using TBone with a aiohttp webserver::
+    
+    pip install aiohttp
+
+To use the ``MongoDB`` persisrency layer and resources install ``Motor`` the asynchronous Python driver for MongoDB::
+    
+    pip install motor

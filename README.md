@@ -2,17 +2,20 @@
 
 
 TBone makes it easy to develop full-duplex RESTful APIs on top of your `asyncio` web application or webservice.
-It uses a nonblocking asynchronous web server and provides the neccesary structure to build asynchronous web apps and services.
+It uses a nonblocking asynchronous web server and provides the neccesary infrastructure to build asynchronous web apps and services.
 TBone is web-server agnostic and can be added on top of your `Sanic` or `Aiohttp` app.
 
-TBone is comprised of 4 major components:
+Note: TBone is currently in Alpha release
 
-1. Data Structure - an ODM-like modeling mechanism for schema declaration and data validation and serialization
+
+TBone is comprised of 4 major modules:
+
+1. Data Structure - an ODM-like modeling mechanism for schema declaration, data validation and serialization
 2. Data Persistency - Persistency mixin classes for document stores with a full implementation over MongoDB
 3. Resources - Mechanism for creating full-duplex RESTful APIs over `HTTP` and `Websockets`
 4. Dispatch - Classes for managing internal and external events.
 
-Combining the usage of these 4 components makes it extremely easy to build full-duplex RESTful APIs on top of your mongoDB datastore.
+Combining the usage of these 4 modules makes it extremely easy to build full-duplex RESTful APIs on top of your mongoDB datastore.
 
 ## Example
 

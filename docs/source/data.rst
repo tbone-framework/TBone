@@ -8,7 +8,7 @@ TBone provides an ODM (Object Document Mapper) for declaring, validating and ser
 
 .. note::
     Data structure and data persistency are decoupled in TBone.
-    The ODM is kept seperate from the persistency layer and thus allows for implementing additional datastore persistency layers, in addition to the default one for ``MongoDB``
+    The ODM is implemented seperately from the persistency layer and thus allows for implementing other datastore persistency layers, in addition to the default one for ``MongoDB``
 
 The ``Model`` class is used as the Base for all data models, with an optional DB mixin class for persistency.
 
@@ -34,7 +34,7 @@ Defining a model is done like so::
         authors = ListField(StringField)
         number_of_pages = IntegerField()
 
-Each field in the model is defined by its type and by optional parameters which affect its validation and serialization behavior. 
+Each field in the model is defined by its matching type and by optional parameters which affect its validation and serialization behavior. 
 
 
 .. note::
@@ -52,7 +52,7 @@ Fields
 
 Fields are used to describe individual variables in a model schema. There are simple fields for data primitives such as ``int`` and ``str`` and there are composite fields for describing data such as lists and dictionaries. 
 Developers who have a background in ORM implementations such as the one included in Django, should be very familiar with this concept.
-All Field classes subclass the ``BaseField`` class and implement coersion methods to and from Python natives, with respect to their designated data types.
+All fields classes derive from ``BaseField`` and implement coersion methods to and from Python natives, with respect to their designated data types.
 In addition, fields provide additional attributes pertaining to the way data is validated, and the way data is serialized and deserialized. They also provide additional attributes for database mixins
 
 
@@ -76,20 +76,20 @@ The following table lists the different attributes of fields and how they are us
 +-----------------+------------------------------------------------------------------------------------+----------------+
 | ``readonly``    | Determines if data can be deserialized into this field. See Deserialization        |  ``False``     |
 +-----------------+------------------------------------------------------------------------------------+----------------+
-| ``primary_key`` | Used by persistency mixin classes to set the field as the model's primary key      |  ``False``     |
+| ``primary_key`` | Used by resources to determine how to construct a resource URI                     |  ``False``     |
 +-----------------+------------------------------------------------------------------------------------+----------------+
 
 
-There are additional attributes which pertain only to specific fields. For example, ``min`` and ``max`` can be defined on an ``IntegerField`` to determine a range of accetable parameters. See the API Reference for more details.
+There are additional attributes which pertain only to specific fields. For example, ``min`` and ``max`` can be defined for an ``IntegerField`` to determine a range of acceptable values. See the API Reference for more details.
 
 
 Composite Fields
 ^^^^^^^^^^^^^^^^^^
 
-Composite fields are used to declare lists and dictionaries using the ``ListField`` and ``DictField`` respectively. A composite field is always based on another field which acts as the base type for the list or the dictionary. 
+Composite fields are used to declare lists and dictionaries using the ``ListField`` and ``DictField`` fields respectively. A composite field is always based on another field which acts as the base type. 
 A list of integers will be defined as ``ListField(IntegerField)`` and a dictionary of strings will be defined as ``DictField(StringField)`` .
 
-The base field defining the composite field can also take the standard field attributes. The composite field itself can also define attributes related to its own behavior, like so::
+The base field which defines the composite field can also accept the standard field attributes. The composite field itself can also define attributes related to its own behavior, like so::
 
     class M(Model):
         counters = DictField(IntegerField(default=0))
@@ -99,7 +99,7 @@ The base field defining the composite field can also take the standard field att
 Nested Models
 ~~~~~~~~~~~~~~
 
-Documents can contain nested objects within them. In order to declare a nested object within your model, simply define the nested object as a model class and use the ``ModelField`` to accosicate it with your root Model, like so::
+Documents can contain nested objects within them. In order to declare a nested object within your model, simply define the nested object as a model class and use the ``ModelField`` to associate it with your root Model, like so::
 
     class Person(Model):
         first_name = StringField()
@@ -158,12 +158,16 @@ Every ``Model`` derived class has an internal ``Meta`` class which defines its d
 The following table lists the model options defined within the ``Meta`` class.
 
 +-----------------+------------------------------------------------------------------------------------+----------------+
-| Option          | Usage                                                                              | Default        |
+| Option            | Usage                                                                            | Default        |
 +=================+====================================================================================+================+
-| ``name``        | | Name of the model.                                                               | | name of      |
-|                 | | This is used in persistency mixins to set the name in the datastore              | | the model    |
+| ``name``          | | Name of the model.                                                             | | name of      |
+|                   | | This is used in persistency mixins to set the name in the datastore            | | the model    |
 +-----------------+------------------------------------------------------------------------------------+----------------+
-| ``namespace``   | Declares a namespace which prepends the name of the Model                          |  ``None``      |
+| ``namespace``     | Declares a namespace which prepends the name of the Model                        |  ``None``      |
++-----------------+------------------------------------------------------------------------------------+----------------+
+| ``creation_args`` | Used by ``MongoCollectionMixin`` for passing creation arguments                  |  ``None``      |
++-----------------+------------------------------------------------------------------------------------+----------------+
+| ``indices``       | Used to declare database indices                                                 |  ``None``      |
 +-----------------+------------------------------------------------------------------------------------+----------------+
 
 

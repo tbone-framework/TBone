@@ -44,13 +44,16 @@ The ``MongoCollectionMixin`` can be added to your ``Model`` sub classes like so:
             name = 'books'
             namespace = 'store'  # this will produce a collection named store.books in the database
 
-In the above example, we explicitely defined the ``_id`` field with the special ``ObjectIdField`` designed specifically for mongoDB databases. Even if the ``_id`` field is not explicitely declared, MongoDB will create one automatically, unless another primary key was declared. See `Indices`_ below.  
+In the above example, explicitely defines the ``_id`` field with the special ``ObjectIdField`` designed specifically for mongoDB databases. MongoDB will automatically create the ``_id`` field for every document (unless overruled by creation arguments) Even if the ``_id`` field is not explicitely declared in the model. However, developers should add this field to the model to include it in serialization methods. 
 
 
 Primary Key
 ~~~~~~~~~~~~
 
-Each MongoDB Model must have one of its fields defined as primary
+The ``primary_key`` declared in the example above is not used for creating a database index. Its purpose is to set this field as the primary key of the model, for usage in resources. The ``MongoResource`` class uses the field declared as ``primary_key`` to construct the resource's URI. A field that is declared as ``primary_key`` should be unique to the collection. In MongoDB the ``_id`` field always is. 
+There are cases
+
+See `Indices`_ below.  
 
 
 Database Operations

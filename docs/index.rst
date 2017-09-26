@@ -11,16 +11,17 @@ TBone is a framework for building full-duplex, RESTful APIs on top of a Python a
 
 TBone is web-server agnostic, provided that the web-server is built on `asyncio`.
 This means that it can work with either Sanic or Aiohttp and can be extended for other asyncio-based web-servers as well.
-TBone was designed to be nonblocking and every component is implemented such that it works with the ```asyncio``` event loop 
+TBone was designed to be nonblocking and every component is implemented such that it works with the ``asyncio`` event loop 
 
 Overview
 ------------
 
-TBone is comprised of 3 major components:
+TBone is comprised of 4 major modules:
 
-1. Data Structure - an ODM-like modeling mechanism for data validation and serialization
-2. Data Persistency - Persistency mixin classes for document stores with a full implementation for MongoDB
-3. Resources - Mechanism for creating RESTful APIs
+1. Data Structure - an ODM-like modeling mechanism for data validation and serialization.
+2. Data Persistency - Persistency mixin classes for document stores with a full implementation for MongoDB.
+3. Resources - Mechanism for creating RESTful APIs.
+4. Dispatch - Classes for managing internal and external events.
 
 
 

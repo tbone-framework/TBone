@@ -28,8 +28,8 @@ With a REST-like Resource layer, an ODM and a MongoDB persitency layer, TBone ma
 Minimum Opinions
 =================================
 
-TBone is an HTTP and Websocket agnostic framework. This means that developers can use either Sanic or Aiohttp as their http/websocket webserver based on their preferences. 
-TBone does not impose an application structure or even a configuration patters. So you can easily add TBone to your existing asnyc web applications without having to work too hard to fit it in.
+TBone is an HTTP and Websocket agnostic framework. This means that developers can use either `Sanic <https://github.com/channelcat/sanic>`_ or `Aiohttp <https://github.com/aio-libs/aiohttp>`_ as their http/websocket webserver based on their preferences. 
+TBone does not impose an application structure or even a configuration pattern. So you can easily add TBone to your existing async web applications without having to work too hard to fit it in.
 
 
 Antipatterns
