@@ -98,7 +98,7 @@ The ``MongoResource`` class uses a channel to publish resource events such as ``
 2. The same resource class publishes an event to the channel that a new object was created, providing the serialized form of the object
 3. The ``Channel`` object iterates through all subscribers (clients registered with a websocket connection) and sends the REST-like event to the registered clients
 
-The following image illustrates this:
+The following diagram illustrates this:
 
 
 .. image:: /images/channel1.png

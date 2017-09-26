@@ -157,19 +157,41 @@ Every ``Model`` derived class has an internal ``Meta`` class which defines its d
 
 The following table lists the model options defined within the ``Meta`` class.
 
-+-----------------+------------------------------------------------------------------------------------+----------------+
-| Option            | Usage                                                                            | Default        |
-+=================+====================================================================================+================+
-| ``name``          | | Name of the model.                                                             | | name of      |
-|                   | | This is used in persistency mixins to set the name in the datastore            | | the model    |
-+-----------------+------------------------------------------------------------------------------------+----------------+
-| ``namespace``     | Declares a namespace which prepends the name of the Model                        |  ``None``      |
-+-----------------+------------------------------------------------------------------------------------+----------------+
-| ``creation_args`` | Used by ``MongoCollectionMixin`` for passing creation arguments                  |  ``None``      |
-+-----------------+------------------------------------------------------------------------------------+----------------+
-| ``indices``       | Used to declare database indices                                                 |  ``None``      |
-+-----------------+------------------------------------------------------------------------------------+----------------+
++-------------------+------------------------------------------------------------------------+----------------+
+| Option            | Usage                                                                  | Default        |
++===================+========================================================================+================+
+| ``name``          | | Name of the model.                                                   | | name of      |
+|                   | | This is used in persistency mixins to set the name in the datastore  | | the model    |
++-------------------+------------------------------------------------------------------------+----------------+
+| ``namespace``     | Declares a namespace which prepends the name of the Model              |  ``None``      |
++-------------------+------------------------------------------------------------------------+----------------+
+| ``creation_args`` | Used by ``MongoCollectionMixin`` for passing creation arguments        |  ``None``      |
++-------------------+------------------------------------------------------------------------+----------------+
+| ``indices``       | Used to declare database indices                                       |  ``None``      |
++-------------------+------------------------------------------------------------------------+----------------+
 
+
+
+Data Traffic
+---------------
+
+Models are iterim data components that hold data in memory, coming in and out of the application. Generally, data travels from and to datastores and and application consumers. Models hold the data in memory and facilitate data management in the application flow.
+
+The ``Model`` class is a central part of TBone and has two data traffic concepts:
+
+    1. Import and Export
+    2. Serialization and deserialization
+
+The big difference between the two data traffic concepts is their purpose. Import and export take data in and out of the ``Model`` exactly as it is defined in the schema. Serialization and deserialization provides mechanisms for developers to control how data flows in and out of the ``Model`` to suit the application logic. 
+
+Generally speaking, import and export are used for data storage while serialization and deserialization are used for API resources and buiness logic.
+
+The following diagram illustrates this:
+
+.. image:: /images/model1.png
+    :align: center
+
+It may be useful to consider import / export methods as *inbound* methods, used for storing data in datastores and serialization / deserialization methods as *outbound* methods, used for exposing APIs in a controlled manner
 
 
 Import Data
@@ -199,11 +221,74 @@ A quicker way would be to use the ``Model`` constructor, like so::
 
     >> book = Book(data)
 
-Data can be imported in a ``dict`` containing Python types, or data primitives. Once data is imported into the model is coerced into Python types.
+Data can be imported in a ``dict`` containing Python types, or data primitives. Once data is imported into the model is coerced into Python types and validated.
+
+
+Export Data
+----------------
+
+The ``export_data`` method is used to convert the model into a Python ``dict``. 
+The data is exported in a straighforward manner, mapping all ``Model`` fields to key/value pairs, like so::
+
+    >>> data = book.export_data()
+    >>> data
+    {'isbn': '9781602523692', 'title': 'War and Peace', 'author': ['Leo Tolstoy'], 'format': 'Paperback', 'publication_date': datetime.datetime(1869, 1, 1, 0, 0, tzinfo=tzutc()), 'reviews': [], 'number_of_impressions': 0, 'number_of_views': 0} 
+    >>> type(data)
+    <class 'dict'>
+
+The ``export_data`` method exports all data in native Python types. It accepts an optional ``native`` parameter to control how data is exported. If ``native`` is set to ``False`` data will be exported in primitive data types, like so::
+
+    >>> data = book.export_data(native=False)
+    >>> data
+    {'isbn': '9781602523692', 'title': 'War and Peace', 'author': ['Leo Tolstoy'], 'format': 'Paperback', 'publication_date': '1869-01-01T00:00:00+00:00', 'reviews': [], 'number_of_impressions': 0, 'number_of_views': 0}
+    >>> type(data)
+    <class 'dict'>  
+
+Observing the difference with the previous example where ``publication_date`` was exported native python ``datetime`` in this example ``publication_date`` was exported as a ISO_8601 formatted string.
+
 
 
 Validation
 ----------------
+ 
+ Model validation is the process of validating the data contained by the model. Validation is done individually for every field in the Model, and can also include model level validation, to combine values of multiple fields.  When ``Model.validate`` the model iterates through all its fields and call their respective ``validate`` methods individually. Each type of field implements its own validation, pertaining to its data type. 
+
+ Explicitly calling the model validation is done like so::
+
+    m = MyModel({'name': 'ron bugrundy'})
+    m.validate()
+
+The ``Model.validate`` method does not return any value. However, a ``ValueError`` exception will be thrown if any validation has failed.
+
+
+ There are 3 forms of field validation:
+    
+    1. Type validation - Coercing the assigned data to the field's data type.
+    2. Validator methods - These are field methods which are decorated with ``@validator`` and perform additional validation that requires logic
+    3. External validator functions - These are functions which are external to the field class and are passed into field's declaration
+
+To add an external validation to an existing field object, without subclassing, is done like so::
+
+    def validate_positive(value):
+        if value < 0:
+            raise ValueError('Value should be positive')
+
+    class Person(Model):
+        age = IntegerField(validators=[validate_positive])
+
+In this example an external validation method was added to the list of validators without subclassing ``IntegerField``.
+This approach is useful when sharing validation methods across different fields.
+
+Another approach is to subclass ``IntegerField`` and include the validation within the field it self, like so::
+
+    class PositiveIntegerField(IntegerField):
+
+        @validator
+        def positive(value):
+            if value < 0:
+                raise ValueError('Value should be positive')
+
+In this example the validation is implemented within the field's subclass.
 
 
 Serialization
@@ -211,64 +296,22 @@ Serialization
 
 Models are responsible not only for declaring a schema and validating the data, but also for serializing the models to useful data structures. 
 Controlling the way data models are serialized is extremely useful when creating APIs.
-More often than not, developers may not want a straightforward one-to-one mapping between the data attributes of a model and the API.
+More often than not, the application's requirements dicate cases other than a straightforward one-to-one mapping between the data attributes of a model and the API.
 In some cases there may be a need to omit some data, which is meant only for internal use and not for API consumption. 
 In other cases there may be additional data attributes, required as part of an API endpoint, which are a result of a calculation, aggregation, or data manipulation between 1 or more data attributes. 
 
 The following section reviews the tools that are implemented on the ``Model`` class and how they can be used to yield the desired results.
 
+Model serialization is done using the ``serialize`` method:
 
-Serialization methods
-~~~~~~~~~~~~~~~~~~~~~
-
-The ``Model`` class has two methods for data serialization, which produce similar results but are intended for different uses.
-
-The first method is ``to_python``. This method will serialize the model's fields and export methods (to be explained shortly) based on the rules dictated by the model. The result is a ``dict`` object containing all the relevant data.
-
-The second method is ``to_data``. This method yields very similar result as ``to_python``. It also returns  ``dict`` object containing the fields and export methods. However, the difference is in the data types. 
-
-The first method ``to_python`` serializes data primitives using native Python types.
-the second method ``to_data`` serializes data primitives to data types which are not bound to the Python language. 
-
-Serialization methods are co-routines and can only be run in an event loop.
+.. autocomethod:: tbone.data.models.Model.serialize
 
 
-The following example illustrates this::
+This will produce a Python ``dict`` with the model's data. Unlike the ``export_data`` method, the one-to-one mapping of data fields is the default behavior. Developers can use Projection and the ``@serialize`` decorator to control the serialization of the model
 
-    >>> from tbone.data.models import *
-    >>> from tbone.data.fields import *
-    >>> class Author(Model):
-    ...     name = StringField()
-    ...     dob = DateField()
-    ...     rating = FloatField()
-    ... 
-    >>> a = Author({'name': 'John Steinbeck', 'dob' : '1902-02-27', 'rating': 4.7})
-
-Now that we have an ``Author`` instance, lets see the difference between the two serialization methods::
-
-    >>> obj = await a.to_python()
-    >>> obj
-    {'name': 'John Steinbeck', 'dob': datetime.date(1902, 2, 27), 'rating': 4.7}
-    >>> type(obj)
-    <class 'dict'>    
-
-    >>> obj = await a.to_data()
-    >>> obj
-    {'name': 'John Steinbeck', 'dob': '1902-02-27', 'rating': 4.7}
-    >>> type(obj)
-    <class 'dict'>
 
 .. note::
-    Plain Python shell does cannot run co-routines as it does not have a running event loop. You can either script this code wrapped as a co-routine or use a 3rd party Python shell which supports an event loop.
-
-Looking at the example above, both methods return a ``dict`` object with the ``Author`` instance's data. 
-However, ``to_python`` returned ``dob`` as a ``datetime.date`` object while ``to_data`` returned ``dob`` as a ``str`` object.
-
-The reason for this difference lies in the purpose of both methods.
-The ``to_python`` method is meant for **inbound** serialization while the ``to_data`` method is meant for **outbound** serialization.
-
-Inbound serialization is targeted at datastores, where Python's data primitives help maintain the data types more accurately. 
-Outbound serialization is targted at APIs that use language-agnostic transport protocols such as ``JSON`` where Python data primitives are not valid.
+    ``Model.serialize`` is a coroutine, which needs to be awaited, or pushed into the event loop
 
 
 Projection
@@ -292,12 +335,15 @@ The following example illustrates this::
     >>> class BlogPost(Model):
     ...     title = StringField()
     ...     body = StringField()
-    ...     number_of_views = IntegerField(default=0, projection=False)
+    ...     number_of_views = IntegerField(default=0, projection=None)
     ... 
     >>> post = BlogPost({'title': 'Trees Are Tall', 'body': 'Trees can grow to be very tall ...'})
-    >>> await post.to_data()
+    >>> await post.serialize()
     {'title': 'Trees Are Tall', 'body': 'Trees can grow to be very tall ...'}
-    >>> post.number_of_views += 1
+
+.. note::
+    Plain Python shell ``await`` a co-routines as it does not have a running event loop. You can either script this code wrapped as a co-routine or use a 3rd party Python shell which supports an event loop.
+
 
 The above example illustrates a ``Model`` that has a field used, in this case, for analytics, and is not required to be included as part of the API
 
@@ -306,7 +352,7 @@ The above example illustrates a ``Model`` that has a field used, in this case, f
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 When designing APIs, it is sometimes required to expose data which is not directly mapped to a single field in the model's schema.
-Such data can be a result on a calculation, data aggregation or even data fetched sources ourside the model.
+Such data can be a result on a calculation, data aggregation or even data fetched from sources outside the model.
 For this purpose, the ``Model`` class can implement serialize methods.
 
 Serialize methods are regular member methods on the model with the following attributes:
@@ -328,7 +374,7 @@ The following example illustrates this::
     ...         return (self.weight*703)/(self.height*self.height)
     ... 
     >>> t = Trainee({'weight': 81.5, 'height' : 178})
-    >>> t.to_data()
+    >>> t.serialize()
     {'weight': 81.5, 'height': 178.0, 'bmi': 1.8083101881075623}
 
 (Please do not consider the above example to be a real BMI calculator)
@@ -337,6 +383,7 @@ The following example illustrates this::
 The example above brings the quetion of why serialize methods need to be coroutines. 
 In the ``bmi`` serialize example there are no lines of code which make use of the application's event loop.
 However, serialize functions may include data from external sources as well. If such an implementation would not be using a coroutine the code will be blocking.
+
 The following example illustrates this::
 
     from aiohttp import client
@@ -362,13 +409,10 @@ The following example illustrates this::
     .
     .
     city_info = CityInfo({'city': 'San Francisco', 'state': 'CA'})
-    serialized_data = await city_info.to_data()
+    serialized_data = await city_info.serialize()
 
 
-To see a fully working example, please visit the examples page
-
-
-
+To see a fully working example, please visit the examples page in the project's repository
 
 
 
@@ -376,10 +420,10 @@ De-serialization
 ----------------
 
 De-serialization is the process of constructing a data model from raw data, usually passed into the API.
-The ``Model`` class implements a ``deserialize`` method which, by default, matches the data being passed to the fields defined on the model. Variables assigned are assigned to their respective fields and the object's data is validated. 
+The ``Model`` class implements a ``deserialize`` method which, by default, matches the data being passed to the fields defined on the model. Variables are assigned to their respective fields and the object's data is validated. 
 Developers may want to customize this behavior to control how models are deserialized, from data.
 
-readonly
+Readonly
 ~~~~~~~~~
 
 Every model field can be assigned with the ``readonly`` attribute.

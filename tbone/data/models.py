@@ -108,10 +108,12 @@ class ModelSerializer(object):
             return await func(*args, **kwargs)
         return func(*args, **kwargs)
 
-    async def serialize(self, native=False, exports=True, projection=True):
+    async def serialize(self, native=False):
         '''
-        Returns a serialized from of the model as a dictionary with data primitives as values.
-        Includes export methods and projection rules
+        Returns a serialized from of the model taking into account projection rules and ``@serialize`` decorated methods.
+        
+        :param native:
+            Deternines if data is serialized to Python native types or primitive form. Defaults to ``False``
         '''
         data = {}
         # iterate through all fields
@@ -202,12 +204,15 @@ class Model(ModelSerializer, metaclass=ModelMeta):
         return [(field, self._data[field]) for field in self]
 
     def _validate(self, data):
-        ''' Internal method to run validation with all model fields given the data provided '''
         for name, field in self._fields.items():
             field.validate(data.get(name))
 
     def validate(self):
-        ''' calls internal validate method with model's existing data '''
+        '''
+        Performs model data validation by iterating through all model fields
+        and validating the field's data according to the field's internal validation rules or
+        validation methods provided during model declaration
+        '''
         self._validate(self._data)
 
     def _convert(self, data, native):
