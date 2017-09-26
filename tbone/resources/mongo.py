@@ -8,7 +8,7 @@ from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from tbone.db.models import post_save
 from tbone.dispatch.channels.mongo import MongoChannel
-from tbone.resources import Resource
+from tbone.resources import ModelResource
 from tbone.resources.http import *
 from tbone.resources.signals import *
 
@@ -18,17 +18,9 @@ OFFSET = 0
 logger = logging.getLogger(__file__)
 
 
-class MongoResource(Resource):
+class MongoResource(ModelResource):
     class Meta:
         channel_class = MongoChannel
-
-    def __init__(self, *args, **kwargs):
-        super(MongoResource, self).__init__(*args, **kwargs)
-        # verify object class has a defined primary key
-        if not hasattr(self._meta.object_class, 'primary_key') or not hasattr(self._meta.object_class, 'primary_key_type'):
-            raise Exception('Cannot create a MongoResource to model {} without a primary key'.format(self._meta.object_class.__name__))
-        self.pk = self._meta.object_class.primary_key
-        self.pk_type = self._meta.object_class.primary_key_type
 
     @property
     def limit(self):
@@ -77,9 +69,12 @@ class MongoResource(Resource):
     # ------------- resource overrides ---------------- #
 
     async def list(self, *args, **kwargs):
-        limit = int(kwargs.pop('limit', [LIMIT])[0])
+        '''
+        Corresponds to GET request without a resource identifier, fetching documents from the database
+        '''
+        limit = int(kwargs.pop('limit', self.limit))
         limit = 1000 if limit == 0 else limit  # lets not go crazy here
-        offset = int(kwargs.pop('offset', OFFSET))
+        offset = int(kwargs.pop('offset', self.offset))
         projection = None
         # perform full text search or standard filtering
         if self._meta.fts_operator in kwargs.keys():
@@ -121,6 +116,9 @@ class MongoResource(Resource):
         }
 
     async def detail(self, **kwargs):
+        '''
+        Corresponds to GET request with a resource unique identifier, fetching a single document from the database
+        '''
         try:
             pk = self.pk_type(kwargs.get('pk'))
             obj = await self._meta.object_class.find_one(self.db, {self.pk: pk})
@@ -131,6 +129,9 @@ class MongoResource(Resource):
             raise NotFound('Invalid ID')
 
     async def create(self, **kwargs):
+        '''
+        Corresponds to POST request without a resource identifier, inserting a document into the database
+        '''
         try:
             # create model
             obj = self._meta.object_class()
@@ -146,6 +147,9 @@ class MongoResource(Resource):
             raise BadRequest(ex)
 
     async def modify(self, **kwargs):
+        '''
+        Corresponds to PATCH request with a resource identifier, modifying a single document in the database
+        '''
         try:
             self.data[self.pk] = self.pk_type(kwargs['pk'])
             result = await self._meta.object_class().update(self.db, data=self.data, modify=True)
@@ -157,6 +161,9 @@ class MongoResource(Resource):
             raise BadRequest(ex)
 
     async def update(self, **kwargs):
+        '''
+        Corresponds to PUT request with a resource identifier, updating a single document in the database
+        '''
         try:
             self.data[self.pk] = self.pk_type(kwargs['pk'])
             updated_obj = await self._meta.object_class().update(self.db, data=self.data, modify=False)
@@ -168,6 +175,9 @@ class MongoResource(Resource):
             raise BadRequest(ex)
 
     async def delete(self, *args, **kwargs):
+        '''
+        Corresponds to DELETE request with a resource identifier, deleting a single document from the database
+        '''
         pk = self.pk_type(kwargs['pk'])
         result = await self._meta.object_class.delete_entries(db=self.db, query={self.pk: pk})
         if result.acknowledged:
@@ -175,7 +185,6 @@ class MongoResource(Resource):
                 raise NotFound()
         else:
             raise BadRequest('Failed to delete object')
-
 
     def build_filters(self, **kwargs):
         ''' Break url parameters and turn into filters '''
@@ -199,6 +208,7 @@ class MongoResource(Resource):
         return filters
 
     def build_sort(self, **kwargs):
+        ''' Break url parameters and turn into sort arguments '''
         sort = []
         order = kwargs.get('order_by', None)
         if order:
