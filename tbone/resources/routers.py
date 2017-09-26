@@ -11,17 +11,36 @@ from tbone.db.models import post_save
 logger = logging.getLogger(__file__)
 
 Route = namedtuple('Route', 'path, handler, methods, name')
+Route.__doc__ = 'Wrapper object used to create routes which are added to a ``Router``'
+Route.path.__doc__ = 'The URL path of the route'
+Route.handler.__doc__ = 'The handler which implements the code executing for this request. Can be a function or class'
+Route.methods.__doc__ = 'Declares the HTTP methods which this route accepts. The format of this depends on the webserver implementation'
+Route.name.__doc__ = 'A unique name for the route'
 
 
 class Router(object):
-    ''' Creates a url list for a group of resources. '''
+    '''
+    Creates a url list for a group of resources.
+    Handles endpoint url prefixes.
+    Calls ``Resource.connect_signal_receiver`` for every ``Resource`` that is registered
+    '''
     def __init__(self, name):
         self.name = name
         self._registry = {}
 
     def register(self, resource, endpoint):
         '''
-        This methods registers a resource with the router and connects all receivers to their respective signals'''
+        This methods registers a resource with the router and connects all receivers to their respective signals
+
+        :param resource:
+            The resource class to register
+        :type resource:
+            A subclass of ``Resource`` class
+        :param endpoint:
+            the name of the resource's endpoint as it appears in the URL
+        :type endpoint:
+            str
+        '''
         if not issubclass(resource, Resource):
             raise ValueError('Not and instance of ``Resource`` subclass')
         # register resource
@@ -31,8 +50,6 @@ class Router(object):
 
     def unregister(self, endpoint):
         if endpoint in self._registry:
-            resource = self._registry[endpoint]
-            post_save.disconnect(resource.post_save, sender=resource._meta.object_class)
             del(self._registry[endpoint])
 
     def endpoints(self):
@@ -67,7 +84,7 @@ class Router(object):
             ))
         return url_patterns
 
-    def urls2(self):
+    def urls_regex(self):
         '''
         Iterate through all resources registered with this router
         and create a list endpoint and a detail endpoint for each one.
@@ -95,6 +112,3 @@ class Router(object):
                 name='{}_{}_detail'.format(self.name, endpoint).replace('/', '_')
             ))
         return url_patterns
-
-
-

@@ -5,8 +5,6 @@ TBone makes it easy to develop full-duplex RESTful APIs on top of your `asyncio`
 It uses a nonblocking asynchronous web server and provides the neccesary infrastructure to build asynchronous web apps and services.
 TBone is web-server agnostic and can be added on top of your `Sanic` or `Aiohttp` app.
 
-Note: TBone is currently in Alpha release
-
 
 TBone is comprised of 4 major modules:
 
@@ -17,7 +15,16 @@ TBone is comprised of 4 major modules:
 
 Combining the usage of these 4 modules makes it extremely easy to build full-duplex RESTful APIs on top of your mongoDB datastore.
 
+
+## Disclaimer
+
+TBone is currently in Alpha release. In may still contain bugs in code and typos in documentation.
+APIs may change before an official release is made
+
+
 ## Example
+
+The following example demonstrates the creation of a model schema and the corresponding RESTful resource
 
 ```python
 class Book(Model, MongoCollectionMixin):

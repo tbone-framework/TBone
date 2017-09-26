@@ -56,3 +56,5 @@ Models
 
 .. autoclass:: tbone.data.models.Model
    :members:
+   :inherited-members:
+   :noindex:

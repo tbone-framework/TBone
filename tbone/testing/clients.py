@@ -4,7 +4,6 @@
 
 import re
 import json
-from functools import partialmethod
 from tbone.resources.routers import Router
 from . import *
 
@@ -30,7 +29,7 @@ class ResourceTestClient(object):
     async def process_request(self, method, url, headers, args, body):
         handler = None
         # match the given url to urls in the router then activate the relevant resource
-        for route in self._router.urls2():
+        for route in self._router.urls_regex():
             match = re.match(route.path, url)
             if match:
                 handler = route.handler

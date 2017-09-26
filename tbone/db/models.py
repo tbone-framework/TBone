@@ -279,6 +279,18 @@ class MongoCollectionMixin(object):
 
 
 async def create_collection(db, model_class):
+    '''
+    Creates a MongoDB collection and all the declared indices in the model's ``Meta`` class
+
+    :param db:
+        A database handle
+    :type db:
+        motor.motor_asyncio.AsyncIOMotorClient
+    :param model_class:
+        The  model to create
+    :type model_class:
+        Subclass of ``Model`` mixed with ``MongoCollectionMixin``
+    '''
     name = model_class.get_collection_name()
     if name:
         try:
