@@ -19,8 +19,8 @@ class CompositeField(BaseField):
 
 
 class ListField(CompositeField):
-    data_type = list
-    python_type = list
+    _data_type = list
+    _python_type = list
 
     def __init__(self, field, min_size=None, max_size=None, **kwargs):
         super(ListField, self).__init__(**kwargs)
@@ -39,12 +39,12 @@ class ListField(CompositeField):
     def _export(self, value):
         if value is None:
             return None
-        return self.data_type(value)
+        return self._data_type(value)
 
     def _import(self, value):
         if value is None:
             return None
-        return self.python_type(value)
+        return self._python_type(value)
 
     def to_data(self, value_list):
         if value_list is None:
@@ -71,8 +71,8 @@ class ListField(CompositeField):
         return data
 
 class DictField(CompositeField):
-    data_type = dict
-    python_type = dict
+    _data_type = dict
+    _python_type = dict
 
     def __init__(self, field, **kwargs):
         super(DictField, self).__init__(**kwargs)
@@ -87,12 +87,12 @@ class DictField(CompositeField):
     def _export(self, value):
         if value is None:
             return None
-        return self.data_type(value)
+        return self._data_type(value)
 
     def _import(self, value):
         if value is None:
             return None
-        return self.python_type(value)
+        return self._python_type(value)
 
     def to_data(self, associative):
         if associative is None:
@@ -123,7 +123,7 @@ class ModelField(CompositeField):
     '''
     A field that can hold an instance of the specified model
     '''
-    data_type = dict
+    _data_type = dict
 
     def __init__(self, model_class, **kwargs):
         super(ModelField, self).__init__(**kwargs)
@@ -136,7 +136,7 @@ class ModelField(CompositeField):
         return '<%s instance of type %s>' % (self.__class__.__qualname__, self.model_class.__name__)
 
     @property
-    def python_type(self):
+    def _python_type(self):
         return self.model_class
 
     @property

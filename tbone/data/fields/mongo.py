@@ -12,8 +12,8 @@ class ObjectIdField(BaseField):
     '''
     A field wrapper around MongoDB ObjectIds
     '''
-    data_type = str
-    python_type = ObjectId
+    _data_type = str
+    _python_type = ObjectId
     ERRORS = {
         'convert': "Could not cast value as ObjectId",
     }
@@ -21,7 +21,7 @@ class ObjectIdField(BaseField):
     def _import(self, value):
         if value is None:
             return None
-        return self.python_type(value)
+        return self._python_type(value)
 
 
 class RefDict(dict):
@@ -38,8 +38,8 @@ class DBRefField(CompositeField):
     '''
     A field wrapper around MongoDB reference fields
     '''
-    data_type = RefDict
-    python_type = DBRef
+    _data_type = RefDict
+    _python_type = DBRef
     ERRORS = {
         'missing_id': 'Referenced model does not have the _id attribute',
         'invalid_id': 'Referenced model has an empty or invalid _id'
@@ -59,11 +59,11 @@ class DBRefField(CompositeField):
             if value._id is None or value._id.is_valid(str(value._id)) is False:
                 raise ValueError(self._errors['invalid_id'])
 
-            return self.python_type(self.model_class.get_collection_name(), value._id)
-        elif isinstance(value, self.python_type):
+            return self._python_type(self.model_class.get_collection_name(), value._id)
+        elif isinstance(value, self._python_type):
             return value
         elif isinstance(value, dict):
-            return self.python_type(value['ref'], ObjectId(value['id']))
+            return self._python_type(value['ref'], ObjectId(value['id']))
 
         raise ValueError(self._errors['to_python'])
 
@@ -74,12 +74,12 @@ class DBRefField(CompositeField):
             if value._id is None or value._id.is_valid(str(value._id)) is False:
                 raise ValueError(self._errors['invalid_id'])
 
-            return self.data_type({
+            return self._data_type({
                 'ref': value.get_collection_name(),
                 'id': value._id
             })
-        elif isinstance(value, self.python_type):
-            return self.data_type({
+        elif isinstance(value, self._python_type):
+            return self._data_type({
                 'ref': value.collection,
                 'id': str(value.id)
             })

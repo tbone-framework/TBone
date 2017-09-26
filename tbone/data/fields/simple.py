@@ -8,13 +8,13 @@ from .base import BaseField
 
 class StringField(BaseField):
     ''' Unicode string field '''
-    data_type = str
-    python_type = str
+    _data_type = str
+    _python_type = str
 
     def _import(self, value):
         if value is None:
             return None
-        return self.python_type(value)
+        return self._python_type(value)
 
 
 class NumberField(BaseField):
@@ -42,23 +42,23 @@ class NumberField(BaseField):
     def _import(self, value):
         if value is None:
             return None
-        return self.python_type(value)
+        return self._python_type(value)
 
 
 class IntegerField(NumberField):
     '''
     A field that validates input as an Integer
     '''
-    data_type = int
-    python_type = int
+    _data_type = int
+    _python_type = int
 
 
 class FloatField(NumberField):
     '''
     A field that validates input as an Integer
     '''
-    data_type = float
-    python_type = float
+    _data_type = float
+    _python_type = float
     # TODO: add field attribute to determine the number of digits after the dot
 
 
@@ -70,13 +70,13 @@ class BooleanField(BaseField):
     + For ``False``: "False", "false", "0"
 
     '''
-    data_type = bool
-    python_type = bool
+    _data_type = bool
+    _python_type = bool
 
 
 class DTBaseField(BaseField):
     ''' Base field for all fields related to date and time '''
-    data_type = str
+    _data_type = str
 
     def to_data(self, value):
         if value is None:
@@ -90,39 +90,39 @@ class DTBaseField(BaseField):
             if self._default is not None:
                 return self.default
             return None
-        elif isinstance(value, self.python_type) or isinstance(value, datetime.datetime):
+        elif isinstance(value, self._python_type) or isinstance(value, datetime.datetime):
             return value
         elif isinstance(value, str):
             return dateutil.parser.parse(value)
-        raise ValueError('{0} Unacceptable type for {1} field'.format(value.__class__.__name__, self.python_type.__name__))
+        raise ValueError('{0} Unacceptable type for {1} field'.format(value.__class__.__name__, self._python_type.__name__))
 
 
 class TimeField(DTBaseField):
     ''' Date field, exposes datetime.date as the python field '''
-    python_type = datetime.time
+    _python_type = datetime.time
 
     def to_python(self, value):
         if value is None:
             return None
-        if isinstance(value, self.python_type):
+        if isinstance(value, self._python_type):
             return value
         return super(TimeField, self).to_python(value).time()
 
 
 class DateField(DTBaseField):
     ''' Date field, exposes datetime.date as the python field '''
-    python_type = datetime.date
+    _python_type = datetime.date
 
     def to_python(self, value):
         if value is None:
             return None
-        if isinstance(value, self.python_type):
+        if isinstance(value, self._python_type):
             return value
         return super(DateField, self).to_python(value).date()
 
 
 class DateTimeField(DTBaseField):
     ''' Date field, exposes datetime.datetime as the python field '''
-    python_type = datetime.time
+    _python_type = datetime.time
 
 

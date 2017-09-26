@@ -87,7 +87,7 @@ class ModelMeta(type):
             if field._primary_key:
                 # assign primary key information
                 cls.primary_key = field.name
-                cls.primary_key_type = field.python_type
+                cls.primary_key_type = field._python_type
 
         # add model options
         opts = getattr(cls, 'Meta', None)

@@ -138,8 +138,10 @@ class BaseField(object, metaclass=FieldMeta):
         If the model is also mixed with a persistency class, it would make sense that the field which 
         is defined as the primary key may also be indexed as unique
     '''
-    data_type = None
-    python_type = None
+    _data_type = None
+    ''' what the hell '''
+    _python_type = None
+    ''' what the hell2 '''
 
     ERRORS = {
         'required': 'This is a required field',
@@ -182,14 +184,14 @@ class BaseField(object, metaclass=FieldMeta):
             if self._required:
                 raise ValueError(self._errors['required'])
             return None
-        return self.data_type(value)
+        return self._data_type(value)
 
     def _import(self, value):
         '''
         Imports field data and coerce to the field's python type.
         Overrride in sub classes to add specialized behavior
         '''
-        return self.python_type(value)
+        return self._python_type(value)
 
     def to_data(self, value):
         '''
@@ -211,7 +213,7 @@ class BaseField(object, metaclass=FieldMeta):
         '''
         if value is None and self._default is not None:
             return self.default
-        if not isinstance(value, self.python_type):
+        if not isinstance(value, self._python_type):
             try:
                 value = self._import(value)
             except ValueError:
