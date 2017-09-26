@@ -35,9 +35,26 @@ class Channel(object):
         return '{}{}'.format(self._name_prefix, self._name)
 
     async def publish(self, key, data=None):
+        '''
+        Publish an event to the channel, to be sent to all subscribers
+        
+        :param key:
+            The name of the event
+        :param data:
+            The data to be passed with the event. The data must be such that it can be encoded to JSON
+        '''
         raise NotImplementedError
 
     def subscribe(self, event, subscriber):
+        '''
+        Subscribe to channel events.
+
+        :param event:
+            The name of the event to subscribe to. String based
+
+        :param subscriber:
+            A ``Carrier`` type object which delivers the message to its target
+        '''
         self._subscribers[event].append(subscriber)
 
     def unsubscribe(self, event, subscriber):
