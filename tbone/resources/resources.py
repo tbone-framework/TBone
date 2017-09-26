@@ -418,3 +418,16 @@ class Resource(object, metaclass=ResourceMeta):
 
     async def delete_list(self, **kwargs):
         raise MethodNotImplemented()
+
+
+class ModelResource(Resource):
+    '''
+    A specialized resource class for using data models. Requires further implementation for data persistency
+    '''
+    def __init__(self, *args, **kwargs):
+        super(ModelResource, self).__init__(*args, **kwargs)
+        # verify object class has a declared primary key
+        if not hasattr(self._meta.object_class, 'primary_key') or not hasattr(self._meta.object_class, 'primary_key_type'):
+            raise Exception('Cannot create a ModelResource to model {} without a primary key'.format(self._meta.object_class.__name__))
+        self.pk = self._meta.object_class.primary_key
+        self.pk_type = self._meta.object_class.primary_key_type
