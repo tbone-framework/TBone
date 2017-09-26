@@ -26,6 +26,16 @@ class Signal(object):
         self.receivers = {}
 
     def connect(self, receiver, sender):
+        '''
+        Connects a signal to a receiver function
+
+        :param receiver:
+            The callback function which will be connected to this signal
+
+        :param sender:
+            Specifies a particular sender to receive signals from.
+            Used to limit the receiver function to signal from particular sender types
+        '''
         logger.info('Signal connected: {}'.format(receiver))
         ''' connect a receiver to a sender for signaling '''
         assert callable(receiver)
