@@ -6,6 +6,9 @@ from aiohttp.web import Response
 
 
 class AioHttpResource(object):
+    '''
+    A mixin class for adapting a ``Resource`` class to work with the AioHttp webserver
+    '''
     @classmethod
     def build_response(cls, data, status=200):
         res = Response(status=status, text=data, content_type='application/json')

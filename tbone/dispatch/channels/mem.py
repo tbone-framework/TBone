@@ -6,6 +6,10 @@ from . import Channel
 
 
 class MemoryChannel(Channel):
+    '''
+    Represents a channel for event pub/sub based on in-memory queue.
+    uses ``asyncio.Queue`` to manage events.
+    '''
     def __init__(self, **kwargs):
         self._queue = asyncio.Queue()
 

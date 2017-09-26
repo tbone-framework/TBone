@@ -78,11 +78,10 @@ class Book(Model, MongoCollectionMixin):
         }]
 
     async def add_review(self, db, review_data):
-        ''' Adds a review to the list of reviews, without updating the entire document '''
+        ''' Adds a review to the list of reviews, without fetching and updating the entire document '''
         db = db or self.db
-        # create review model instand and verify
+        # create review model instance
         new_rev = Review(review_data)
-        new_rev.validate()
         data = new_rev.export_data(native=True)
         # use model's pk as query
         query = {self.primary_key: self.pk}

@@ -69,7 +69,6 @@ class Signal(object):
             responses = await asyncio.gather(*futures)
         return responses
 
-
     def _get_receivers(self, sender):
         ''' filter only receiver functions which correspond to the provided sender '''
         key = _make_id(sender)

@@ -62,7 +62,11 @@ class Channel(object):
             self._subscribers[event].remove(subscriber)
 
     def kickoff(self):
-        ''' Initiates the channel and start listening to events '''
+        '''
+        Initiates the channel and start listening to events.
+        This method should be called at the startup sequence of the app, or as soon as events should be listened to.
+        Pushes ``consume_events`` into the event loop.
+        '''
         ensure_future(self.consume_events())
 
     async def consume_events(self):

@@ -19,6 +19,10 @@ logger = logging.getLogger(__file__)
 
 
 class MongoResource(ModelResource):
+    '''
+    A specialized ``Resource`` subclass used for creating API endpoints coupled to a MongoDB collection.
+    Provides basic CRUD operations using standard HTTP verbs.
+    '''
     class Meta:
         channel_class = MongoChannel
 

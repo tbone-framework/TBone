@@ -1,7 +1,8 @@
 Resources
 ===============
 
-This section ....
+This section covers API documentation for all classes and functions related to constructing REST API resources.
+For more information on resources in TBone see :doc:`Resources </source/resources>`
 
 
 

@@ -5,6 +5,9 @@ from sanic import request
 from sanic import response
 
 class SanicResource(object):
+    '''
+    A mixin class for adapting a ``Resource`` class to work with the Sanic webserver
+    '''
     @classmethod
     def build_response(cls, data, status=200):
         return response.text(

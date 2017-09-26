@@ -136,7 +136,17 @@ class ModelSerializer(object):
             data[name] = await func(self)
         return data
 
-    async def deserialize(self, data):
+    async def deserialize(self, data:dict):
+        '''
+        Deserializes a Python ``dict`` into the model by assigning values to their respective fields.
+        Ignores data attributes that do not match one of the Model's fields.
+        Ignores data attributes who's matching fields are declared with the ``readonly`` attribute
+
+        :param data:
+            Python dictionary with data
+        :type data:
+            dict
+        '''
         deserialized_data = {}
         for name, field in self._fields.items():
             if field._readonly is False and name in data:

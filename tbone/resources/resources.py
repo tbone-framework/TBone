@@ -33,9 +33,9 @@ class ResourceOptions(object):
         Useful for cases where the entire collection is never queried.
 
     :param sort:
-        Define a sort directive which the resource will apply to all ``list calls. Used in ``MongoResource`` to declare default sorting for collection.
+        Define a sort directive which the resource will apply to GET requests without a unique identifier. Used in ``MongoResource`` to declare default sorting for collection.
 
-    : param add_resource_uri:
+    :param add_resource_uri:
         Specify if the a ``Resource`` should format data and include the unique uri of the resource.
         Defaults to ``True``
 
@@ -54,7 +54,7 @@ class ResourceOptions(object):
     :param outgoing_list:
         Define the resource events which will be emitted without a primary key.
         These are outgoing resource events which are emitted to subscribers.
-        Defaults to a events ``['created', 'updated', 'deleted']``
+        Defaults to these events ``['created', 'updated', 'deleted']``
 
     :param outgoing_detail:
         Same as ``outgoing_list`` but for resource events which include a primary key
@@ -299,10 +299,15 @@ class Resource(object, metaclass=ResourceMeta):
         Given some data, generates an HTTP response.
         If you're integrating with a new web framework, other than sanic or aiohttp, you **MUST**
         override this method within your subclass.
-        :param data: The body of the response to send
-        :type data: string
-        :param status: (Optional) The status code to respond with. Default is ``200``
-        :type status: integer
+        
+        :param data:
+             The body of the response to send
+        :type data:
+            string
+        :param status:
+            (Optional) The status code to respond with. Default is ``200``
+        :type status:
+            integer
         :returns: A response object
         '''
         raise NotImplementedError()
