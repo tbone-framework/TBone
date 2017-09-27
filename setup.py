@@ -15,7 +15,7 @@ from tbone import __version__
 setup(
     name='tbone',
     version=__version__,
-    description='Full-duplex RESTful APIs for asynci` web applications',
+    description='Full-duplex RESTful APIs for asyncio web applications',
     author="475 Cumulus Ltd.",
     author_email='dev@475cumulus.com',
     url='https://github.com/475Cumulus/TBone',
