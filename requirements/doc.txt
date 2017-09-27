@@ -1,1 +1,2 @@
-Sphinx==1.6.3
+Sphinx==1.6.4
+sphinxcontrib-asyncio==0.2.0
