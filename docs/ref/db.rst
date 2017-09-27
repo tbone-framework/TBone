@@ -2,7 +2,7 @@ DB
 =======
 
 
-This section ...
+This section covers the MongoDB persistency layer mixin and utility functions
 
 
 MongoDB
@@ -10,3 +10,4 @@ MongoDB
 
 .. automodule:: tbone.db.models
     :members:
+    :noindex:
