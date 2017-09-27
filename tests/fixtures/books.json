@@ -1,0 +1,46 @@
+[{
+    "isbn" : "9781408436011",
+    "title" : "The Adventures of Sherlock Holmes",
+    "author" : ["Arthur Conan Doyle"],
+    "format" : "Paperback",
+    "publication_date" : {
+        "$date": "1892-10-14T00:00:00.000+0000"
+    }
+},{
+    "isbn" : "9783442075553",
+    "title" : "The Birth of Tragedy",
+    "author" : ["Friedrich Nietzsche"],
+    "format" : "Paperback",
+    "publication_date" : {
+        "$date": "1872-01-01T00:00:00.000+0000"
+    }
+},{
+    "isbn" : "9788858753026",
+    "title" : "Canery Row",
+    "author" : ["John Steinbeck"],
+    "format" : "Paperback",
+    "publication_date" : {
+        "$date": "1945-01-01T00:00:00.000+0000"
+    }
+},{
+    "isbn" : "9788422503552",
+    "title" : "The Brothers Karamazov",
+    "author" : ["Fyodor Dostoyevsky"],
+    "format" : "Paperback",
+    "publication_date" : {
+        "$date": "1880-11-01T00:00:00.000+0000"
+    } 
+},{
+    "isbn" : "9781904775072",
+    "title" : "David Copperfield",
+    "author" : ["Charles Dickens"],
+    "format" : "Paperback",
+    "publication_date" : {
+        "$date": "1850-11-01T00:00:00.000+0000"
+    }  
+}
+]
+
+
+
+

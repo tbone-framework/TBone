@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-
 import json
-import datetime
-import decimal
 import uuid
+import decimal
+import datetime
 
 
 class ExtendedJSONEncoder(json.JSONEncoder):
@@ -26,21 +25,11 @@ class ExtendedJSONEncoder(json.JSONEncoder):
             return super(ExtendedJSONEncoder, self).default(data)
 
 
-class Serializer(object):
-    ''' Base class for all serializers '''
-    def deserialize(self, body):
-        raise NotImplementedError()
-
-    def serialize(self, data):
-        raise NotImplementedError()
-
-
-class JSONSerializer(Serializer):
-    ''' Implements JSON serialization '''
-    def deserialize(self, body):
-        if isinstance(body, bytes):
-            return json.loads(body.decode('utf-8'))
-        return json.loads(body)
-
-    def serialize(self, data):
-        return json.dumps(data, cls=ExtendedJSONEncoder)
+def run_once(func):
+    ''' Decorator for making sure a method can only be executed once '''
+    def wrapper(*args, **kwargs):
+        if not wrapper.has_run:
+            wrapper.has_run = True
+            return func(*args, **kwargs)
+    wrapper.has_run = False
+    return wrapper
