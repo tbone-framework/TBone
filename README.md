@@ -1,6 +1,6 @@
 # TBone
 
-[![Build Status](https://travis-ci.org/475Cumulus/TBone.svg?branch=master)](https://travis-ci.org/475Cumulus/TBone) [![PyPI version](https://badge.fury.io/py/tbone.svg)](https://badge.fury.io/py/tbone) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://travis-ci.org/475Cumulus/TBone.svg?branch=master)](https://travis-ci.org/475Cumulus/TBone) [![PyPI version](https://badge.fury.io/py/tbone.svg)](https://badge.fury.io/py/tbone) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Waffle.io - Issues in progress](https://badge.waffle.io/475Cumulus/TBone.svg?label=in%20progress&title=In%20Progress)](http://waffle.io/475Cumulus/TBone)
 
 TBone makes it easy to develop full-duplex RESTful APIs on top of your `asyncio` web application or webservice.
 It uses a nonblocking asynchronous web server and provides the neccesary infrastructure to build asynchronous web apps and services.
