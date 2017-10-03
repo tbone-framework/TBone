@@ -1,7 +1,7 @@
 # TBone
 
 [![Build Status](https://travis-ci.org/475Cumulus/TBone.svg?branch=master)](https://travis-ci.org/475Cumulus/TBone)
-[![PyPI version](https://badge.fury.io/py/tbone.svg)](https://badge.fury.io/py/tbone) 
+[![PyPI version](https://badge.fury.io/py/tbone.svg)](https://badge.fury.io/py/tbone)
 [![Python](https://img.shields.io/pypi/pyversions/gain.svg)](https://pypi.python.org/pypi/gain/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Waffle.io - Issues in progress](https://badge.waffle.io/475Cumulus/TBone.svg?label=in%20progress&title=In%20Progress)](http://waffle.io/475Cumulus/TBone)
@@ -44,19 +44,19 @@ class BookResource(AioHttpResource, MongoResource):
         object_class = Book
 ```
 
-## Nonblocking 
+## Nonblocking
 
 TBone was designed to develop asynchorous web applications and web services. The entire infrastructure was built around `coroutines`.
-TBone utilizes only asynchronous 3rd party components to make sure that your app is truly nonblocking. 
+TBone utilizes only asynchronous 3rd party components to make sure that your app is truly nonblocking.
 
 ## Requirements
 
 TBone uses the async/await syntax and is limited to Python version 3.5 and up.
 
-Furthermore, TBone has some very few basic requirements. 
+Furthermore, TBone has some very few basic requirements.
 However, depending on its usage requires additional packages may be required.
 
-## Documentation 
+## Documentation
 
 [Documentation can be found here](https://tbone.readthedocs.io)
 
