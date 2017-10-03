@@ -23,8 +23,8 @@ Combining the usage of these 4 modules makes it extremely easy to build full-dup
 
 ## Disclaimer
 
-TBone is currently in Alpha release. In may still contain bugs in code and typos in documentation.
-APIs may change before an official release is made
+TBone is currently in Alpha stage. It may still have some bugs in the code, and some typos in the documentation.
+The APIs may change before an official release is made.
 
 
 ## Example
