@@ -53,7 +53,7 @@ TBone utilizes only asynchronous 3rd party components to make sure that your app
 
 TBone uses the async/await syntax and is limited to Python version 3.5 and up.
 
-Furthermore, TBone has very few basic requiremets. 
+Furthermore, TBone has some very few basic requirements. 
 However, depending on its usage requires additional packages may be required.
 
 ## documentation 
