@@ -18,7 +18,7 @@ TBone is comprised of 4 major modules:
 3. Resources - Mechanism for creating full-duplex RESTful APIs over `HTTP` and `Websockets`
 4. Dispatch - Classes for managing internal and external events.
 
-Combining the usage of these 4 modules makes it extremely easy to build full-duplex RESTful APIs on top of your mongoDB datastore.
+Combining the usage of these 4 modules makes it extremely easy to build full-duplex RESTful APIs on top of your MongoDB datastore.
 
 
 ## Disclaimer
