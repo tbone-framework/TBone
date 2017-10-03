@@ -59,6 +59,3 @@ However, depending on its usage requires additional packages may be required.
 ## Documentation
 
 [Documentation can be found here](https://tbone.readthedocs.io)
-
-
-
