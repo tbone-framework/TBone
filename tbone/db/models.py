@@ -303,16 +303,21 @@ async def create_collection(db, model_class):
         if hasattr(model_class._meta, 'indices') and isinstance(model_class._meta.indices, list):
             for index in model_class._meta.indices:
                 try:
+                    index_kwargs = {
+                        'name': index.get('name', '_'.join([x[0] for x in index['fields']])),
+                        'unique': index.get('unique', False),
+                        'sparse': index.get('sparse', False),
+                        'expireAfterSeconds': index.get('expireAfterSeconds', None),
+                        'background': True
+
+                    }
+                    if 'partialFilterExpression' in index:
+                        index_kwargs['partialFilterExpression'] = index.get('partialFilterExpression', {})
                     await db[name].create_index(
                         index['fields'],
-                        name=index.get('name', '_'.join([x[0] for x in index['fields']])),
-                        unique=index.get('unique', False),
-                        sparse=index.get('sparse', False),
-                        expireAfterSeconds=index.get('expireAfterSeconds', None),
-                        partialFilterExpression=index.get('partialFilterExpression', {}),
-                        background=True
+                        **index_kwargs
                     )
-                except OperationFailure:
+                except OperationFailure as ex:
                     pass  # index already exists ? TODO: do something with this
         return coll
     return None
