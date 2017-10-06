@@ -14,6 +14,8 @@ class EmailField(StringField):
 
     @validator
     def email(self, value):
+        if value is None or value == '':
+            return value
         match = re.match(self.REGEXP, value)
         if match is None:
             raise ValueError('Malformed email address')

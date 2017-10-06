@@ -211,7 +211,7 @@ class MongoCollectionMixin(object):
         If not, object will be inserted and _id will be assigned.
         '''
         self._db = db or self.db
-        data = self.prepare_data(self._data)
+        data = self.prepare_data()
         # validate object
         self.validate()
         for i in self.connection_retries():

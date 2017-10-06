@@ -214,8 +214,11 @@ class Model(ModelSerializer, metaclass=ModelMeta):
         return [(field, self._data[field]) for field in self]
 
     def _validate(self, data):
-        for name, field in self._fields.items():
-            field.validate(data.get(name))
+        try:
+            for name, field in self._fields.items():
+                field.validate(data.get(name))
+        except Exception as ex:
+            raise Exception('Failed to validate field "{}" model "{}"'.format(name, self.__class__.__name__), ex)
 
     def validate(self):
         '''
