@@ -89,6 +89,19 @@ async def test_model_field_complete():
     export_data = await book.serialize()
     assert export_data == raw_data
 
+    # change embedded model
+    book.author.first_name = 'Herman J.'
+    export_data = await book.serialize()
+    assert export_data['author']['first_name'] == 'Herman J.'
+
+    # create book without an author
+    r = {}
+    r.update(raw_data)
+    del r['author']
+    anonymous_book = Book(r)
+    assert anonymous_book.author is None
+    assert anonymous_book.export_data()['author'] is None
+
 
 def test_list_of_models():
     class Comment(Model):

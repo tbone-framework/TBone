@@ -11,11 +11,6 @@ class StringField(BaseField):
     _data_type = str
     _python_type = str
 
-    def _import(self, value):
-        if value is None:
-            return None
-        return self._python_type(value)
-
 
 class NumberField(BaseField):
 
@@ -38,11 +33,6 @@ class NumberField(BaseField):
             raise ValueError(self._errors['max'].format(self.max))
 
         return value
-
-    def _import(self, value):
-        if value is None:
-            return None
-        return self._python_type(value)
 
 
 class IntegerField(NumberField):
@@ -85,10 +75,8 @@ class DTBaseField(BaseField):
             return None
         return value.isoformat()
 
-    def to_python(self, value):
+    def _import(self, value):
         if value is None:
-            if self._default is not None:
-                return self.default
             return None
         elif isinstance(value, self._python_type) or isinstance(value, datetime.datetime):
             return value
@@ -101,28 +89,26 @@ class TimeField(DTBaseField):
     ''' Date field, exposes datetime.date as the python field '''
     _python_type = datetime.time
 
-    def to_python(self, value):
-        if value is None:
-            return None
+    def _import(self, value):
         if isinstance(value, self._python_type):
             return value
-        return super(TimeField, self).to_python(value).time()
+        dt = super(TimeField, self)._import(value)
+        return None if dt is None else dt.time()
 
 
 class DateField(DTBaseField):
     ''' Date field, exposes datetime.date as the python field '''
     _python_type = datetime.date
 
-    def to_python(self, value):
-        if value is None:
-            return None
+    def _import(self, value):
         if isinstance(value, self._python_type):
             return value
-        return super(DateField, self).to_python(value).date()
+        dt = super(DateField, self)._import(value)
+        return None if dt is None else dt.date()
 
 
 class DateTimeField(DTBaseField):
     ''' Date field, exposes datetime.datetime as the python field '''
-    _python_type = datetime.time
+    _python_type = datetime.datetime
 
 

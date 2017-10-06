@@ -56,7 +56,7 @@ async def test_model_import():
 
 
 @pytest.mark.asyncio
-async def test_model_export_decorator():
+async def test_model_serialize_decorator():
     class M(Model):
         first_name = StringField()
         last_name = StringField()
@@ -102,3 +102,6 @@ async  def test_field_projection():
         assert key in serialized
 
     assert 'number_of_views' not in serialized
+
+
+

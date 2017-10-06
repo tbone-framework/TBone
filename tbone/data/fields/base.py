@@ -41,7 +41,7 @@ class FieldDescriptor(object):
     def __init__(self, field):
         self.field = field
 
-    def __get__(self, instance, instance_type=None):
+    def __get__(self, instance, cls):
         if instance is not None:
             return instance._data.get(self.field.name, None) or self.field.default
         return self.field
@@ -121,8 +121,8 @@ class BaseField(object, metaclass=FieldMeta):
         Used for validation functions which are not implemented as internal ``Field`` methods
 
     :param projection:
-        Determines if the field is serlized by the model using either ``to_python`` or ``to_data`` methods.
-        Useful when specific control over the model behavior is required.
+        Determines if the field is serialized by the model using the model's ``serialize`` methods.
+        Useful when specific control over the model serialization is required.
         Acceptable values are ``True``, ``False`` and ``None``.
         Using ``True`` implies the field will always be serialized
         Using ``False`` implies the field will be serialized only if the value is not ``None``
@@ -135,13 +135,11 @@ class BaseField(object, metaclass=FieldMeta):
     :param primary_key:
         Declares the field as the model's primary key. Only one field can be declared like so.
         This declaration has no impact on the datastore, and is used by the ``Resource`` class as the model's identifier.
-        If the model is also mixed with a persistency class, it would make sense that the field which 
+        If the model is also mixed with a persistency class, it would make sense that the field which
         is defined as the primary key may also be indexed as unique
     '''
     _data_type = None
-    ''' what the hell '''
     _python_type = None
-    ''' what the hell2 '''
 
     ERRORS = {
         'required': 'This is a required field',
@@ -164,6 +162,7 @@ class BaseField(object, metaclass=FieldMeta):
         if primary_key:
             self._required = True
         self._bound = False                         # Whether the Field is bound to a Model
+        self._is_composite = False
 
         if required and default is not None:
             raise AttributeError('Required and default cannot co-exist')
@@ -175,14 +174,16 @@ class BaseField(object, metaclass=FieldMeta):
                 if callable(validator):
                     self.validators.append(validator)
 
+    @property
+    def is_composite(self):
+        return self._is_composite
+
     def _export(self, value):
         '''
         Coerce the input data to primitive form
         Override in sub classes to add specialized behavior
         '''
         if value is None:
-            if self._required:
-                raise ValueError(self._errors['required'])
             return None
         return self._data_type(value)
 
@@ -191,19 +192,27 @@ class BaseField(object, metaclass=FieldMeta):
         Imports field data and coerce to the field's python type.
         Overrride in sub classes to add specialized behavior
         '''
+        if value is None:
+            return None
         return self._python_type(value)
 
     def to_data(self, value):
         '''
         Coerce python data type to simple form for serialization.
-        If default value was defined returns the default value if None was passed
+        If default value was defined returns the default value if None was passed.
+        Throw exception is value is ``None`` is ``required`` is set to ``True``
         '''
         try:
             if value is None and self._default is not None:
                 return self._export(self.default)
+
+            elif value is None and self._required:
+                raise ValueError(self._errors['required'])
+
             value = self._export(value)
         except ValueError as ex:
-            raise Exception(ex, self._errors['to_data'])
+            raise ValueError(ex, self._errors['to_data'])
+
         return value
 
     def to_python(self, value):
@@ -216,8 +225,8 @@ class BaseField(object, metaclass=FieldMeta):
         if not isinstance(value, self._python_type):
             try:
                 value = self._import(value)
-            except ValueError:
-                raise Exception(self._errors['to_python'])
+            except ValueError as ex:
+                raise ValueError(ex, self._errors['to_python'])
         return value
 
     def __call__(self, value):

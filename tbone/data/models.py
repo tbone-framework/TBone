@@ -237,12 +237,15 @@ class Model(ModelSerializer, metaclass=ModelMeta):
     def import_data(self, data: dict):
         '''
         Imports data into model and converts to python form.
+        Model fields and container of model fields retain their model class structure.
         Merges with existing if data is partial
         '''
         if not isinstance(data, dict):
             raise ValueError('Cannot import data not as dict')
         self._data.update(data)
-        self._data = self._convert(self._data, native=True)
+
+        for name, field in self._fields.items():
+            self._data[name] = field._import(self._data.get(name)) or field.default
 
     def export_data(self, native=True):
         '''

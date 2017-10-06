@@ -20,8 +20,10 @@ def test_field_meta():
 
 
 def test_string_field():
-    s = StringField()
-    assert s.to_data(None) is None
+    assert StringField().to_data(None) is None
+    assert StringField().to_python(None) is None
+    assert StringField().to_data('Hello World') is 'Hello World'
+    assert StringField().to_python('Hello World') is 'Hello World'
 
 
 def test_datetime_field():
@@ -78,7 +80,7 @@ def test_choices():
 def test_required():
     number = IntegerField(required=True)
 
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         number.to_data(None)
 
     assert 5 == number.to_data(5)
