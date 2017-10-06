@@ -17,6 +17,9 @@ ACCESS_PRIVATE = 30
 class BaseModel(Model, MongoCollectionMixin):
     _id = ObjectIdField(primary_key=True)
 
+    class Meta:
+        concrete = False
+
     @serialize
     async def created(self):
         return self._id.generation_time.isoformat()

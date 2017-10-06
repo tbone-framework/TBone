@@ -20,6 +20,12 @@ class ModelOptions(object):
     :param namespace:
         Defines a namespace for the model name. Used by persistency mixins to prepend to the collection's name
 
+    :param concrete:
+        Defines the model as concrete and not abstract. This us useful for persistency mixins to determine
+        if the model should be created in the database.
+    :type concrete:
+        Boolean - Default is ``True``
+
     :param creation_args:
         Used when creating a MongoDB collection for passing creation arguments
 
@@ -28,6 +34,7 @@ class ModelOptions(object):
     '''
     name = None
     namespace = None
+    concrete = True
     creation_args = {}
     indices = []
 

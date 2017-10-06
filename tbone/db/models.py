@@ -322,6 +322,7 @@ async def create_app_collections(db):
     ''' load all models in app and create collections in db with specified indices'''
     futures = []
     for model_class in MongoCollectionMixin.__subclasses__():
-        futures.append(create_collection(db, model_class))
+        if model_class._meta.concrete is True:
+            futures.append(create_collection(db, model_class))
 
     await asyncio.gather(*futures)
