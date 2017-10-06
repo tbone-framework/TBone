@@ -205,7 +205,6 @@ class BaseField(object, metaclass=FieldMeta):
         try:
             if value is None and self._default is not None:
                 return self._export(self.default)
-
             elif value is None and self._required:
                 raise ValueError(self._errors['required'])
 
@@ -222,6 +221,8 @@ class BaseField(object, metaclass=FieldMeta):
         '''
         if value is None and self._default is not None:
             return self.default
+        elif value is None and self._required:
+            raise ValueError(self._errors['required'])
         if not isinstance(value, self._python_type):
             try:
                 value = self._import(value)
