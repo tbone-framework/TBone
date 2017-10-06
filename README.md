@@ -1,6 +1,13 @@
 # TBone
 
-[![Build Status](https://travis-ci.org/475Cumulus/TBone.svg?branch=master)](https://travis-ci.org/475Cumulus/TBone) [![PyPI version](https://badge.fury.io/py/tbone.svg)](https://badge.fury.io/py/tbone) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+![logo](https://user-images.githubusercontent.com/3540587/31142318-9ee5dfa0-a882-11e7-998e-064147470615.png)
+
+
+[![Build Status](https://travis-ci.org/475Cumulus/TBone.svg?branch=master)](https://travis-ci.org/475Cumulus/TBone)
+[![PyPI version](https://badge.fury.io/py/tbone.svg)](https://badge.fury.io/py/tbone)
+[![Python](https://img.shields.io/pypi/pyversions/gain.svg)](https://pypi.python.org/pypi/gain/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Waffle.io - Issues in progress](https://badge.waffle.io/475Cumulus/TBone.svg?label=in%20progress&title=In%20Progress)](http://waffle.io/475Cumulus/TBone)
 
 TBone makes it easy to develop full-duplex RESTful APIs on top of your `asyncio` web application or webservice.
 It uses a nonblocking asynchronous web server and provides the neccesary infrastructure to build asynchronous web apps and services.
@@ -14,13 +21,13 @@ TBone is comprised of 4 major modules:
 3. Resources - Mechanism for creating full-duplex RESTful APIs over `HTTP` and `Websockets`
 4. Dispatch - Classes for managing internal and external events.
 
-Combining the usage of these 4 modules makes it extremely easy to build full-duplex RESTful APIs on top of your mongoDB datastore.
+Combining the usage of these 4 modules makes it extremely easy to build full-duplex RESTful APIs on top of your MongoDB datastore.
 
 
 ## Disclaimer
 
-TBone is currently in Alpha release. In may still contain bugs in code and typos in documentation.
-APIs may change before an official release is made
+TBone is currently in Alpha stage. It may still have some bugs in the code, and some typos in the documentation.
+The APIs may change before an official release is made.
 
 
 ## Example
@@ -40,21 +47,18 @@ class BookResource(AioHttpResource, MongoResource):
         object_class = Book
 ```
 
-## Nonblocking 
+## Nonblocking
 
 TBone was designed to develop asynchorous web applications and web services. The entire infrastructure was built around `coroutines`.
-TBone utilizes only asynchronous 3rd party components to make sure that your app is truly nonblocking. 
+TBone utilizes only asynchronous 3rd party components to make sure that your app is truly nonblocking.
 
 ## Requirements
 
 TBone uses the async/await syntax and is limited to Python version 3.5 and up.
 
-Furthermore, TBone has very few basic requiremets. 
+Furthermore, TBone has some very few basic requirements.
 However, depending on its usage requires additional packages may be required.
 
-## documentation 
+## Documentation
 
 [Documentation can be found here](https://tbone.readthedocs.io)
-
-
-
