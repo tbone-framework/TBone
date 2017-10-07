@@ -142,7 +142,8 @@ class BaseField(object, metaclass=FieldMeta):
     _python_type = None
 
     ERRORS = {
-        'required': 'This is a required field',
+        'required': '{} {} is a required field',
+        'required_extra': ' in model {}',
         'to_data': 'Cannot coerce data to primitive form',
         'to_python': 'Cannot corece data to python type',
         'choices': 'Value must be one of [{0}] in field {1}',
@@ -159,8 +160,6 @@ class BaseField(object, metaclass=FieldMeta):
         self._projection = Ternary(projection)
         self._readonly = readonly
         self._primary_key = primary_key
-        if primary_key:
-            self._required = True
         self._bound = False                         # Whether the Field is bound to a Model
         self._is_composite = False
 
@@ -206,7 +205,7 @@ class BaseField(object, metaclass=FieldMeta):
             if value is None and self._default is not None:
                 return self._export(self.default)
             elif value is None and self._required:
-                raise ValueError(self._errors['required'])
+                raise ValueError(self._errors['required'].format(self.__class__.__name__))
 
             value = self._export(value)
         except ValueError as ex:
@@ -222,7 +221,10 @@ class BaseField(object, metaclass=FieldMeta):
         if value is None and self._default is not None:
             return self.default
         elif value is None and self._required:
-            raise ValueError(self._errors['required'])
+            err_msg = self._errors['required'].format(self.__class__.__name__, self.name)
+            if self.container_model_class:
+                err_msg += self._errors['required_extra'].format(self.container_model_class.__name__)
+            raise ValueError(err_msg)
         if not isinstance(value, self._python_type):
             try:
                 value = self._import(value)
