@@ -17,6 +17,9 @@ class BaseModel(Model, MongoCollectionMixin):
     ''' Base model which adds a mongodb default _id field and an serialize method for object creation timestamp'''
     _id = ObjectIdField(primary_key=True)
 
+    class Meta:
+        concrete = False
+
     @serialize
     async def created(self):
         return self._id.generation_time.isoformat()

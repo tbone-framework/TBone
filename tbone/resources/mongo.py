@@ -155,8 +155,9 @@ class MongoResource(ModelResource):
         Corresponds to PATCH request with a resource identifier, modifying a single document in the database
         '''
         try:
-            self.data[self.pk] = self.pk_type(kwargs['pk'])
-            result = await self._meta.object_class().update(self.db, data=self.data, modify=True)
+            pk = self.pk_type(kwargs['pk'])
+            # modify is a class method on MongoCollectionMixin
+            result = await self._meta.object_class.modify(self.db, key=pk, data=self.data)
             if result is None:
                 raise NotFound('Object matching the given {} was not found'.format(self.pk))
             return await result.serialize()
@@ -170,7 +171,7 @@ class MongoResource(ModelResource):
         '''
         try:
             self.data[self.pk] = self.pk_type(kwargs['pk'])
-            updated_obj = await self._meta.object_class().update(self.db, data=self.data, modify=False)
+            updated_obj = await self._meta.object_class().update(self.db, data=self.data)
             if updated_obj is None:
                 raise NotFound('Object matching the given {} was not found'.format(self.pk))
             return await updated_obj.serialize()

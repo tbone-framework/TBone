@@ -177,6 +177,18 @@ class BaseField(object, metaclass=FieldMeta):
     def is_composite(self):
         return self._is_composite
 
+    @property
+    def name(self):
+        if hasattr(self, '_name'):
+            return self._name
+        return 'Unknown'
+
+    @property
+    def container_model(self):
+        if hasattr(self, '_container_model_class'):
+            return self._container_model_class
+        return None
+
     def _export(self, value):
         '''
         Coerce the input data to primitive form
@@ -195,6 +207,18 @@ class BaseField(object, metaclass=FieldMeta):
             return None
         return self._python_type(value)
 
+
+    def _check_required(self, value):
+        '''
+        Internal method to check if assigned value is None while it is required.
+        Exception is thrown if ``True``
+        '''
+        if value is None and self._required:
+            err_msg = self._errors['required'].format(self.__class__.__name__, self.name)
+            if self.container_model:
+                err_msg += self._errors['required_extra'].format(self.container_model.__name__)
+            raise ValueError(err_msg)
+
     def to_data(self, value):
         '''
         Coerce python data type to simple form for serialization.
@@ -204,33 +228,26 @@ class BaseField(object, metaclass=FieldMeta):
         try:
             if value is None and self._default is not None:
                 return self._export(self.default)
-            elif value is None and self._required:
-                raise ValueError(self._errors['required'].format(self.__class__.__name__))
-
+            self._check_required(value)
             value = self._export(value)
+            return value
         except ValueError as ex:
             raise ValueError(ex, self._errors['to_data'])
-
-        return value
 
     def to_python(self, value):
         '''
         Coerce data from primitive form to native Python types.
         Returns the default type (if exists)
         '''
-        if value is None and self._default is not None:
-            return self.default
-        elif value is None and self._required:
-            err_msg = self._errors['required'].format(self.__class__.__name__, self.name)
-            if self.container_model_class:
-                err_msg += self._errors['required_extra'].format(self.container_model_class.__name__)
-            raise ValueError(err_msg)
-        if not isinstance(value, self._python_type):
-            try:
+        try:
+            if value is None and self._default is not None:
+                return self.default
+            self._check_required(value)
+            if not isinstance(value, self._python_type):
                 value = self._import(value)
-            except ValueError as ex:
-                raise ValueError(ex, self._errors['to_python'])
-        return value
+            return value
+        except ValueError as ex:
+            raise ValueError(ex, self._errors['to_python'])
 
     def __call__(self, value):
         return self.to_python(value)
@@ -253,8 +270,8 @@ class BaseField(object, metaclass=FieldMeta):
         ``FieldDescriptor``. Called by the metaclass during construction of the
         ``Model``.
         '''
-        self.name = name
-        self.container_model_class = cls
+        self._name = name
+        self._container_model_class = cls
         setattr(cls, name, FieldDescriptor(self))
         self._bound = True
 

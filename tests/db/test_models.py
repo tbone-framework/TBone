@@ -68,11 +68,16 @@ async def test_model_crud_operations(request, db):
     assert p3
     assert p3.first_name == 'Ron'
 
-    # delete model from db
-    await p3.delete(db)
+    # modify a model
+    p4 = await Person.modify(db, p3.pk, {'first_name': 'Michael'})
+    assert p4
+    assert p4.first_name == 'Michael'
 
-    p4 = await Person.find_one(db=db, query={'first_name': 'Ron'})
-    assert p4 is None
+    # delete model from db
+    await p4.delete(db)
+
+    p5 = await Person.find_one(db=db, query={'first_name': 'Ron'})
+    assert p5 is None
 
 
 @pytest.mark.asyncio

@@ -172,7 +172,12 @@ class MongoCollectionMixin(object):
         return cls(data)
 
     def prepare_data(self, data=None):
+        '''
+        Prepare data for persistency by exporting it to native form
+         and making sure we're not persisting with a null primary key.
+        '''
         data = data or self.export_data(native=True)
+        # make sure we don't persist a null _id and let MongoDB auto-generate it
         if '_id' in data and data['_id'] is None:
             del data['_id']
         return data
@@ -232,13 +237,17 @@ class MongoCollectionMixin(object):
                 if exceed:
                     raise ex
 
-    async def update(self, db=None, data=None, modify=False):
+    async def update(self, db=None, data=None):
+        '''
+        Update the entire document by replacing its content with new data, retaining its primary key
+        '''
         db = db or self.db
-        if data:
+        if data:  # update model explicitely with a new data structure
+            # merge the current model's data with the new data
             self.import_data(data)
-            ndata = self.export_data(native=True)
-            ndata = self.prepare_data(ndata)
-            data = {x: ndata[x] for x in ndata if x in data or x == self.primary_key}
+            # prepare data for database update
+            data = self.prepare_data()
+            # data = {x: ndata[x] for x in ndata if x in data or x == self.primary_key}
         else:
             data = self.export_data(native=True)
 
@@ -247,18 +256,11 @@ class MongoCollectionMixin(object):
         query = {self.primary_key: self.pk}
         for i in self.connection_retries():
             try:
-                if modify:
-                    result = await db[self.get_collection_name()].find_one_and_update(
-                        filter=query,
-                        update={'$set': data},
-                        return_document=ReturnDocument.AFTER
-                    )
-                else:
-                    result = await db[self.get_collection_name()].find_one_and_replace(
-                        filter=query,
-                        replacement=data,
-                        return_document=ReturnDocument.AFTER
-                    )
+                result = await db[self.get_collection_name()].find_one_and_replace(
+                    filter=query,
+                    replacement=data,
+                    return_document=ReturnDocument.AFTER
+                )
                 if result:
                     updated_obj = self.create_model(result)
                     updated_obj._db = db
@@ -277,8 +279,56 @@ class MongoCollectionMixin(object):
                 if exceed:
                     raise ex
 
+    @classmethod
+    async def modify(cls, db, key, data: dict):
+        '''
+        Partially modify a document by providing a subset of its data fields to be modified
 
-async def create_collection(db, model_class):
+        :param db:
+            Handle to the MongoDB database
+
+        :param key:
+            The primary key of the database object being modified. Usually its ``_id``
+
+        :param data:
+            The data set to be modified
+
+        :type data:
+            ``dict``
+        '''
+
+        if data is None:
+            raise BadRequest('Failed to modify document. No data fields to modify')
+        # validate partial data
+        cls._validate(data)
+
+        query = {cls.primary_key: key}
+        for i in cls.connection_retries():
+            try:
+                result = await db[cls.get_collection_name()].find_one_and_update(
+                    filter=query,
+                    update={'$set': data},
+                    return_document=ReturnDocument.AFTER
+                )
+                if result:
+                    updated_obj = cls.create_model(result)
+                    updated_obj._db = db
+                    # emit post save
+                    asyncio.ensure_future(post_save.send(
+                        sender=cls,
+                        db=db,
+                        instance=updated_obj,
+                        created=False)
+                    )
+                    return updated_obj
+                return None
+            except ConnectionFailure as ex:
+                exceed = await cls.check_reconnect_tries_and_wait(i, 'update')
+                if exceed:
+                    raise ex
+
+
+async def create_collection(db, model_class: MongoCollectionMixin):
     '''
     Creates a MongoDB collection and all the declared indices in the model's ``Meta`` class
 

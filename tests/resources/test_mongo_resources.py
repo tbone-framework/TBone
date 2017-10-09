@@ -17,8 +17,6 @@ from .resources import *
 async def load_account_collection(json_fixture, db):
     ''' Helper fixture for loading the accounts.json fixture into the database '''
     app = App(db=db)
-    url = '/api/'
-
     # load data
     data = json_fixture('accounts.json')
     # create collection in db and optional indices
@@ -34,8 +32,6 @@ async def load_account_collection(json_fixture, db):
 async def load_book_collection(json_fixture, db):
     ''' Helper fixture for loading the books.json fixture into the database '''
     app = App(db=db)
-    url = '/api/'
-
     # load data
     data = json_fixture('books.json')
     # create collection in db and optional indices
@@ -46,11 +42,10 @@ async def load_book_collection(json_fixture, db):
     return app
 
 
-
 @pytest.mark.asyncio
 async def test_mongo_resource_create(db):
     app = App(db=db)
-    coll = await create_collection(db, BookResource._meta.object_class)
+    await create_collection(db, BookResource._meta.object_class)
     url = '/api/{}/'.format(BookResource.__name__)
     client = ResourceTestClient(app, BookResource)
 
@@ -158,7 +153,6 @@ async def test_mongo_resource_crud(json_fixture, db):
     # fail to delete the book a 2nd time
     response = await client.delete(url + data['isbn'] + '/')
     assert response.status == NOT_FOUND
-
 
 
 @pytest.mark.asyncio
@@ -285,7 +279,7 @@ async def test_mongo_collection_filtering_operator(load_account_collection):
     assert female_count + male_count <= total_count
 
 
-@pytest.mark.asyncio    
+@pytest.mark.asyncio
 async def test_mongo_collection_custom_indices(load_book_collection):
     app = load_book_collection
 

@@ -143,23 +143,33 @@ class ModelSerializer(object):
             data[name] = await func(self)
         return data
 
-    async def deserialize(self, data:dict):
+    async def deserialize(self, data: dict, silent=True):
         '''
         Deserializes a Python ``dict`` into the model by assigning values to their respective fields.
         Ignores data attributes that do not match one of the Model's fields.
         Ignores data attributes who's matching fields are declared with the ``readonly`` attribute
+        Validates the data after import.
+        Override in sub classes to modify or add to deserialization behavior
 
         :param data:
             Python dictionary with data
         :type data:
-            dict
+            ``dict``
+        :param silent:
+            Determines if an exception is thrown if illegal fields are passed. Such fields can be non existent or readonly. Default is True
+        :type silent:
+            ``bool``
         '''
+        self.import_data(self. _deserialize(data))
+        self.validate()
+
+    def _deserialize(self, data: dict, silent=True) -> dict:
+        ''' Internal deserialize method for sifting out unacceptable data for the model '''
         deserialized_data = {}
         for name, field in self._fields.items():
             if field._readonly is False and name in data:
                 deserialized_data[name] = data.get(name)
-        self.import_data(deserialized_data)
-        self.validate()
+        return deserialized_data
 
 
 class Model(ModelSerializer, metaclass=ModelMeta):
@@ -220,12 +230,13 @@ class Model(ModelSerializer, metaclass=ModelMeta):
     def items(self):
         return [(field, self._data[field]) for field in self]
 
-    def _validate(self, data):
+    @classmethod
+    def _validate(cls, data):
         try:
-            for name, field in self._fields.items():
+            for name, field in cls._fields.items():
                 field.validate(data.get(name))
         except Exception as ex:
-            raise Exception('Failed to validate field "{}" model "{}"'.format(name, self.__class__.__name__), ex)
+            raise Exception('Failed to validate field "{}" model "{}"'.format(name, cls.__name__), ex)
 
     def validate(self):
         '''
