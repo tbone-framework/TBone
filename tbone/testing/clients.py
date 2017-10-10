@@ -49,7 +49,6 @@ class ResourceTestClient(object):
             return response
         return Response(headers={}, data=None, status=404)
 
-
     async def get(self, url, headers={}, args={}, body={}):
         return await self.process_request('GET', url, headers, args, body)
 

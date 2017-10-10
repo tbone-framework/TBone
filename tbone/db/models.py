@@ -34,6 +34,11 @@ class MongoCollectionMixin(object):
 
     @classmethod
     def get_collection_name(cls):
+        '''
+        Gets the full name of the collection, as declared by the ModelOptions class like so:
+            namespace.name
+        If no namespace or name is provided, the class's lowercase name is used
+        '''
         if hasattr(cls, '_meta'):
             np = getattr(cls._meta, 'namespace', None)
             cname = getattr(cls._meta, 'name', None)

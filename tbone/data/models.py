@@ -110,7 +110,7 @@ class ModelSerializer(object):
     Performs serialization taking into account projection attributes and serialize methods
     '''
     async def _execute(self, func, *args, **kwargs):
-        ''' Helper method to verify and execute methods as they coroutines  '''
+        ''' Helper method to verify and execute methods if they're coroutines  '''
         if asyncio.iscoroutinefunction(func):
             return await func(*args, **kwargs)
         return func(*args, **kwargs)
