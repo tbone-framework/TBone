@@ -254,7 +254,7 @@ class BaseField(object, metaclass=FieldMeta):
 
     def __repr__(self):
         if self._bound:
-            return '<%s instance in model %s>' % (self.__class__.__qualname__, self.container_model_class.__name__)
+            return '<%s instance in model %s>' % (self.__class__.__qualname__, self.container_model.__name__)
         return '<%s instance>' % self.__class__.__qualname__
 
     @property

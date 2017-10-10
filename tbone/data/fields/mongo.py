@@ -53,6 +53,8 @@ class DBRefField(CompositeField):
             raise TypeError("DBRefField: Expected a model of the type '{}'.".format(model_class.__name__))
 
     def _import(self, value):
+        if value is None:
+            return None
         if isinstance(value, self.model_class):
             if not hasattr(value, '_id'):
                 raise ValueError(self._errors['missing_id'])
@@ -68,6 +70,8 @@ class DBRefField(CompositeField):
         raise ValueError(self._errors['to_python'])
 
     def _export(self, value):
+        if value is None:
+            return None
         if isinstance(value, self.model_class):
             if not hasattr(value, '_id'):
                 raise ValueError(self._errors['missing_id'])
