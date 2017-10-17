@@ -296,7 +296,7 @@ Serialization
 
 Models are responsible not only for declaring a schema and validating the data, but also for serializing the models to useful data structures. 
 Controlling the way data models are serialized is extremely useful when creating APIs.
-More often than not, the application's requirements dicate cases other than a straightforward one-to-one mapping between the data attributes of a model and the API.
+More often than not, the application's requirements dictate cases other than a straightforward one-to-one mapping between the data attributes of a model and the API.
 In some cases there may be a need to omit some data, which is meant only for internal use and not for API consumption. 
 In other cases there may be additional data attributes, required as part of an API endpoint, which are a result of a calculation, aggregation, or data manipulation between 1 or more data attributes. 
 

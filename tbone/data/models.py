@@ -250,9 +250,10 @@ class Model(ModelSerializer, metaclass=ModelMeta):
         converted_data = {}
         for name, field in self._fields.items():
             if native is True:
-                converted_data[name] = field.to_python(data.get(name))
+                conversion_func = field.to_python
             else:
-                converted_data[name] = field.to_data(data.get(name))
+                conversion_func = field.to_data
+            converted_data[name] = conversion_func(data.get(name))
         return converted_data
 
     def import_data(self, data: dict):
