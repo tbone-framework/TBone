@@ -104,4 +104,28 @@ async  def test_field_projection():
     assert 'number_of_views' not in serialized
 
 
+def test_model_field_exclusion():
+    class User(Model):
+        username = StringField()
+        password = StringField()
+        first_name = StringField()
+        last_name = StringField()
+
+        @serialize
+        async def full_name(self):
+            return '{} {}'.format(self.first_name, self.last_name)
+
+    class PublicUser(User):
+        class Meta:
+            exclude_fields = ['password', 'none_existing_field']
+            exclude_serialize = ['full_name', 'none_existing_serialize_method']
+
+    assert 'password' not in PublicUser._fields
+    assert 'full_name' not in PublicUser._serialize_methods
+
+
+
+
+
+
 

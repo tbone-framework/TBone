@@ -157,19 +157,50 @@ Every ``Model`` derived class has an internal ``Meta`` class which defines its d
 
 The following table lists the model options defined within the ``Meta`` class.
 
-+-------------------+------------------------------------------------------------------------+----------------+
-| Option            | Usage                                                                  | Default        |
-+===================+========================================================================+================+
-| ``name``          | | Name of the model.                                                   | | name of      |
-|                   | | This is used in persistency mixins to set the name in the datastore  | | the model    |
-+-------------------+------------------------------------------------------------------------+----------------+
-| ``namespace``     | Declares a namespace which prepends the name of the Model              |  ``None``      |
-+-------------------+------------------------------------------------------------------------+----------------+
-| ``creation_args`` | Used by ``MongoCollectionMixin`` for passing creation arguments        |  ``None``      |
-+-------------------+------------------------------------------------------------------------+----------------+
-| ``indices``       | Used to declare database indices                                       |  ``None``      |
-+-------------------+------------------------------------------------------------------------+----------------+
++-----------------------+-----------------------------------------------------------+----------------+
+| Option                | Usage                                                     | Default        |
++=======================+===========================================================+================+
+| ``name``              | | Name of the model.                                      | | name of      |
+|                       | | This is used in persistency mixins to                   | | the model    |
+|                       | | set the name in the datastores                          |                |
++-----------------------+-----------------------------------------------------------+----------------+
+| ``namespace``         | Declares a namespace which prepends the name of the Model |  ``None``      |
++-----------------------+-----------------------------------------------------------+----------------+
+| ``exclude_fields``    | Exclude fields from base models in subclass               |  ``[]``        |
++-----------------------+-----------------------------------------------------------+----------------+
+| ``exclude_serialize`` | Exclude serialize methos from base model in subclass      |  ``[]``        |
++-----------------------+-----------------------------------------------------------+----------------+
+| ``creation_args``     | | Used by ``MongoCollectionMixin``                        |  ``None``      |
+|                       | | for passing creation arguments                          |                |
++-----------------------+-----------------------------------------------------------+----------------+
+| ``indices``           | Used to declare database indices                          |  ``None``      |
++-----------------------+-----------------------------------------------------------+----------------+
 
+
+
+Excluding fields and serialize methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Model's ``Meta`` class includes two lists for removing fields and serialize methods inherited from the base class.
+This is useful when wanting to create multiple resources for the same model, which expose a different set of fields.
+Consider the following example::
+
+    class User(Model):
+        username = StringField()
+        password = StringField()
+        first_name = StringField()
+        last_name = StringField()
+
+        @serialize
+        async def full_name(self):
+            return '{} {}'.format(self.first_name, self.last_name)
+
+    class PublicUser(User):
+        class Meta:
+            exclude_fields = ['password']
+            exclude_serialize = ['full_name']
+
+In this example demonstrates how create a User model, and a PublicUser model, which is a variation of the User model, by inheriting User and then omitting the ``password`` field and the ``full_name`` serialize method.
 
 
 Data Traffic

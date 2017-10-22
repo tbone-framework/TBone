@@ -20,8 +20,16 @@ class ModelOptions(object):
     :param namespace:
         Defines a namespace for the model name. Used by persistency mixins to prepend to the collection's name
 
+    :param exclude_fields:
+        Exclude fields inherited by one of the base classes of the model.
+        Useful for creating similar models with small differences in fields
+
+    :param exclude_serialize_methods:
+        Exclude serialize methods inherited by one of the base classes of the model.
+        Useful for creating similar models with small differences in serialize methods
+
     :param concrete:
-        Defines the model as concrete and not abstract. This us useful for persistency mixins to determine
+        Defines the model as concrete and not abstract. This is useful for persistency mixins to determine
         if the model should be created in the database.
     :type concrete:
         Boolean - Default is ``True``
@@ -35,6 +43,8 @@ class ModelOptions(object):
     name = None
     namespace = None
     concrete = True
+    exclude_fields = []
+    exclude_serialize = []
     creation_args = {}
     indices = []
 
@@ -70,10 +80,22 @@ class ModelMeta(type):
         # get model fields and exports from base classes
         for base in reversed(bases):
             if hasattr(base, '_fields'):
-                fields.update(deepcopy(base._fields))
+                fields.update(deepcopy(base._fields))  # copy all fields
+                # remove excludes
+                if 'Meta' in attrs and hasattr(attrs['Meta'], 'exclude_fields'):
+                    ex = attrs['Meta'].exclude_fields
+                    for f in ex:
+                        if f in fields:
+                            del fields[f]
 
             if hasattr(base, '_serialize_methods'):
                 serialize_methods.update(deepcopy(base._serialize_methods))
+                # remove excludes
+                if 'Meta' in attrs and hasattr(attrs['Meta'], 'exclude_serialize'):
+                    ex = attrs['Meta'].exclude_serialize
+                    for f in ex:
+                        if f in serialize_methods:
+                            del serialize_methods[f]
 
         # collect all defined fields and export methods
         for key, value in attrs.items():
