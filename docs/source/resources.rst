@@ -112,6 +112,31 @@ TBone provides an authentication mechanism which is wired into the resource's fl
 By default, all resources are associated with a ``NoAuthentication`` class, which does not check for any authentication whatsoever. Developers need to subclass ``NoAuthentication`` to add their own authentication mechanism. Authentication classes implement a single method ``is_authenticated`` which has the request object passed. Normally, developers would use the request headers to check for authentication and return ``True`` or ``False`` based on the content of the request.
 
 
+HATEOAS
+-------
+HATEOAS (Hypermedia as the Engine of Application State) is part of the REST specification.
+TBone supports basic HATEOAS directives and allows for extending this support in resource subclasses.
+By default, all TBone resources include a ``_links`` key in their serialized form, which contains a unique ``href`` to the resource itself, like so::
+
+    {
+        "first_name': 'Ron",
+        "last_name': 'Burgundy",
+        "_links" : {
+            "self" : {
+                "href" : "/api/person/1/"
+            }
+        }
+    }
+
+Disabling HATEOAS support is done per resource, by setting the ``hypermedia`` flag in the ``ResourceOptions`` class to ``False``, like so::
+
+    class NoHypermediaPersonResource(Resource):
+        class Meta:
+            hypermedia = False
+        ...
+
+Adding additional links to the resource is done by overriding ``add_hypermedia`` on the resource subclass. 
+
 
 
 Nested Resources

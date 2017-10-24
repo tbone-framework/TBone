@@ -114,7 +114,7 @@ async def test_mongo_resource_crud(json_fixture, db):
     response = await client.put(url + data['isbn'] + '/', body=data)
     assert response.status == ACCEPTED
     update_obj = client.parse_response_data(response)
-    assert update_obj['resource_uri'] == data['resource_uri']
+    assert update_obj['_links'] == data['_links']
     assert len(update_obj['reviews']) == 1
 
     # create new review by performing PATCH
@@ -133,14 +133,14 @@ async def test_mongo_resource_crud(json_fixture, db):
     response = await client.patch(url + data['isbn'] + '/', body={'reviews': reviews})
     assert response.status == OK
     update_obj = client.parse_response_data(response)
-    assert update_obj['resource_uri'] == data['resource_uri']
+    assert update_obj['_links'] == data['_links']
     assert len(update_obj['reviews']) == 2
 
     # get detail
     response = await client.get(url + data['isbn'] + '/')
     assert response.status == OK
     update_obj = client.parse_response_data(response)
-    assert update_obj['resource_uri'] == data['resource_uri']
+    assert update_obj['_links'] == data['_links']
     assert len(update_obj['reviews']) == 2
     # verify internal document fields were not serialized
     assert 'impressions' not in update_obj
@@ -299,7 +299,7 @@ async def test_mongo_collection_custom_indices(load_book_collection):
     data = client.parse_response_data(response)
     for obj in data['objects']:
         # verify that the unique isbn is part of the resource uri
-        assert obj['isbn'] in obj['resource_uri']
+        assert obj['isbn'] in obj['_links']['self']['href']
 
     # fail to insert a new book with existing isbn
     new_book = {

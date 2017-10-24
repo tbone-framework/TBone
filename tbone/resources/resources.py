@@ -35,8 +35,8 @@ class ResourceOptions(object):
     :param sort:
         Define a sort directive which the resource will apply to GET requests without a unique identifier. Used in ``MongoResource`` to declare default sorting for collection.
 
-    :param add_resource_uri:
-        Specify if the a ``Resource`` should format data and include the unique uri of the resource.
+    :param hypermedia:
+        Specify if the a ``Resource`` should format data and include HATEOAS directives, specifically link to itself.
         Defaults to ``True``
 
     :param fts_operator:
@@ -75,7 +75,7 @@ class ResourceOptions(object):
     object_class = None
     query = None
     sort = None
-    add_resource_uri = True
+    hypermedia = True
     channel_class = Channel
     fts_operator = 'q'
     incoming_list = ['get', 'post', 'put', 'patch', 'delete']
@@ -348,6 +348,17 @@ class Resource(object, metaclass=ResourceMeta):
             return self._meta.formatter.parse(body)
         return {}
 
+    def add_hypermedia(self, obj):
+        '''
+        Adds HATEOAS links to the resource. Adds href link to self.
+        Override in subclasses to include additional functionality
+        '''
+        obj['_links'] = {
+            'self': {
+                'href': '{}{}/'.format(self.get_resource_uri(), obj[self.pk])
+            }
+        }
+
     def format(self, method, endpoint, data):
         ''' Calls format on list or detail '''
         if data is None and method == 'GET':
@@ -363,19 +374,19 @@ class Resource(object, metaclass=ResourceMeta):
     def format_list(self, data):
         if data is None:
             return ''
-        
-        if self._meta.add_resource_uri is True:
+        if self._meta.hypermedia is True:
             # add resource uri
             for item in data['objects']:
-                item['resource_uri'] = '{}{}/'.format(self.get_resource_uri(), item[self.pk])
+                self.add_hypermedia(item)
 
         return self._meta.formatter.format(data)
 
     def format_detail(self, data):
         if data is None:
             return ''
-        if self._meta.add_resource_uri is True:
-            data['resource_uri'] = '{}{}/'.format(self.get_resource_uri(), data[self.pk])
+        if self._meta.hypermedia is True:
+            self.add_hypermedia(data)
+
         return self._meta.formatter.format(self.get_resource_data(data))
 
     def get_resource_data(self, data):

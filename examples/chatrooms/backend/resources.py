@@ -45,7 +45,7 @@ class EntryResource(WeblibResource, MongoResource):
         object_class = Entry
         authentication = UserAuthentication()
         sort = [('_id', -1)]  # revert order by creation, we want to display by order of entry decending
-        add_resource_uri = False
+        hypermedia = False
 
     async def create(self, **kwargs):
         ''' Override the create method to add the user's id to the request data '''
