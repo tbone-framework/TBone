@@ -51,7 +51,7 @@ class MongoResource(ModelResource):
             resource = cls()
             obj = await instance.serialize()
             if cls._meta.hypermedia is True:
-                self.add_hypermedia(obj)
+                resource.add_hypermedia(obj)
             await resource.emit(db, event_name, obj)
 
         if created is True and 'created' in cls._meta.outgoing_detail:

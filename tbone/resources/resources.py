@@ -353,11 +353,12 @@ class Resource(object, metaclass=ResourceMeta):
         Adds HATEOAS links to the resource. Adds href link to self.
         Override in subclasses to include additional functionality
         '''
-        obj['_links'] = {
-            'self': {
-                'href': '{}{}/'.format(self.get_resource_uri(), obj[self.pk])
+        if hasattr(self, 'pk'):
+            obj['_links'] = {
+                'self': {
+                    'href': '{}{}/'.format(self.get_resource_uri(), obj[self.pk])
+                }
             }
-        }
 
     def format(self, method, endpoint, data):
         ''' Calls format on list or detail '''
