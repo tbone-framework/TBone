@@ -235,7 +235,7 @@ class Resource(object, metaclass=ResourceMeta):
                 return True
         return False
 
-    async def dispatch(self, endpoint, *args, **kwargs):
+    async def dispatch(self, endpoint, wrap_response=None, *args, **kwargs):
         '''
         This method handles the actual request to the resource.
         It performs all the neccesary checks and then executes the relevant member method which is mapped to the method name.
@@ -271,7 +271,18 @@ class Resource(object, metaclass=ResourceMeta):
             view_method = getattr(self, self.http_methods[endpoint][method])
             # call request method
             data = await view_method(*args, **kwargs)
-            # add request_uri
+            # add hypermedia to the response
+            if self._meta.hypermedia is True:
+                if endpoint == 'list':
+                    for item in data['objects']:
+                        self.add_hypermedia(item)
+                elif endpoint == 'detail':
+                    self.add_hypermedia(data)
+
+            # wrap response data
+            if callable(wrap_response):
+                data = wrap_response(data)
+            # format the response object
             formatted = self.format(method, endpoint, data)
         except Exception as ex:
             return self.dispatch_error(ex)
@@ -299,7 +310,7 @@ class Resource(object, metaclass=ResourceMeta):
         Given some data, generates an HTTP response.
         If you're integrating with a new web framework, other than sanic or aiohttp, you **MUST**
         override this method within your subclass.
-        
+
         :param data:
              The body of the response to send
         :type data:
@@ -333,6 +344,8 @@ class Resource(object, metaclass=ResourceMeta):
 
     def parse(self, method, endpoint, body):
         ''' calls parse on list or detail '''
+        if isinstance(body, dict):  # request body was already parsed
+            return body
         if endpoint == 'list':
             return self.parse_list(body)
 
@@ -375,26 +388,12 @@ class Resource(object, metaclass=ResourceMeta):
     def format_list(self, data):
         if data is None:
             return ''
-        if self._meta.hypermedia is True:
-            # add resource uri
-            for item in data['objects']:
-                self.add_hypermedia(item)
-
         return self._meta.formatter.format(data)
 
     def format_detail(self, data):
         if data is None:
             return ''
-        if self._meta.hypermedia is True:
-            self.add_hypermedia(data)
-
-        return self._meta.formatter.format(self.get_resource_data(data))
-
-    def get_resource_data(self, data):
-        resource_data = {}
-        for k, v in data.items():
-            resource_data[k] = v
-        return resource_data
+        return self._meta.formatter.format(data)
 
     @classmethod
     def connect_signal_receivers(cls):
@@ -441,6 +440,7 @@ class ModelResource(Resource):
     '''
     A specialized resource class for using data models. Requires further implementation for data persistency
     '''
+
     def __init__(self, *args, **kwargs):
         super(ModelResource, self).__init__(*args, **kwargs)
         # verify object class has a declared primary key

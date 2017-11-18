@@ -142,7 +142,52 @@ Adding additional links to the resource is done by overriding ``add_hypermedia``
 Nested Resources
 ------------------
 
-Nested resources ...
+Nested resources is a technique to extend a resource's endpoints beyond basic CRUD. Every resource automatically exposes the HTTP verbs (GET, POST, PUT, PATCH, DELETE) with their respective methods, adhereing to REST principles. 
+However, it is sometimes neccesary to extend a resource's functionality by implementing additional endpoints.
+These can be described by two categories:
+    1. Resources which expose nested resources classes
+    2. Resources which expose additional unrest endpoints serving specific functionality.
+
+Lets look at some examples::
+
+    # model representing a user's blog comment. Internal
+    class Comment(Model):
+        user = StringField()
+        content = StringField()
+
+    # model representing a single blog post, includes a list of comments
+    class Blog(Model):
+        title = StringField()
+        content = StringField()
+        comments = ListField(ModelField(Comment))
+
+
+    class CommentResource(ModelResource):
+        class Meta:
+            object_class = Comment
+
+
+    class BlogResource(ModelResource):
+        class Meta:
+            object_class = Blog
+
+        @classmethod
+        def nested_routes(cls, base_url):
+            return [
+                Route(
+                    path=base_url + '%s/comments/add/' % (cls.route_param('pk')),
+                    handler=cls.add_comment,
+                    methods=cls.route_methods(),
+                    name='blog_add_comment')
+            ]
+
+        @classmethod
+        async def add_comment(cls, request, **kwargs):
+            
+
+
+
+
  
 
 MongoDB Resources
@@ -261,6 +306,71 @@ This will result in a usage like so::
     /api/books/?fts=history
 
 
+Hooking up to application's router
+------------------------------------
+Once a resource has been implemented, it needs to be hooked up to the application's router.
+With any web application such as Sanic or AioHttp, adding handlers to the application involves matching a uri to a specific handler method. The ``Resource`` class implements two methods ``to_list`` and ``to_detail`` which create list handlers and detail handlers respectively, for the application router, like so::
+
+    app.add_route('GET', '/books', BookResource.as_list())
+    app.add_route('GET', '/books/{id}', BookResource.as_detail())
+
+The syntax varies a little, depending on the web server used.
+
+Sanic Example
+~~~~~~~~~~~~~~ 
+
+::
+
+    from sanic import Sanic
+    from tbone.resources import Resource
+    from tbone.resources.sanic import SanicResource
+
+
+    class TestResource(SanicResource, Resource):
+        async def list(self, **kwargs):
+            return {
+                'meta': {},
+                'objects': [
+                    {'text': 'hello world'}
+                ]
+            }
+
+    app = Sanic()
+    app.add_route(methods=['GET'], uri='/', handler=TestResource.as_list())
+
+    if __name__ == "__main__":
+        app.run(host="0.0.0.0", port=8000)
+
+
+AioHttp Example
+~~~~~~~~~~~~~~~~
+
+::
+
+    from aiohttp import web
+    from tbone.resources import Resource
+    from tbone.resources.aiohttp import AioHttpResource
+
+
+    class TestResource(AioHttpResource, Resource):
+        async def list(self, **kwargs):
+            return {
+                'meta': {},
+                'objects': [
+                    {'text': 'hello world'}
+                ]
+            }
+
+    app = web.Application()
+    app.router.add_get('/', TestResource.as_list())
+
+    if __name__ == "__main__":
+        web.run_app(app, host='127.0.0.1', port=8000)
+
+
+The examples above demonstrate how to manually add resources to the application router. This can become tedious when the app has multiple resources which expose list and detail endpoints as well as some nested resources.
+An alternative way is to use a ``Router`` , described below.
+
 Routers
 ----------
 
@@ -318,6 +428,9 @@ With ``Sanic`` it looks like this::
             uri=route.path,
             handler=route.handler
         ) 
+
+
+
 
 
 
