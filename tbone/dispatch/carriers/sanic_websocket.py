@@ -17,9 +17,13 @@ class SanicWebSocketCarrier(object):
 
     async def deliver(self, data):
         try:
-            await self._socket.send(
-                json.dumps(data, cls=ExtendedJSONEncoder)
-            )
+            if isinstance(data, dict):
+                payload = json.dumps(data, cls=ExtendedJSONEncoder)
+            elif isinstance(data, bytes):
+                payload = data.decode('utf-8')
+            else:
+                payload = data
+            await self._socket.send(payload)
             return True
         except Exception as ex:
             logger.exception(ex)

@@ -2,7 +2,9 @@
 # encoding: utf-8
 
 
+import re
 import logging
+from urllib.parse import urlparse, parse_qsl
 from collections import namedtuple
 from .resources import Resource
 from tbone.db.models import post_save
@@ -18,12 +20,31 @@ Route.methods.__doc__ = 'Declares the HTTP methods which this route accepts. The
 Route.name.__doc__ = 'A unique name for the route'
 
 
+class Request(dict):
+    __slots__ = (
+        'app', 'headers', 'method', 'body', 'args', 'url'
+    )
+
+    def __init__(self, app, url, method='GET', headers={}, args={}, body={}):
+        self.app = app
+        self.url = url
+        self.method = method
+        self.args = args
+        self.headers = headers
+        self.body = body
+        self.args = args
+
+
+Response = namedtuple('Response', 'headers, data, status')
+
+
 class Router(object):
     '''
     Creates a url list for a group of resources.
     Handles endpoint url prefixes.
     Calls ``Resource.connect_signal_receiver`` for every ``Resource`` that is registered
     '''
+
     def __init__(self, name):
         self.name = name
         self._registry = {}
@@ -112,3 +133,44 @@ class Router(object):
                 name='{}_{}_detail'.format(self.name, endpoint).replace('/', '_')
             ))
         return url_patterns
+
+    async def dispatch(self, app, payload, wrap_response=None):
+        '''
+        Dispatches an incoming request and passes it to the relevant resource
+        returning the response.
+
+        :param app:
+            Application handler. must be passed as part of the request
+
+        :param payload:
+            The request payload, contains all the parameters of the request
+
+        :param response_wrapper:
+            Data objects which wraps the response. Used specifically for websocket communication to identify
+            the data transfer as a response to a request
+        '''
+        handler = None
+        params = {}
+        # parse request url, separating query params if any
+        url = urlparse(payload['href'])
+        path = url.path
+        params.update(dict(parse_qsl(url.query)))
+        params.update(payload.get('args', {}))
+        for route in self.urls_regex():
+            match = re.match(route.path, path)
+            if match:
+                handler = route.handler
+                break
+        if handler:
+            request = Request(
+                app=app,
+                method=payload.get('method', 'GET'),
+                url=path,
+                args=params,
+                headers=payload.get('headers', None),
+                body=payload.get('body', None)
+            )
+            response = await handler(request, wrap_response)
+            return response
+        return Response(headers={}, data=None, status=404)
+

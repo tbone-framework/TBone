@@ -75,7 +75,7 @@ class MongoChannel(Channel):
                     data = message['data']
                     logger.debug('event: %s - %s', event, data)
                     for sub in self._subscribers[event]:
-                        await sub.deliver({'event': event, 'data': data})
+                        await sub.deliver({'type': 'event', 'payload': {'name': event, 'data': data}})
             else:
                 await asyncio.sleep(0.1)
                 cursor = create_cursor()
