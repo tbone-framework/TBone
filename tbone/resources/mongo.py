@@ -9,7 +9,7 @@ from bson.errors import InvalidId
 from tbone.db.models import post_save
 from tbone.dispatch.channels.mongo import MongoChannel
 from tbone.resources import ModelResource
-from tbone.resources.http import *
+from tbone.resources.verbs import *
 from tbone.resources.signals import *
 
 LIMIT = 20

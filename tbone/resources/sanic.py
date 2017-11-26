@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from sanic import request
 from sanic import response
+from .http import HttpResource
 
-class SanicResource(object):
+
+class SanicResource(HttpResource):
     '''
     A mixin class for adapting a ``Resource`` class to work with the Sanic webserver
     '''
     @classmethod
-    def build_response(cls, data, status=200):
+    def build_http_response(cls, data, status=200):
         return response.text(
             data,
             headers={'Content-Type': 'application/json'},
@@ -33,5 +34,7 @@ class SanicResource(object):
         return ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 
     @classmethod
-    def route_param(cls, param):
+    def route_param(cls, param, type=None):
+        if type:
+            return '<%s:%s>' % (param, type)
         return '<%s>' % param

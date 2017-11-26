@@ -16,7 +16,6 @@ except ImportError:
     from tbone.resources.aiohttp import AioHttpResource as WeblibResource
 
 
-
 class UserAuthentication(NoAuthentication):
     async def is_authenticated(self, request):
         if 'user' in request:
@@ -58,32 +57,29 @@ class RoomResource(WeblibResource, MongoResource):
         authentication = UserAuthentication()
 
     async def create(self, **kwargs):
-        self.data['owner'] = self.request.user
+        self.data['owner'] = self.request['user']
         return await super(RoomResource, self).create(**kwargs)
 
-
     @classmethod
-    def nested_routes(cls, base_url):
+    def nested_routes(cls, base_url, formatter: callable = None) -> list:
+        if formatter is None or callable(formatter) is False:
+            formatter = cls.route_param
         return [
             Route(
-                path=base_url + '%s/entry/' % (cls.route_param('pk')),
+                path=base_url + '%s/entry/' % (formatter('pk')),
                 handler=cls.dispatch_entries_list,
                 methods=cls.route_methods(),
                 name='dispatch_entries_list')
         ]
 
-    @classmethod
+    # @classmethod
     async def dispatch_entries_list(cls, request, **kwargs):
-        dispatch = EntryResource.as_list()
+        entry_resource = EntryResource(request=request)
         room_id = request.match_info.get('pk')
-        return await dispatch(request, room=room_id)
-
+        return await entry_resource.dispatch(room=room_id)
 
     @classmethod
     def connect_signal_receivers(cls):
-        ''' Override the base call call to include additional nested resources '''
+        ''' Override the base call to include additional nested resources '''
         super(RoomResource, cls).connect_signal_receivers()
         EntryResource.connect_signal_receivers()
-
-
-

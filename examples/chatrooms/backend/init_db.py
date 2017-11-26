@@ -6,7 +6,7 @@ import asyncio
 from bson.json_util import loads
 from tbone.db import connect, _get_client
 from tbone.db.models import create_collection
-from app import db_config
+from app_sanic import db_config
 from models import *
 
 

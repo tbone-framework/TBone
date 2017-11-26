@@ -3,6 +3,7 @@
 
 import logging
 from tbone.dispatch.carriers.sanic_websocket import SanicWebSocketCarrier
+from tbone.resources.formatters import JSONFormatter
 
 logger = logging.getLogger(__file__)
 
@@ -27,9 +28,13 @@ async def resource_event_websocket(request, ws):
 
     subscribe(request, ws)
     while waiting:
+        # data was received from the client
         data = await ws.recv()
         if data == 'close':
             waiting = False
+        else:
+            await request.app.multiplexer.dispatch(SanicWebSocketCarrier(ws), data)
+
     unsubscribe(request, ws)
 
 

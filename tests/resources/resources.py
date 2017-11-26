@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import json
-from tbone.resources import Resource, http
+from tbone.resources import Resource, verbs
 from tbone.resources.mongo import *
 from tbone.resources.routers import Route
 from tbone.testing.resources import DummyResource
@@ -40,7 +40,7 @@ class PersonResource(DummyResource, Resource):
 
     async def create(self, *args, **kwargs):
         new_obj = self.request.body
-        new_obj['id'] = new_id = len(self.request.app.db) + 1
+        new_obj['id'] = len(self.request.app.db) + 1
         self.request.app.db.append(new_obj)
         return new_obj
 
@@ -65,17 +65,16 @@ class BookResource(DummyResource, MongoResource):
         object_class = Book
 
     @classmethod
-    def nested_routes(cls, base_url):
+    def nested_routes(cls, base_url, formatter):
         return [
             Route(
-                path=base_url + '/(?P<pk>[\w\d_.-]+)/reviews/add/',
+                path=base_url + '%s/reviews/add/' % formatter('pk'),
                 handler=cls.add_review,
                 methods='POST',
                 name='add_review')
         ]
 
-    @classmethod
-    async def add_review(cls, request, **kwargs):
+    async def add_review(self, request, **kwargs):
         try:
             if 'pk' not in request.args:
                 raise Exception('Object pk not provided')
@@ -84,6 +83,5 @@ class BookResource(DummyResource, MongoResource):
             update_result = await book.add_review(request.app.db, request.body)
             if update_result.matched_count != 1 or update_result.modified_count != 1:
                 raise Exception('Database update failed. Unexpected update results')
-            return cls.build_response(None, http.CREATED)
         except Exception as ex:
-            return cls.build_response({'error': ex}, http.BAD_REQUEST)
+            return {'error': ex}

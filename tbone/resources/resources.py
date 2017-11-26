@@ -3,15 +3,12 @@
 
 
 import logging
-import asyncio
-from dateutil import parser
-from copy import deepcopy
-from collections import OrderedDict
+from enum import Enum
 from functools import wraps
 from tbone.dispatch.channels import Channel
 from .formatters import JSONFormatter
 from .authentication import NoAuthentication
-from .http import *
+from .verbs import *
 
 
 logger = logging.getLogger(__file__)
@@ -137,6 +134,13 @@ class Resource(object, metaclass=ResourceMeta):
     '''
     Base class for all resources. 
     '''
+    responses = {
+        'GET': OK,
+        'POST': CREATED,
+        'PUT': ACCEPTED,
+        'PATCH': ACCEPTED,
+        'DELETE': NO_CONTENT
+    }
     status_map = {
         'list': OK,
         'detail': OK,
@@ -147,7 +151,7 @@ class Resource(object, metaclass=ResourceMeta):
         'create_detail': CREATED,
         'delete_list': NO_CONTENT
     }
-    http_methods = {
+    methods = {
         'list': {
             'GET': 'list',
             'POST': 'create',
@@ -164,13 +168,15 @@ class Resource(object, metaclass=ResourceMeta):
         }
     }
 
+    class Protocol(Enum):
+        http = 10
+        websocket = 20
+        amqp = 30
+
     def __init__(self, *args, **kwargs):
-        self.init_args = args
-        self.init_kwargs = kwargs
-        self.request = None
+        self.request = kwargs.get('request', None)
+        self.endpoint = kwargs.get('endpoint', 'list')
         self.data = None
-        self.endpoint = None
-        self.status = 200
 
     def request_method(self):
         ''' Returns the HTTP method for the current request. '''
@@ -192,41 +198,107 @@ class Resource(object, metaclass=ResourceMeta):
         raise NotImplementedError()
 
     @classmethod
-    def as_view(cls, view_type, *init_args, **init_kwargs):
+    def wrap_handler(cls, handler, protocol, **kwargs):
+        ''' Wrap a request handler with the matching protocol handler '''
+        def _wrapper(request, *args, **kwargs):
+            instance = cls(request=request, **kwargs)
+            if protocol == Resource.Protocol.http:
+                return instance._wrap_http(handler, request=request, **kwargs)
+            elif protocol == Resource.Protocol.websocket:
+                return instance._wrap_ws(handler, request=request, **kwargs)
+            elif protocol == Resource.Protocol.amqp:
+                return instance._wrap_amqp(view_type, *args, **kwargs)
+            else:
+                raise Exception('Communication protocol not specified')
+        return _wrapper
+
+    @classmethod
+    def as_view(cls, endpoint, protocol, *init_args, **init_kwargs):
         '''
         Used for hooking up the endpoints. Returns a wrapper function that creates
         a new instance of the resource class and calls the correct view method for it.
         '''
         def _wrapper(request, *args, **kwargs):
-            ''' Make a new instance of the resource class '''
-            instance = cls(*init_args, view_type=view_type, **init_kwargs)
-            instance.request = request
-            return instance.dispatch(view_type, *args, **kwargs)
+            ''' Make a new instance of the resource class and returns a coroutine for execution'''
+            instance = cls(*init_args, endpoint=endpoint, request=request, **init_kwargs)
+            if protocol == Resource.Protocol.http:
+                return instance._wrap_http(cls.dispatch, endpoint=endpoint, *args, **kwargs)
+            elif protocol == Resource.Protocol.websocket:
+                return instance._wrap_ws(cls.dispatch, endpoint=endpoint, *args, **kwargs)
+            elif protocol == Resource.Protocol.amqp:
+                return instance._wrap_amqp(endpoint, *args, **kwargs)
+            else:
+                raise Exception('Communication protocol not specified')
 
         return _wrapper
 
     @classmethod
-    def as_list(cls, *args, **kwargs):
+    def as_list(cls, protocol=Protocol.http, *args, **kwargs):
         ''' returns list views '''
-        return cls.as_view('list', *args, **kwargs)
+        return cls.as_view('list', protocol, *args, **kwargs)
 
     @classmethod
-    def as_detail(cls, *args, **kwargs):
+    def as_detail(cls, protocol=Protocol.http, *args, **kwargs):
         ''' returns detail views '''
-        return cls.as_view('detail', *args, **kwargs)
+        return cls.as_view('detail', protocol, *args, **kwargs)
+
+    async def _wrap_http(self, handler, *args, **kwargs):
+        ''' wraps a handler with an HTTP request-response cycle'''
+        try:
+            method = self.request_method()
+            # support preflight requests when CORS is enabled
+            if method == 'OPTIONS':
+                return self.build_http_response(None, status=NO_CONTENT)
+            data = await handler(self, *args, **kwargs)
+            # format the response object
+            formatted = self.format(method, data)
+            status = self.responses.get(method, OK)
+            return self.build_http_response(formatted, status=status)
+        except Exception as ex:
+            return self.dispatch_error(ex)
+
+    async def _wrap_ws(self, handler, *args, **kwargs):
+        ''' wraps a handler by receiving a websocket request and returning a websocket response '''
+        try:
+            method = self.request_method()
+            # call the wrapped handler
+            data = await handler(self, *args, **kwargs)
+            status = self.responses.get(method, OK)
+            response = {
+                'type': 'response',
+                'status': status,
+                'payload': data
+            }
+        except Exception as ex:
+            response = {
+                'type': 'response',
+                'status': getattr(ex, 'status', 500),
+                'error': getattr(ex, 'msg', 'general error')
+            }
+        finally:
+            # return a formatted the response object
+            return self.format(method, response)
+
+    async def _wrap_amqp(self, handler, *args, **kwargs):
+        return NotImplemented()
 
     @classmethod
-    def nested_routes(cls, base_url):
+    def nested_routes(cls, base_url, formatter: callable = None) -> list:
         '''
         Returns an array of ``Route`` objects which define additional routes on the resource.
         Implement in derived resources to add additional routes to the resource
 
-        :param base_url: 
+        :param base_url:
+            The URL prefix which will be prepended to all nested routes
+
+        :param formatter:
+            The format method to be used when parsing url variables.
+            By default the resource's  ``route_param`` method is used, which formats the url based on which HTTP libary is used.
 
         '''
         return []
 
-    def is_method_allowed(self, endpoint, method):
+    def is_method_allowed(self, endpoint, method) -> bool:
         if endpoint == 'list':
             if method.lower() in self._meta.incoming_list:
                 return True
@@ -235,60 +307,48 @@ class Resource(object, metaclass=ResourceMeta):
                 return True
         return False
 
-    async def dispatch(self, endpoint, wrap_response=None, *args, **kwargs):
+    async def dispatch(self, *args, **kwargs):
         '''
         This method handles the actual request to the resource.
         It performs all the neccesary checks and then executes the relevant member method which is mapped to the method name.
         Handles authentication and de-serialization before calling the required method.
         Handles the serialization of the response
         '''
-        self.endpoint = endpoint
         method = self.request_method()
-
-        # support preflight requests when CORS is enabled
-        if method == 'OPTIONS':
-            return self.build_response(None, status=NO_CONTENT)
 
         # get the db object associated with the app and assign to resource
         if hasattr(self.request.app, 'db'):
             setattr(self, 'db', self.request.app.db)
 
-        try:
-            if method not in self.http_methods.get(endpoint, {}):
-                raise MethodNotImplemented("Unsupported method '{0}' for {1} endpoint.".format(method, endpoint))
+        # check if method is allowed
+        if method not in self.methods.get(self.endpoint, {}):
+            raise MethodNotImplemented("Unsupported method '{0}' for {1} endpoint.".format(method, self.endpoint))
 
-            if self.is_method_allowed(endpoint, method) is False:
-                raise MethodNotAllowed("Unsupported method '{0}' for {1} endpoint.".format(method, endpoint))
+        if self.is_method_allowed(self.endpoint, method) is False:
+            raise MethodNotAllowed("Unsupported method '{0}' for {1} endpoint.".format(method, self.endpoint))
 
-            if not await self._meta.authentication.is_authenticated(self.request):
-                raise Unauthorized()
+        # check user authentication
+        if not await self._meta.authentication.is_authenticated(self.request):
+            raise Unauthorized()
 
-            body = await self.request_body()
-            self.data = self.parse(method, endpoint, body)
-            if method != 'GET':
-                self.data.update(kwargs)
-            kwargs.update(self.request_args())
-            view_method = getattr(self, self.http_methods[endpoint][method])
-            # call request method
-            data = await view_method(*args, **kwargs)
-            # add hypermedia to the response
-            if self._meta.hypermedia is True:
-                if endpoint == 'list':
-                    for item in data['objects']:
-                        self.add_hypermedia(item)
-                elif endpoint == 'detail':
-                    self.add_hypermedia(data)
+        # deserialize request data
+        body = await self.request_body()
+        self.data = self.parse(method, self.endpoint, body)
+        if method != 'GET':
+            self.data.update(kwargs)
+        kwargs.update(self.request_args())
+        view_method = getattr(self, self.methods[self.endpoint][method])
+        # call request method
+        data = await view_method(*args, **kwargs)
+        # add hypermedia to the response, if response is not empty
+        if data and self._meta.hypermedia is True:
+            if self.endpoint == 'list' and method == 'GET':
+                for item in data['objects']:
+                    self.add_hypermedia(item)
+            else:
+                self.add_hypermedia(data)
 
-            # wrap response data
-            if callable(wrap_response):
-                data = wrap_response(data)
-            # format the response object
-            formatted = self.format(method, endpoint, data)
-        except Exception as ex:
-            return self.dispatch_error(ex)
-
-        status = self.status_map.get(self.http_methods[endpoint][method], OK)
-        return self.build_response(formatted, status=status)
+        return data
 
     def dispatch_error(self, err):
         '''
@@ -302,10 +362,10 @@ class Resource(object, metaclass=ResourceMeta):
             body = self._meta.formatter.format(data)
 
         status = getattr(err, 'status', 500)
-        return self.build_response(body, status=status)
+        return self.build_http_response(body, status=status)
 
     @classmethod
-    def build_response(cls, data, status=200):
+    def build_http_response(cls, data, status=200):
         '''
         Given some data, generates an HTTP response.
         If you're integrating with a new web framework, other than sanic or aiohttp, you **MUST**
@@ -332,7 +392,7 @@ class Resource(object, metaclass=ResourceMeta):
         raise NotImplementedError()
 
     @classmethod
-    def route_param(cls, param):
+    def route_param(cls, param, type=str):
         '''
         Returns the route representation of a url param, pertaining to the web library used.
         Implemented on the http library resource sub-class to match the requirements of the HTTP library
@@ -373,17 +433,14 @@ class Resource(object, metaclass=ResourceMeta):
                 }
             }
 
-    def format(self, method, endpoint, data):
+    def format(self, method, data):
         ''' Calls format on list or detail '''
-        if data is None and method == 'GET':
-            raise NotFound()
+        if data is None:
+            if method == 'GET':
+                raise NotFound()
+            return ''
 
-        if endpoint == 'list':
-            if method == 'POST':
-                return self.format_detail(data)
-
-            return self.format_list(data)
-        return self.format_detail(data)
+        return self._meta.formatter.format(data)
 
     def format_list(self, data):
         if data is None:

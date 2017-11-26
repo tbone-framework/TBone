@@ -6,7 +6,8 @@ import sys
 from sanic import Sanic
 from tbone.db import connect
 from tbone.dispatch.channels.mongo import MongoChannel
-from routes import routes
+from tbone.dispatch.multiplexer import WebsocketMultiplexer
+from routes import chatrooms_router
 from websocket_sanic import resource_event_websocket
 
 
@@ -22,7 +23,7 @@ db_config = {
 }
 
 root = logging.getLogger()
-root.setLevel(logging.DEBUG)
+root.setLevel(logging.INFO)
 
 ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.DEBUG)
@@ -31,8 +32,23 @@ ch.setFormatter(formatter)
 root.addHandler(ch)
 
 
+CORS_ALLOW_ORIGIN = '*'
+CORS_ALLOW_METHODS = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+CORS_ALLOW_HEADERS = ['content-type', 'authorization']
+CORS_ALLOW_CREDENTIALS = True
+
 
 app = Sanic()
+
+
+@app.middleware('response')
+async def cors(request, response):
+    if response:
+        response.headers['Access-Control-Allow-Origin'] = CORS_ALLOW_ORIGIN
+        response.headers['Access-Control-Allow-Methods'] = ','.join(CORS_ALLOW_METHODS)
+        response.headers['Access-Control-Allow-Headers'] = ','.join(CORS_ALLOW_HEADERS)
+        response.headers['Access-Control-Allow-Credentials'] = 'true' if CORS_ALLOW_CREDENTIALS else 'false'
+
 
 
 # create DB connection with the event loop created by the sanic app
@@ -44,9 +60,12 @@ async def startup_stuff(app, loop):
         # create channel for websocket subscribers
         app.pubsub = MongoChannel(name='pubsub', db=db)
         app.pubsub.kickoff()
+        # create websocket multiplexer
+        app.multiplexer = WebsocketMultiplexer(app)
+        app.multiplexer.add_router('chatrooms', chatrooms_router)
 
 
-for route in routes:
+for route in chatrooms_router.urls():
     app.add_route(
         methods=route.methods,
         uri=route.path,

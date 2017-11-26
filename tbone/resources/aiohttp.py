@@ -10,7 +10,7 @@ class AioHttpResource(object):
     A mixin class for adapting a ``Resource`` class to work with the AioHttp webserver
     '''
     @classmethod
-    def build_response(cls, data, status=200):
+    def build_http_response(cls, data, status=200):
         res = Response(status=status, text=data, content_type='application/json')
         return res
 
@@ -30,7 +30,7 @@ class AioHttpResource(object):
 
 
     @classmethod
-    def route_param(cls, param):
+    def route_param(cls, param, type=str):
         return '{%s}' % param
 
     def request_args(self):

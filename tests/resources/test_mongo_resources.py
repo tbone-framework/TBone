@@ -6,7 +6,7 @@ import pytest
 import re
 import random
 from tbone.db.models import create_collection
-from tbone.resources import http
+from tbone.resources import verbs
 from tbone.testing.clients import *
 from tbone.testing.fixtures import *
 from .resources import *
@@ -57,7 +57,7 @@ async def test_mongo_resource_create(db):
         'publication_date': '1859-01-01T00:00:00.000+0000'
     }
     response = await client.post(url, body=new_book)
-    assert response.status == http.CREATED
+    assert response.status == verbs.CREATED
     data = client.parse_response_data(response)
     for key in new_book.keys():
         assert key in data
@@ -131,7 +131,7 @@ async def test_mongo_resource_crud(json_fixture, db):
     })
 
     response = await client.patch(url + data['isbn'] + '/', body={'reviews': reviews})
-    assert response.status == OK
+    assert response.status == ACCEPTED
     update_obj = client.parse_response_data(response)
     assert update_obj['_links'] == data['_links']
     assert len(update_obj['reviews']) == 2
@@ -294,7 +294,7 @@ async def test_mongo_collection_custom_indices(load_book_collection):
     response = await client.get(url)
     # make sure we got a response object
     assert isinstance(response, Response)
-    assert response.status == http.OK
+    assert response.status == verbs.OK
     # parse response and retrieve data
     data = client.parse_response_data(response)
     for obj in data['objects']:

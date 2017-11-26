@@ -5,13 +5,6 @@ import asyncio
 from tbone.resources.formatters import JSONFormatter
 
 
-def wrap_response(data):
-    ''' Passed to the resource dispatch method to wrap the response with websocket meta data'''
-    return{
-        'type': 'response',
-        'payload': data
-    }
-
 class WebsocketMultiplexer(object):
     '''
     Creates a single bridge between a websocket handler and one or more resource routers.
@@ -35,11 +28,11 @@ class WebsocketMultiplexer(object):
             # process payload based on the type
             ptype = payload.get('type', None)
             if ptype == 'request':  # send request to all resource routers and pickup one result
-                tasks = [router.dispatch(self.app, payload, wrap_response) for router in self.routers.values()]
+                tasks = [router.dispatch(self.app, payload) for router in self.routers.values()]
                 results = await asyncio.gather(*tasks)
                 # get the response from the one relevant router
-                result = next(item for item in results if item is not None)
-                await carrier.deliver(result.body)
+                response = next(item for item in results if item is not None)
+                await carrier.deliver(response)
             elif ptype == 'ping':  # reply directly with pong
                 pass
             else:

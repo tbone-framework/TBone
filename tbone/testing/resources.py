@@ -12,7 +12,7 @@ class DummyResource(object):
     Used for testing without Sanic or Aiohttp
     '''
     @classmethod
-    def build_response(cls, data, status=200):
+    def build_http_response(cls, data, status=200):
         return Response(
             data=data,
             headers={'Content-Type': 'application/json'},
@@ -20,7 +20,10 @@ class DummyResource(object):
         )
 
     async def request_body(self):
-        ''' Returns the body of the current request. '''
+        '''
+        Returns the body of the current request.
+        The resource expects a text-formatted body
+        '''
         if isinstance(self.request.body, dict):
             return json.dumps(self.request.body)
         return self.request.body
