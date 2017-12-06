@@ -266,6 +266,7 @@ class Resource(object, metaclass=ResourceMeta):
             status = self.responses.get(method, OK)
             response = {
                 'type': 'response',
+                'key': data.pop('key', None),
                 'status': status,
                 'payload': data
             }
@@ -340,6 +341,10 @@ class Resource(object, metaclass=ResourceMeta):
         view_method = getattr(self, self.methods[self.endpoint][method])
         # call request method
         data = await view_method(*args, **kwargs)
+        # if a request key exists, add it to the data for response. 
+        # Used by the websocket subprotocol to link between requests and responses
+        if hasattr(self.request, 'key'):
+            data['key'] = self.request.key
         # add hypermedia to the response, if response is not empty
         if data and self._meta.hypermedia is True:
             if self.endpoint == 'list' and method == 'GET':

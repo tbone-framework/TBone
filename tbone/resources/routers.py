@@ -22,11 +22,12 @@ Route.name.__doc__ = 'A unique name for the route'
 
 class Request(dict):
     __slots__ = (
-        'app', 'headers', 'method', 'body', 'args', 'url'
+        'key', 'app', 'headers', 'method', 'body', 'args', 'url'
     )
 
-    def __init__(self, app, url, method='GET', headers={}, args={}, body={}):
+    def __init__(self, app, key, url, method='GET', headers={}, args={}, body={}):
         self.app = app
+        self.key = key
         self.url = url
         self.method = method
         self.args = args
@@ -180,6 +181,7 @@ class Router(object):
         if handler:
             request = Request(
                 app=app,
+                key=payload.get('key', None),
                 method=payload.get('method', 'GET'),
                 url=path,
                 args=params,
