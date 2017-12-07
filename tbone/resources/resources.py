@@ -266,19 +266,19 @@ class Resource(object, metaclass=ResourceMeta):
             status = self.responses.get(method, OK)
             response = {
                 'type': 'response',
-                'key': data.pop('key', None),
+                'key': getattr(self.request, 'key', None),
                 'status': status,
                 'payload': data
             }
         except Exception as ex:
             response = {
                 'type': 'response',
+                'key': getattr(self.request, 'key', None),
                 'status': getattr(ex, 'status', 500),
-                'error': getattr(ex, 'msg', 'general error')
+                'payload': getattr(ex, 'msg', 'general error')
             }
-        finally:
-            # return a formatted the response object
-            return self.format(method, response)
+        # return a formatted the response object
+        return self.format(method, response)
 
     async def _wrap_amqp(self, handler, *args, **kwargs):
         return NotImplemented()
@@ -341,10 +341,6 @@ class Resource(object, metaclass=ResourceMeta):
         view_method = getattr(self, self.methods[self.endpoint][method])
         # call request method
         data = await view_method(*args, **kwargs)
-        # if a request key exists, add it to the data for response. 
-        # Used by the websocket subprotocol to link between requests and responses
-        if hasattr(self.request, 'key'):
-            data['key'] = self.request.key
         # add hypermedia to the response, if response is not empty
         if data and self._meta.hypermedia is True:
             if self.endpoint == 'list' and method == 'GET':
