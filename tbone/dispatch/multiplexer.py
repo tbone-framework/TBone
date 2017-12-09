@@ -35,6 +35,8 @@ class WebsocketMultiplexer(object):
                 await carrier.deliver(response)
             elif ptype == 'ping':  # reply directly with pong
                 pass
+            elif ptype == 'echo':
+                pass
             else:
                 pass
 

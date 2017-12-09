@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import asyncio
 import pytest
-import re
-import random
 from tbone.db.models import create_collection
-from tbone.resources import verbs
+from tbone.resources import verbs, Resource
 from tbone.testing.clients import *
 from tbone.testing.fixtures import *
 from .resources import *
@@ -154,6 +151,96 @@ async def test_mongo_resource_crud(json_fixture, db):
     response = await client.delete(url + data['isbn'] + '/')
     assert response.status == NOT_FOUND
 
+@pytest.mark.asyncio
+async def test_mongo_resource_crud_ws(json_fixture, db):
+    ''' Basic tests covering CRUD operations '''
+    app = App(db=db)
+    data = json_fixture('books.json')
+    coll = await create_collection(db, BookResource._meta.object_class)
+    # insert raw data into collection
+    if coll:
+        await coll.insert_many(data)
+
+    # create client
+    url = '/api/{}/'.format(BookResource.__name__)
+    client = ResourceTestClient(app, BookResource, Resource.Protocol.websocket)
+
+    # get all books
+    response = await client.get(url)
+    assert response.status == OK
+    data = client.parse_response_data(response)
+    assert 'meta' in data
+    assert 'objects' in data
+
+    # create a new book
+    new_book = {
+        'isbn': '9788408020011',
+        'title': 'The Old Man and the Sea',
+        'author': ['Ernest Hemingway'],
+        'publication_date': '1953-01-01T00:00:00.000+0000'
+    }
+    response = await client.post(url, body=new_book)
+    assert response.status == CREATED
+    data = client.parse_response_data(response)
+    for key in new_book.keys():
+        assert key in data
+
+    # create new review by performing PUT
+    reviews = data.get('reviews', None) or []
+    reviews.append({
+        'user': 'Brian Fantana',
+        'ratings': {
+            'smooth_read': 2,
+            'language': 4,
+            'pace': 1,
+            'originality': 2
+        },
+        'text': 'Could not finish it'
+    })
+    data['reviews'] = reviews
+
+    response = await client.put(url + data['isbn'] + '/', body=data)
+    assert response.status == ACCEPTED
+    update_obj = client.parse_response_data(response)
+    assert update_obj['_links'] == data['_links']
+    assert len(update_obj['reviews']) == 1
+
+    # create new review by performing PATCH
+    reviews = update_obj.get('reviews', None)
+    reviews.append({
+        'user': 'Ron Burgundy',
+        'ratings': {
+            'smooth_read': 4,
+            'language': 5,
+            'pace': 3,
+            'originality': 2
+        },
+        'text': 'Good read, really enjoyed it, even though it took me so long to finish'
+    })
+
+    response = await client.patch(url + data['isbn'] + '/', body={'reviews': reviews})
+    assert response.status == ACCEPTED
+    update_obj = client.parse_response_data(response)
+    assert update_obj['_links'] == data['_links']
+    assert len(update_obj['reviews']) == 2
+
+    # get detail
+    response = await client.get(url + data['isbn'] + '/')
+    assert response.status == OK
+    update_obj = client.parse_response_data(response)
+    assert update_obj['_links'] == data['_links']
+    assert len(update_obj['reviews']) == 2
+    # verify internal document fields were not serialized
+    assert 'impressions' not in update_obj
+    assert 'views' not in update_obj
+
+    # delete the book
+    response = await client.delete(url + data['isbn'] + '/')
+    assert response.status == NO_CONTENT
+
+    # fail to delete the book a 2nd time
+    response = await client.delete(url + data['isbn'] + '/')
+    assert response.status == NOT_FOUND
 
 @pytest.mark.asyncio
 async def test_mongo_collection_pagination_and_sorting(load_account_collection):

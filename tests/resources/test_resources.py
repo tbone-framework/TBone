@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import asyncio
 import pytest
-import re
-import random
 from tbone.testing.clients import *
-from tbone.testing.fixtures import event_loop, json_fixture
+from tbone.testing.fixtures import json_fixture
 from .resources import *
 
 
@@ -101,6 +98,7 @@ async def test_resource_delete(event_loop, json_fixture):
     app = App(db=json_fixture('persons.json'))
     # set variables
 
+
 @pytest.mark.asyncio
 async def test_resource_hateoas(event_loop, json_fixture):
     def _check(obj):
@@ -132,11 +130,13 @@ async def test_resource_hateoas(event_loop, json_fixture):
     resource = client.parse_response_data(response)
     _check(resource)
 
+
 @pytest.mark.asyncio
 async def test_resource_without_hateoas(event_loop, json_fixture):
     # load datafixture for this test
     app = App(db=json_fixture('persons.json'))
     # turn off hypermedia
+
     class NoHPersonResource(PersonResource):
         class Meta:
             hypermedia = False
@@ -151,4 +151,3 @@ async def test_resource_without_hateoas(event_loop, json_fixture):
     data = client.parse_response_data(response)
     for resource in data['objects']:
         assert '_links' not in resource
-

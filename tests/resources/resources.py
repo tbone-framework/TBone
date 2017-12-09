@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import json
-from tbone.resources import Resource, verbs
+from tbone.resources import Resource
 from tbone.resources.mongo import *
 from tbone.resources.routers import Route
-from tbone.testing.resources import DummyResource
 from tests.db.models import Account, Book
 
 
-class PersonResource(DummyResource, Resource):
+class PersonResource(Resource):
     '''
     Used during resource tests.
     Implements a poor-man's RESTful API over an in-memory fixture loaded during creation
@@ -51,7 +49,7 @@ class PersonResource(DummyResource, Resource):
         raise MethodNotImplemented()
 
 
-class AccountResource(DummyResource, MongoResource):
+class AccountResource(MongoResource):
     '''
     Used for testing MongoResource functionality over a real MongoDB databse .
     Data fixtures are loaded for each test
@@ -60,7 +58,7 @@ class AccountResource(DummyResource, MongoResource):
         object_class = Account
 
 
-class BookResource(DummyResource, MongoResource):
+class BookResource(MongoResource):
     class Meta:
         object_class = Book
 

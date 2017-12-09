@@ -12,9 +12,9 @@ class DummyResource(object):
     Used for testing without Sanic or Aiohttp
     '''
     @classmethod
-    def build_http_response(cls, data, status=200):
+    def build_http_response(cls, payload, status=200):
         return Response(
-            data=data,
+            payload=payload,
             headers={'Content-Type': 'application/json'},
             status=status
         )

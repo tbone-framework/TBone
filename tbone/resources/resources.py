@@ -109,7 +109,7 @@ class ResourceMeta(type):
         return d
 
     def __new__(mcl, name, bases, attrs):
-        del attrs['receiver']
+        attrs.pop('receiver', None)
         cls = super(ResourceMeta, mcl).__new__(mcl, name, bases, attrs)
 
         # create default resource options
@@ -277,7 +277,7 @@ class Resource(object, metaclass=ResourceMeta):
                 'status': getattr(ex, 'status', 500),
                 'payload': getattr(ex, 'msg', 'general error')
             }
-        # return a formatted the response object
+        # return a formatted response object
         return self.format(method, response)
 
     async def _wrap_amqp(self, handler, *args, **kwargs):

@@ -5,7 +5,7 @@ from collections import namedtuple
 
 
 App = namedtuple('App', 'db')
-Response = namedtuple('Response', 'headers, data, status')
+Response = namedtuple('Response', 'headers, payload, status')
 
 
 class Request(dict):
