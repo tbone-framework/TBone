@@ -63,7 +63,9 @@ class BookResource(MongoResource):
         object_class = Book
 
     @classmethod
-    def nested_routes(cls, base_url, formatter):
+    def nested_routes(cls, base_url, formatter=None):
+        if formatter is None or callable(formatter) is False:
+            formatter = cls.route_param
         return [
             Route(
                 path=base_url + '%s/reviews/add/' % formatter('pk'),

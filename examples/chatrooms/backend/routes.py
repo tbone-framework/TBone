@@ -6,9 +6,10 @@ from tbone.resources.routers import Router
 from resources import *
 
 # create a resource router for this app
-chatrooms_router = Router(name='api/chatrooms')
+chatrooms_router = Router(name='api/team')
 chatrooms_router.register(UserResource, 'user')
-chatrooms_router.register(RoomResource, 'room')
+chatrooms_router.register(RoomResource, 'channel')
+chatrooms_router.register(RoomResource, 'entry')
 
 
 

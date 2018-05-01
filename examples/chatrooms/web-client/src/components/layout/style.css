@@ -1,0 +1,21 @@
+.channel-layout{
+    height: 100%;
+}
+.main{
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    margin-left: 200px
+}
+
+.message-header{
+}
+
+.messages{
+    flex: 2 ;
+    overflow: auto;
+}
+
+.message-bar{
+    min-height: 140px; 
+}

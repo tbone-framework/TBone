@@ -1,0 +1,97 @@
+layout = {
+    channels : {
+        entities: {
+            channel1: {
+                name: 'General',
+                access: 'public',
+                owner: user1,
+                members: [user1, user2, user3],
+                messages: {
+                    entities: {
+                        msg1: {user: user1, ts: 1212121, content: 'bla bla bla', channel: 'channel1'},
+                        msg2: {},
+                        msg3: {},
+                        msg4: {},
+                        msg5: {},
+                        msg6: {},
+                    },
+                    timeline:{    
+                        buckets : {        
+                            sunday: [
+
+                            ],
+                            monday:[
+                                {user1: [msg1, msg2, msg3]},
+                                {user2: [msg4, msg5, msg6]}, // gap over 15 minutes?
+                                {user2: [msg7, msg8, msg9]},
+                            ]
+                            tuesday:{
+
+                            },
+                            wednesday: {
+
+                            },
+                            thursday:{
+
+                            },
+                            friday:{
+
+                            }
+                        },
+                        active: 'sunday'
+                    },
+                    order:[]
+                }
+            },
+            channel2: {
+                name: 'Food',
+                access: 'public',
+                owner: user1,
+                members: [user1, user2, user3]
+            },
+            channel3: {name: 'Recipes', access: 'protected', owner: user1, members: [user1, user3, user4]},
+            channel4: {name: 'user1_user2', access: 'private', owner: null, members: [user1, user2]},
+            channel5: {name: 'user1_user3', access: 'private', owner: null, members: [user1, user3]},
+            channel6: {name: 'user2_user3', access: 'private', owner: null, members: [user2, user3]},
+            channel7: {},
+        },
+        rooms: [],
+        direct: [channel4, channel5],
+        mine: [id1, id3],
+    },
+    users{
+        entities: {
+            user1: {
+                id: 'user1',
+                username: 'amitn',
+                first_name: 'Amit',
+                last_name: 'Nabarro',
+                display_name: 'amitn',
+                status: 'available',
+                channels : {
+                    channel4:{
+                        side_bar: false,
+                    },
+                    channel5 : {
+                        side_bar: true,
+                    }
+                }
+            },
+            user2: {},
+            user3: {},
+            user4: {},
+            user5: {},
+            user6: {},
+        },
+        me: [user1],
+    }
+}
+
+/* bootstrapping
+1. user gets all public channels
+2. user gets all protected channels he owns or is member of
+3. user get all private channels he owns or is a member of, if he did not mark them as visible off
+*/
+
+
+

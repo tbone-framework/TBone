@@ -21,7 +21,8 @@ class UserAuthentication(NoAuthentication):
         if 'user' in request:
             return True
         if 'Authorization' in request.headers:
-            username = request.headers['Authorization']
+            bearer, username = request.headers['Authorization'].split(' ')
+
             user = await User.find_one(request.app.db, {'username': username})
             if user:
                 request['user'] = user

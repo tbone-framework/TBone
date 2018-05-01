@@ -13,6 +13,10 @@ ACCESS_PUBLIC = 10
 ACCESS_PROTECTED = 20
 ACCESS_PRIVATE = 30
 
+STATUS_AVAILABLE = 10
+STATUS_AWAY = 20
+STATUS_OFFLINE = 30
+
 
 class BaseModel(Model, MongoCollectionMixin):
     _id = ObjectIdField(primary_key=True)
@@ -29,8 +33,10 @@ class User(BaseModel):
     username = StringField(required=True)
     first_name = StringField()
     last_name = StringField()
+    display_name = StringField()
     avatar = URLField()
     active = BooleanField(default=True)
+    status = IntegerField(default=STATUS_OFFLINE, choices=[STATUS_AVAILABLE, STATUS_AWAY, STATUS_OFFLINE])
 
     class Meta:
         name = 'users'
@@ -46,6 +52,7 @@ class User(BaseModel):
 class Room(BaseModel):
     name = StringField(primary_key=True)
     title = StringField()
+    default = BooleanField(default=False)  # new users will be added to this channel as they join in
     active = BooleanField(default=True)
     access = IntegerField(default=ACCESS_PUBLIC, choices=[ACCESS_PUBLIC, ACCESS_PROTECTED, ACCESS_PRIVATE])
     owner = DBRefField(User, required=True)

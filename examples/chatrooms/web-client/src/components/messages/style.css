@@ -1,0 +1,23 @@
+/*.message-list{
+    border: 1px solid blue;
+    height: calc(100% - 140px);
+    overflow: auto;
+}*/
+
+
+.message{
+    display: block;
+}
+
+.message-body{
+    display: inline-block;
+}
+
+.message-ts{
+    display: inline-block;
+    float: right;
+    font-size: 12px;
+    color: #aaa;
+}
+
+

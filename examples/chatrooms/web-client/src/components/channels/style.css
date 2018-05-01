@@ -1,0 +1,20 @@
+ul.channel-list, ul.user-list{
+    list-style-type: none;
+    color: #cac4c9;
+    padding: 0;
+}
+
+ul.channel-list li, ul.user-list li{
+    padding: 0 20px;
+}
+
+ul.channel-list li:hover, ul.user-list li:hover{
+    background-color: rgba(0,0,0,.2);
+}
+
+ul.channel-list li.selected, ul.user-list li.selected{
+    background-color: #549788;
+    color:white;
+}
+
+

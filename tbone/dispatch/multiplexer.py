@@ -39,7 +39,6 @@ class WebsocketMultiplexer(object):
                 pass
             else:
                 pass
-
         except Exception as ex:
             import pdb; pdb.set_trace()
             print(ex)

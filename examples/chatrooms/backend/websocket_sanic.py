@@ -26,7 +26,7 @@ def unsubscribe(request, ws):
 async def resource_event_websocket(request, ws):
     waiting = True
 
-    subscribe(request, ws)
+    # subscribe(request, ws)
     while waiting:
         # data was received from the client
         data = await ws.recv()

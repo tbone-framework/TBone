@@ -81,7 +81,7 @@ class Router(object):
     def endpoints(self):
         return list(self._registry)
 
-    def urls(self, protocol=Resource.Protocol.http):
+    def urls_old(self, protocol=Resource.Protocol.http):
         '''
         Iterate through all resources registered with this router
         and create a list endpoint and a detail endpoint for each one.
@@ -153,6 +153,55 @@ class Router(object):
             ))
         return url_patterns
 
+    def urls(self, regex=False, protocol=Resource.Protocol.http):
+
+        def format_route_list(*args):
+            if regex:
+                return '/(?P<api_name>{})/(?P<resource_name>{})/{}'.format(*args)
+            else:
+                return '/{}/{}/'.format(*args)
+
+        def format_route_detail(*args):
+            if regex:
+                return '/(?P<api_name>{0})/(?P<resource_name>{1})/(?P<pk>[\w\d_.-]+)/{3}'.format(*args)
+            else:
+                return '/{0}/{1}/{2}/'.format(*args)
+
+        def format_pk(pk, type=str):
+            if regex:
+                return '(?P<{}>[\w\d_.-]+)'.format(pk)
+            else:
+                return resource_class.route_param(pk)
+
+        url_patterns = []
+        for endpoint, resource_class in self._registry.items():
+            setattr(resource_class, 'api_name', self.name)
+            setattr(resource_class, 'resource_name', endpoint)
+            # append any nested resources the resource may have
+            nested = []
+            for route in resource_class.nested_routes(format_route_list(self.name, endpoint, ''), format_pk):
+                # replace nested handler with a wrapped function
+                route = route._replace(handler=resource_class.wrap_handler(route.handler, protocol))
+                nested.append(route)
+
+            url_patterns.extend(nested)
+            # append resource as list
+            url_patterns.append(Route(
+                path=format_route_list(self.name, endpoint, '$'),
+                handler=resource_class.as_list(protocol),
+                methods=resource_class.route_methods(),
+                name='{}_{}_list'.format(self.name, endpoint).replace('/', '_')
+            ))
+            # append resource as detail
+            url_patterns.append(Route(
+                path=format_route_detail(self.name, endpoint, resource_class.route_param('pk'), '$'),
+                handler=resource_class.as_detail(protocol),
+                methods=resource_class.route_methods(),
+                name='{}_{}_detail'.format(self.name, endpoint).replace('/', '_')
+            ))
+        return url_patterns
+
+
     async def dispatch(self, app, payload):
         '''
         Dispatches an incoming request and passes it to the relevant resource
@@ -172,7 +221,7 @@ class Router(object):
         params.update(dict(parse_qsl(url.query)))
         params.update(payload.get('args', {}))
         # find the matching url , getting handler and arguments
-        for route in self.urls_regex(Resource.Protocol.websocket):
+        for route in self.urls(True, Resource.Protocol.websocket):
             match = re.match(route.path, path)
             if match:
                 handler = route.handler
