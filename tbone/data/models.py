@@ -271,11 +271,14 @@ class Model(ModelSerializer, metaclass=ModelMeta):
     def _convert(self, data, native):
         converted_data = {}
         for name, field in self._fields.items():
+            value = data.get(name)
+            if value is None and field._export_if_none is False:
+                continue
             if native is True:
                 conversion_func = field.to_python
             else:
                 conversion_func = field.to_data
-            converted_data[name] = conversion_func(data.get(name))
+            converted_data[name] = conversion_func(value)
         return converted_data
 
     def import_data(self, data: dict):

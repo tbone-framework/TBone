@@ -128,6 +128,12 @@ class BaseField(object, metaclass=FieldMeta):
         Using ``False`` implies the field will be serialized only if the value is not ``None``
         Using ``None`` implies the field will never be serialized
 
+    :param export_if_none:
+        Determines if the field will be included in model ``export_data`` methods.
+        The ``MongoCollectionMixin`` uses this field attribute to determine if the field
+        should be saved to the database when its null
+        Default: True
+
     :param readonly:
         Determines if the field can be overriden using the ``deserialize`` method.
         Has no effect on direct data manipulation
@@ -150,7 +156,7 @@ class BaseField(object, metaclass=FieldMeta):
     }
 
     def __init__(self, required=False, default=None, choices=None,
-                 validators=None, projection=True, readonly=False,
+                 validators=None, projection=True, export_if_none=True, readonly=False,
                  primary_key=False, **kwargs):
         super(BaseField, self).__init__()
 
@@ -158,6 +164,7 @@ class BaseField(object, metaclass=FieldMeta):
         self._default = default
         self._choices = choices
         self._projection = Ternary(projection)
+        self._export_if_none = export_if_none
         self._readonly = readonly
         self._primary_key = primary_key
         self._bound = False                         # Whether the Field is bound to a Model
