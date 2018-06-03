@@ -41,8 +41,10 @@ class FieldDescriptor(object):
     def __init__(self, field):
         self.field = field
 
-    def __get__(self, instance, cls):
+    def __get__(self, instance, owner):
         if instance is not None:
+            if self.field.name == 'participants':
+                import pdb; pdb.set_trace()
             return instance._data.get(self.field.name, None) or self.field.default
         return self.field
 
@@ -255,6 +257,16 @@ class BaseField(object, metaclass=FieldMeta):
             return value
         except ValueError as ex:
             raise ValueError(ex, self._errors['to_python'])
+
+
+    async def serialize(self, value, native=False):
+        '''
+        Calls the field's ``to_python`` method.
+        Override in derived classes of fields which involve models, such as ``ModelField``
+        '''
+        if native:
+            return self.to_python(value)
+        return self.to_data(value)
 
     def __call__(self, value):
         return self.to_python(value)

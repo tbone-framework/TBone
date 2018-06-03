@@ -103,6 +103,62 @@ async def test_model_field_complete():
     assert anonymous_book.export_data()['author'] is None
 
 
+@pytest.mark.asyncio
+async def test_nested_model_serialization():
+
+    class Person(Model):
+        '''Model for holding a person's name with serialization for full name only '''
+        first_name = StringField(required=True, projection=None)
+        last_name = StringField(required=True, projection=None)
+
+        @serialize
+        async def full_name(self):
+            return '{} {}'.format(self.first_name, self.last_name)
+
+    class Trip(Model):
+        participants = ListField(ModelField(Person), default=[])
+        destination = StringField(required=True)
+        date = DateTimeField(required=True)
+
+    class Journey(Model):
+        participants = DictField(ModelField(Person), default={})
+        destination = StringField(required=True)
+        date = DateTimeField(required=True)
+
+    trip = Trip()
+    trip.destination = 'Florida'
+    trip.date = datetime.datetime.utcnow()
+    trip.participants = [
+        Person({'first_name': 'Ron', 'last_name': 'Burgundy'}),
+        Person({'first_name': 'Brian', 'last_name': 'Fantana'})
+    ]
+
+    data = await trip.serialize()
+
+    assert 'participants' in data
+    assert isinstance(data['participants'], list)
+    for p in data['participants']:
+        assert 'full_name' in p
+        assert 'first_name' not in p
+        assert 'last_name' not in p
+
+    journey = Journey()
+    journey.destination = 'Florida'
+    journey.date = datetime.datetime.utcnow()
+    journey.participants = {
+        'first': Person({'first_name': 'Ron', 'last_name': 'Burgundy'}),
+        'second': Person({'first_name': 'Brian', 'last_name': 'Fantana'})
+    }
+
+    data = await journey.serialize()
+    assert 'participants' in data
+    assert isinstance(data['participants'], dict)
+    for key, value in data['participants'].items():
+        assert 'full_name' in value
+        assert 'first_name' not in p
+        assert 'last_name' not in p
+
+
 def test_list_of_models():
     class Comment(Model):
         text = StringField()
@@ -123,3 +179,59 @@ def test_list_of_models():
     # check that eash item in list matches the expected result
     for item in data_list:
         assert isinstance(item, dict)
+
+
+def test_poly_model_field():
+    class Book(Model):
+        title = StringField()
+        author = StringField()
+        number_of_pages = IntegerField()
+
+    class Film(Model):
+        title = StringField()
+        director = StringField()
+        actors = ListField(StringField)
+
+    class Product(Model):
+        sku = StringField(required=True)
+        media = PolyModelField([Book, Film], required=True)
+
+    book_data = {
+        'title': 'The Adventures of Sherlock Holmes',
+        'author': 'Arthur Conan Doyle',
+        'number_of_pages': 455
+    }
+
+    book = Book(book_data)
+    # serialize book object
+    f = PolyModelField([Book, Film])
+    data = f.to_data(book)
+    assert isinstance(data, dict)
+    assert data.keys() == {'type', 'data'}
+    assert data['type'] == Book.__name__
+    assert data['data'] == book.export_data(native=False)
+
+    # deserialize book object
+    new_book = f.to_python(data)
+    assert isinstance(new_book, Book)
+
+    # fail to assign data to a none model
+    with pytest.raises(ValueError):
+        data = f.to_data(2)
+
+    # fail to assign data to a model not previously defined
+    with pytest.raises(ValueError):
+        class AnotherBook(Book):
+            pass
+        another_book = AnotherBook(book_data)
+        data = f.to_data(another_book)
+
+
+
+
+
+    # p = Product()
+    # p.sku = '9781408436011'
+    # p.media = book
+
+

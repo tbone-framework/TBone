@@ -131,12 +131,6 @@ class ModelSerializer(object):
     Provides serialization methods to data primitives and to python types.
     Performs serialization taking into account projection attributes and serialize methods
     '''
-    async def _execute(self, func, *args, **kwargs):
-        ''' Helper method to verify and execute methods if they're coroutines  '''
-        if asyncio.iscoroutinefunction(func):
-            return await func(*args, **kwargs)
-        return func(*args, **kwargs)
-
     async def serialize(self, native=False):
         '''
         Returns a serialized from of the model taking into account projection rules and ``@serialize`` decorated methods.
@@ -149,16 +143,13 @@ class ModelSerializer(object):
         for field_name, field in self._fields.items():
             # serialize field data
             raw_data = self._data.get(field_name)
-            if native:
-                field_data = await self._execute(field.to_python, raw_data)
-            else:
-                field_data = await self._execute(field.to_data, raw_data)
-
             # add field's data to model data based on projection settings
-            if field_data and field._projection != None:
-                data[field_name] = field_data
-            elif field_data is None and field._projection == True:
-                data[field_name] = None
+            if field._projection != None:  # noqa E711
+                field_data = await field.serialize(raw_data, native)
+                if field_data:
+                    data[field_name] = field_data
+                elif field._projection == True: # noqa E711
+                    data[field_name] = None
 
         # iterate through all export methods
         for name, func in self._serialize_methods.items():

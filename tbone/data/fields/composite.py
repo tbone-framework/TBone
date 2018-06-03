@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import asyncio
+from collections import Iterable
 from .base import BaseField, FieldMeta
 from ..models import ModelMeta
 
@@ -31,7 +33,8 @@ class ListField(CompositeField):
         elif isinstance(field, ModelMeta):  # we're being nice
             raise TypeError('To define a list of models, use ListField(ModelField(...))')
         else:
-            raise TypeError("'{}' is not a field or type of field".format(field.__class__.__qualname__))
+            raise TypeError("'{}' is not a field or type of field".format(
+                field.__class__.__qualname__))
 
     def _import(self, value_list):
         if value_list is None:
@@ -53,6 +56,18 @@ class ListField(CompositeField):
             data.append(self.field.to_data(value))
         return data
 
+    async def serialize(self, value_list: list, native=False) -> list:
+        if value_list is None:
+            return None
+
+        if not isinstance(value_list, list):
+            raise ValueError('Data is not of type list')
+
+        futures = []
+        for value in value_list:
+            futures.append(self.field.serialize(value))
+        return await asyncio.gather(*futures)
+
 
 class DictField(CompositeField):
     _data_type = dict
@@ -66,7 +81,8 @@ class DictField(CompositeField):
         elif isinstance(field, BaseField):  # an instance of field was passed
             self.field = field
         else:
-            raise TypeError("'{}' is not a field or type of field".format(field.__class__.__qualname__))
+            raise TypeError("'{}' is not a field or type of field".format(
+                field.__class__.__qualname__))
 
     def _export(self, associative):
         if associative is None:
@@ -92,6 +108,29 @@ class DictField(CompositeField):
 
         return data
 
+    async def serialize(self, associative: dict, native=False) -> dict:
+        if associative is None:
+            return None
+
+        if not isinstance(associative, dict):
+            raise ValueError('Data is not of type dict')
+
+        tasks = {}
+        for key, value in associative.items():
+            tasks[key] = self.field.serialize(value)
+
+        async def mark(key, future):
+            return key, await future
+
+        return {
+            key: result
+            for key, result in await asyncio.gather(
+                *(mark(key, future) for key, future in tasks.items())
+            )
+        }
+
+        # return await asyncio.gather(*futures)
+
 
 class ModelField(CompositeField):
     '''
@@ -104,7 +143,8 @@ class ModelField(CompositeField):
         if isinstance(model_class, ModelMeta):
             self._model_class = model_class
         else:
-            raise TypeError("ModelField: Expected a model of the type '{}'.".format(model_class.__name__))
+            raise TypeError(
+                "ModelField: Expected a model of the type '{}'.".format(model_class.__name__))
 
     def __repr__(self):
         return '<%s instance of type %s>' % (self.__class__.__qualname__, self._python_type.__name__)
@@ -118,10 +158,11 @@ class ModelField(CompositeField):
         return self.model_class.fields
 
     def to_python(self, value):
-        value = super(ModelField, self).to_python(value)
-        if value is None:
+        # create a model instance from data
+        instance = super(ModelField, self).to_python(value)
+        if instance is None:
             return None
-        return value.export_data(native=True)
+        return instance.export_data(native=True)
 
     def _import(self, value):
         if isinstance(value, self._python_type):
@@ -131,7 +172,8 @@ class ModelField(CompositeField):
         elif value is None:  # no data was passed
             return None
         else:
-            raise ValueError('Cannot convert type {} to {}'.format(type(value), self._python_type.__name__))
+            raise ValueError('Cannot convert type {} to {}'.format(
+                type(value), self._python_type.__name__))
 
     def _export(self, value):
         if isinstance(value, self._python_type):
@@ -141,18 +183,60 @@ class ModelField(CompositeField):
         elif value is None:  # no data was passed
             return None
         else:
-            raise ValueError('Cannot convert type {} to {}'.format(type(value), self._python_type.__name__))
+            raise ValueError('Cannot convert type {} to {}'.format(
+                type(value), self._python_type.__name__))
 
+    async def serialize(self, value, native=False):
+        # create a model instance from data
+        instance = super(ModelField, self).to_python(value)
+        if instance is None:
+            return None
+        # return the model's serialization
+        dd = await instance.serialize(native)
+        return dd
+
+
+class PolyModelField(CompositeField):
     '''
-    def _coerce(self, value, native):
-        if isinstance(value, self.model_class):
-            return value.export_data(native=native)
-        elif isinstance(value, dict):
-            m = self.model_class(value)
-            return m.export_data(native=native)
-        elif value is None:  # no data was passed, create an empty model
-            m = self.model_class()
-            return m.export_data(native=native)
+    A field that can hold an instance of the one of the specified models
+    '''
+    _data_type = dict
+
+    def __init__(self, model_classes, **kwargs):
+        super(PolyModelField, self).__init__(**kwargs)
+        if isinstance(model_classes, ModelMeta):
+            self._model_classes = (model_classes,)
+        elif isinstance(model_classes, Iterable):
+            self._model_classes = {model.__name__: model for model in model_classes}
         else:
-            raise ValueError('Cannot convert type {} to {}'.format(type(value), self.model_class.__name__))
-    '''
+            raise TypeError("PolyModelField: Expected a model of the type '{}'.".format(
+                self._model_classes.keys()))
+
+    @property
+    def _python_type(self):
+        return tuple(self._model_classes.values())
+
+    def _export(self, value):
+        # TODO:   use if isinstance(value, self._python_type) to allow inheritance
+        if value is None:
+            return None
+        elif value.__class__ in self._python_type:
+            return{
+                'type': type(value).__name__,
+                'data': value.export_data(native=False)
+            }
+        else:
+            raise ValueError('Cannot convert type {} to  on of the types in {}'.format(
+                type(value), self._python_type))
+
+    def _import(self, value):
+        if isinstance(value, self._python_type):
+            return value
+        elif isinstance(value, dict):
+            model_class = self._model_classes[value['type']]
+            return model_class(value['data'])
+        elif value is None:  # no data was passed
+            return None
+        else:
+            raise ValueError('Cannot convert type {} to {}'.format(
+                type(value), self._python_type.__name__))
