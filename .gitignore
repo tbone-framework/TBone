@@ -6,6 +6,7 @@
 *.py[cod]
 *.pyc
 .coverage
+.pytest_cache
 postactivate
 docs/_build/
 *.egg
@@ -14,4 +15,5 @@ docs/_build/
 /dist
 .cache
 node_modules
+
 
