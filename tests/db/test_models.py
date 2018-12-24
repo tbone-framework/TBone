@@ -27,7 +27,7 @@ async def test_model_name_and_namespace(request, db):
     m = M({'name': 'Toque'})
     await m.save(db)
     # verify defined namespace.name exists
-    names = await db.collection_names()
+    names = await db.list_collection_names()
     assert 'kitchen.hats' in names
 
     class M2(BaseModel):
@@ -36,7 +36,7 @@ async def test_model_name_and_namespace(request, db):
     m = M2({'name': 'Toque'})
     await m.save(db)
     # verify default model class name exists
-    names = await db.collection_names()
+    names = await db.list_collection_names()
     assert 'm2' in names
 
 
@@ -123,8 +123,8 @@ async def test_collection_pagination_and_sorting(request, db):
         futures.append(m.save(db))
     await asyncio.wait(futures)
     # make sure the collection contains the right amount of documents
-    cursor = Number.get_cursor(db=db)
-    total_count = await cursor.count()
+    # cursor = Number.get_cursor(db=db)
+    total_count = await Number.count(db)
     assert total_count == COUNT
 
     # get objects from collection by size of page
@@ -139,6 +139,11 @@ async def test_collection_pagination_and_sorting(request, db):
 
     assert len(numbers) == COUNT
     assert numbers == sorted(numbers)
+
+
+@pytest.mark.asyncio
+async def test_collection_filter(request, db):
+    pass
 
 
 @pytest.mark.asyncio

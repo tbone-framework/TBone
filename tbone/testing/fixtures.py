@@ -56,7 +56,7 @@ async def db(request, create_database):
     '''
     Clears the database before every test so all tests start in a known db state
     '''
-    colls = await create_database.collection_names()
+    colls = await create_database.list_collection_names()
     for coll in colls:
         await create_database.drop_collection(coll)
     return create_database

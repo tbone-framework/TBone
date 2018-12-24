@@ -100,7 +100,7 @@ class MongoResource(ModelResource):
         cursor = self._meta.object_class.get_cursor(db=self.db, query=filters, projection=projection, sort=sort)
         cursor.skip(offset)
         cursor.limit(limit)
-        total_count = await cursor.count()
+        total_count = await self._meta.object_class.count(db=self.db, filters=filters)
         object_list = await self._meta.object_class.find(cursor)
         # serialize results
         serialized_objects = await asyncio.gather(*[obj.serialize() for obj in object_list])

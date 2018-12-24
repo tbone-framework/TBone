@@ -33,7 +33,7 @@ class MongoChannel(Channel):
         if self._collection:
             return
         with (await MongoChannel.channel_lock):
-            if self.name not in (await self._db.collection_names()):
+            if self.name not in (await self._db.list_collection_names()):
                 self._collection = await self._db.create_collection(
                     self.name,
                     size=capacity * message_size,

@@ -128,7 +128,6 @@ class PhoneNumberField(StringField):
         '''
         Overrides the base class to add a PhoheNumberDescriptor rather than the standard FieldDescriptor
         '''
-        self.name = name
         self.model_class = cls
         setattr(cls, name, PhoneNumberDescriptor(self))
         self._bound = True

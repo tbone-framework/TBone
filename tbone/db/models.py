@@ -68,10 +68,10 @@ class MongoCollectionMixin(object):
             await asyncio.sleep(timeout)
 
     @classmethod
-    async def count(cls, db):
+    async def count(cls, db, filters={}):
         for i in cls.connection_retries():
             try:
-                result = await db[cls.get_collection_name()].count()
+                result = await db[cls.get_collection_name()].count_documents(filters)
                 return result
             except ConnectionFailure as ex:
                 exceed = await cls.check_reconnect_tries_and_wait(i, 'count')
@@ -200,8 +200,8 @@ class MongoCollectionMixin(object):
         for i in self.connection_retries():
             try:
                 created = False if '_id' in data else True
-                result = await self.db[self.get_collection_name()].save(data)
-                self._id = result
+                result = await self.db[self.get_collection_name()].insert_one(data)
+                self._id = result.inserted_id
                 # emit post save
                 asyncio.ensure_future(post_save.send(
                     sender=self.__class__,
@@ -227,8 +227,8 @@ class MongoCollectionMixin(object):
         for i in self.connection_retries():
             try:
                 created = False if '_id' in data else True
-                result = await db[self.get_collection_name()].insert(data)
-                self._id = result
+                result = await db[self.get_collection_name()].insert_one(data)
+                self._id = result.inserted_id
                 # emit post save
                 asyncio.ensure_future(post_save.send(
                     sender=self.__class__,
