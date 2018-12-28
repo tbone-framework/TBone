@@ -6,7 +6,8 @@ import logging
 from functools import singledispatch
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
-from tbone.db.models import post_save
+from tbone.data.fields.mongo import DBRefField
+from tbone.db.models import MongoCollectionMixin, post_save
 from tbone.dispatch.channels.mongo import MongoChannel
 from tbone.resources import ModelResource
 from tbone.resources.verbs import *
@@ -200,8 +201,13 @@ class MongoResource(ModelResource):
             key = pl[0]
             operator = pl.get(1, None)
             if key in self._meta.object_class.fields():
-                if isinstance(value, list) and operator == 'in':
-                    value = [convert_value(v) for v in value]
+                field = self._meta.object_class._fields[key]
+                if field.is_composite: # composite keys require additional handling
+                    # currently covering cases for dbref and list
+                    if isinstance(field, DBRefField):
+                        key, value = self.process_dbref_filter(key, value)
+                    elif isinstance(value, list) and operator == 'in':
+                        value = [convert_value(v) for v in value]
                 else:
                     value = convert_value(value)
                 # assign operator, if applicable
@@ -211,6 +217,14 @@ class MongoResource(ModelResource):
                 dummy_id = ObjectId.from_datetime(dt)
                 filters['_id'] = {'${}'.format(operator): dummy_id} if operator else dummy_id
         return filters
+
+    def process_dbref_filter(self, key, value):
+        k = '{}.$id'.format(key)
+        if isinstance(value, MongoCollectionMixin):
+            v = value._id
+        else:
+            v = ObjectId(value)
+        return k, v
 
     def build_sort(self, **kwargs):
         ''' Break url parameters and turn into sort arguments '''
