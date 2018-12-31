@@ -4,8 +4,12 @@
 from collections import namedtuple
 
 
-App = namedtuple('App', 'db')
 Response = namedtuple('Response', 'headers, payload, status')
+
+
+class App(object):
+    def __init__(self, db=None, **kwargs):
+        self.db = db
 
 
 class Request(dict):
