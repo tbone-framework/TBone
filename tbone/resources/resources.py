@@ -335,8 +335,8 @@ class Resource(object, metaclass=ResourceMeta):
         # deserialize request data
         body = await self.request_body()
         self.data = self.parse(method, self.endpoint, body)
-        if method != 'GET':
-            self.data.update(kwargs)
+        # if method != 'GET':
+            # self.data.update(kwargs)
         kwargs.update(self.request_args())
         view_method = getattr(self, self.methods[self.endpoint][method])
         # call request method
