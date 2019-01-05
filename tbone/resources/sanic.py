@@ -23,7 +23,7 @@ class SanicResource(HttpResource):
 
     def request_args(self):
         ''' Returns the url arguments of the current request'''
-        return self.request.args
+        return self.request.raw_args
 
     @classmethod
     def route_methods(cls):
